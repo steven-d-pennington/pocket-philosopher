@@ -1,0 +1,329 @@
+-- Pocket Philosopher core schema
+create extension if not exists "pgcrypto";
+create extension if not exists "uuid-ossp";
+create extension if not exists "pgvector";
+
+create table if not exists public.profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  preferred_virtue text,
+  preferred_persona text,
+  experience_level text,
+  daily_practice_time time,
+  timezone text default 'UTC',
+  notifications_enabled boolean default true,
+  privacy_level text default 'private',
+  onboarding_complete boolean default false,
+  last_active_at timestamptz,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+create table if not exists public.habits (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  description text,
+  virtue text not null,
+  tracking_type text default 'boolean',
+  target_value numeric,
+  difficulty_level text,
+  frequency text default 'daily',
+  active_days smallint[] default '{1,2,3,4,5,6,7}',
+  reminder_time time,
+  is_active boolean default true,
+  is_archived boolean default false,
+  sort_order integer default 0,
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+create table if not exists public.habit_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  habit_id uuid not null references public.habits(id) on delete cascade,
+  date date not null,
+  value numeric,
+  target_value numeric,
+  notes text,
+  mood_before text,
+  mood_after text,
+  difficulty_felt text,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null,
+  constraint habit_logs_unique_per_day unique (user_id, habit_id, date)
+);
+
+create table if not exists public.reflections (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date not null,
+  type text not null check (type in ('morning', 'midday', 'evening')),
+  virtue_focus text,
+  intention text,
+  lesson text,
+  gratitude text,
+  challenge text,
+  mood integer,
+  journal_entry text,
+  key_insights text[] default '{}',
+  challenges_faced text[] default '{}',
+  wins_celebrated text[] default '{}',
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null,
+  constraint reflections_unique_per_type unique (user_id, date, type)
+);
+
+create table if not exists public.daily_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date not null,
+  morning_intention text,
+  habits_completed integer default 0,
+  completion_rate numeric,
+  return_score numeric,
+  streak_days integer default 0,
+  wisdom_score numeric,
+  justice_score numeric,
+  temperance_score numeric,
+  courage_score numeric,
+  morning_reflection_complete boolean default false,
+  evening_reflection_complete boolean default false,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null,
+  constraint daily_progress_unique_day unique (user_id, date)
+);
+
+create table if not exists public.progress_summaries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  period_type text not null check (period_type in ('weekly', 'monthly')),
+  period_start date not null,
+  period_end date not null,
+  avg_return_score numeric,
+  most_consistent_virtue text,
+  streak_days integer,
+  habits_completed integer,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null,
+  constraint progress_summaries_unique_period unique (user_id, period_type, period_start)
+);
+
+create table if not exists public.marcus_conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text,
+  context_type text,
+  virtue_focus text,
+  active_persona text,
+  is_active boolean default true,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+create table if not exists public.marcus_messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  conversation_id uuid not null references public.marcus_conversations(id) on delete cascade,
+  role text not null check (role in ('user', 'assistant', 'system')),
+  content text not null,
+  persona_id text,
+  user_context jsonb,
+  ai_reasoning jsonb,
+  citations jsonb,
+  message_order integer,
+  created_at timestamptz default now() not null
+);
+
+create table if not exists public.app_settings (
+  key text primary key,
+  value jsonb not null,
+  description text,
+  is_public boolean default false,
+  updated_at timestamptz default now() not null
+);
+
+create table if not exists public.feedback (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  type text,
+  priority text,
+  page_url text,
+  message text not null,
+  device_info jsonb,
+  status text default 'new',
+  admin_notes text,
+  created_at timestamptz default now() not null
+);
+
+create table if not exists public.philosophy_chunks (
+  id uuid primary key default gen_random_uuid(),
+  work text not null,
+  author text,
+  tradition text,
+  section text,
+  virtue text,
+  persona_tags text[],
+  content text not null,
+  embedding vector(1536),
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now() not null
+);
+
+create or replace function public.set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+-- updated_at triggers
+
+drop trigger if exists set_updated_at_profiles on public.profiles;
+create trigger set_updated_at_profiles
+  before update on public.profiles
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_habits on public.habits;
+create trigger set_updated_at_habits
+  before update on public.habits
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_habit_logs on public.habit_logs;
+create trigger set_updated_at_habit_logs
+  before update on public.habit_logs
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_reflections on public.reflections;
+create trigger set_updated_at_reflections
+  before update on public.reflections
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_daily_progress on public.daily_progress;
+create trigger set_updated_at_daily_progress
+  before update on public.daily_progress
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_progress_summaries on public.progress_summaries;
+create trigger set_updated_at_progress_summaries
+  before update on public.progress_summaries
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_marcus_conversations on public.marcus_conversations;
+create trigger set_updated_at_marcus_conversations
+  before update on public.marcus_conversations
+  for each row
+  execute procedure public.set_updated_at();
+
+drop trigger if exists set_updated_at_app_settings on public.app_settings;
+create trigger set_updated_at_app_settings
+  before update on public.app_settings
+  for each row
+  execute procedure public.set_updated_at();
+
+create or replace function public.calculate_daily_progress(target_user uuid, target_date date)
+returns void as $$
+begin
+  update public.daily_progress dp
+     set
+       habits_completed = coalesce(calc.completed, 0),
+       completion_rate = coalesce(calc.completion_rate, 0),
+       return_score = coalesce(calc.return_score, dp.return_score),
+       streak_days = coalesce(calc.streak_days, dp.streak_days),
+       updated_at = now()
+  from (
+    select
+      count(*) as completed,
+      avg(case when hl.target_value is null or hl.target_value = 0 then 1 else least(1, hl.value / hl.target_value) end) as completion_rate,
+      avg(coalesce(hl.value, 0)) as return_score,
+      0::int as streak_days
+    from public.habit_logs hl
+    where hl.user_id = target_user
+      and hl.date = target_date
+  ) as calc
+  where dp.user_id = target_user and dp.date = target_date;
+end;
+$$ language plpgsql;
+
+create or replace function public.recalculate_progress_on_habit_log_change()
+returns trigger as $$
+begin
+  perform public.calculate_daily_progress(coalesce(new.user_id, old.user_id), coalesce(new.date, old.date));
+  return coalesce(new, old);
+end;
+$$ language plpgsql;
+
+drop trigger if exists habit_logs_recalculate_progress on public.habit_logs;
+create trigger habit_logs_recalculate_progress
+  after insert or update or delete on public.habit_logs
+  for each row execute procedure public.recalculate_progress_on_habit_log_change();
+
+alter table public.profiles enable row level security;
+alter table public.habits enable row level security;
+alter table public.habit_logs enable row level security;
+alter table public.reflections enable row level security;
+alter table public.daily_progress enable row level security;
+alter table public.progress_summaries enable row level security;
+alter table public.marcus_conversations enable row level security;
+alter table public.marcus_messages enable row level security;
+alter table public.feedback enable row level security;
+
+create policy "Users manage their profile"
+  on public.profiles
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage habits"
+  on public.habits
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage habit logs"
+  on public.habit_logs
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage reflections"
+  on public.reflections
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage daily progress"
+  on public.daily_progress
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage progress summaries"
+  on public.progress_summaries
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage conversations"
+  on public.marcus_conversations
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage messages"
+  on public.marcus_messages
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users submit feedback"
+  on public.feedback
+  using (user_id = auth.uid() or user_id is null)
+  with check (user_id = auth.uid() or user_id is null);
+
+comment on function public.calculate_daily_progress is 'Recalculate Return Score, streaks, and virtue metrics for a given day.';
+-- Helpful indexes
+create index if not exists idx_habits_user_active on public.habits (user_id) where is_active and not is_archived;
+create index if not exists idx_habit_logs_user_date on public.habit_logs (user_id, date desc);
+create index if not exists idx_reflections_user_date on public.reflections (user_id, date desc);
+create index if not exists idx_daily_progress_user_date on public.daily_progress (user_id, date desc);
+create index if not exists idx_marcus_messages_conversation on public.marcus_messages (conversation_id, created_at);
