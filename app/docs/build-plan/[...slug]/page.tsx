@@ -34,12 +34,15 @@ async function resolveFilePath(slug: string[]) {
   return normalised;
 }
 
-interface DocPageProps {
-  params: { slug?: string[] };
-}
-
-export default async function BuildPlanDocPage({ params }: DocPageProps) {
-  const slug = normaliseSlug(params.slug);
+export default async function BuildPlanDocPage({
+  params,
+}: {
+  params: Promise<{
+    slug?: string[];
+  }>;
+}) {
+  const resolvedParams = await params;
+  const slug = normaliseSlug(resolvedParams.slug);
   const filePath = await resolveFilePath(slug);
 
   if (!filePath) {
@@ -69,3 +72,5 @@ export default async function BuildPlanDocPage({ params }: DocPageProps) {
     </main>
   );
 }
+
+

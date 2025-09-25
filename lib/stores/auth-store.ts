@@ -8,7 +8,12 @@ export interface ProfileSummary {
   id: string;
   email?: string | null;
   displayName?: string | null;
+  preferred_virtue?: string | null;
+  preferred_persona?: string | null;
+  experience_level?: string | null;
   philosophyTheme?: string | null;
+  notifications_enabled?: boolean;
+  privacy_level?: string | null;
   timezone?: string | null;
   virtues?: string[];
 }
