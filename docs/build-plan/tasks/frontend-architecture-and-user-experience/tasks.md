@@ -14,7 +14,7 @@
 1. [Started] Build the (dashboard)/today experience: morning intention form, practice quick actions, Return Score tiles, and inspirational quote modules.
 2. [In Progress] Deliver (dashboard)/practices with CRUD modals, scheduling controls, reminder settings, and drag-and-drop ordering (create & edit modals live with archive/restore toggles; drag ordering still pending).
 3. [Started] Implement (dashboard)/reflections guided journaling, mood sliders, persona cues, and timeline views.
-4. [Started] Assemble (dashboard)/coaches (/marcus) streaming chat with persona switcher, citation list, and typing indicators.
+4. [In Progress] Assemble (dashboard)/coaches (/marcus) streaming chat with persona switcher, citation list, and typing indicators (layout + persona sidebar + streaming stub complete; citation surfacing + real API wiring next).
 5. [Started] Complete supporting routes (onboarding, profile, settings, help) with consistent layout components and responsive design. [P]
 
 ## Phase 4: UI Components, Styling, and PWA Enhancements

@@ -15,7 +15,7 @@
 - `(dashboard)/today`: morning intention, practice logging, analytics tiles, daily quote.
 - `(dashboard)/practices`: CRUD UI, scheduling controls, reminder settings. Create/edit modals support virtue selection, cadence tweaks, reminders, and archive toggles with Supabase-backed mutations; drag ordering remains.
 - `(dashboard)/reflections`: guided journaling with mood sliders and persona cues.
-- `(dashboard)/coaches` (`/marcus`): chat interface, persona switcher, citation display, streaming status UI.
+- `(dashboard)/coaches` (`/marcus`): chat interface, persona switcher, citation display, streaming status UI. Workspace layout, persona filtering, and mock streaming loop now implemented; citation surfaces and AI orchestration integration upcoming.
 - Profile, settings, onboarding, help/support pages aligned with experience specs.
 
 ## 4. UI Components & Styling

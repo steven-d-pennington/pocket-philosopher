@@ -19,7 +19,7 @@ This guide outlines a recommended execution sequence for the task plans derived 
    - **Status:** In Progress (automations implemented; core API routes for auth/profile/daily progress/practices/progress/reflections/health/debug complete; AI endpoints stubbed awaiting orchestration; logging/metrics tasks pending).  
    - Implement database automations, middleware, and API routes, coordinating with AI and frontend teams to validate contracts and streaming behaviors.
 6. **Frontend Architecture & User Experience (Phases 3-4)**  
-   - **Status:** Started (core routes scaffolded; practices create/edit modals, archive toggles, and roster table now live while drag ordering, streaming UI, and PWA work remain outstanding).  
+   - **Status:** Started (core routes scaffolded; practices CRUD flows and coaches workspace with persona switching + streaming stub live, while drag ordering, citation surfacing, and PWA work remain outstanding).  
    - Build core dashboard flows, component libraries, and PWA enhancements as backend and AI endpoints stabilize.
 7. **AI & Knowledge System (Phases 3-5)**  
    - **Status:** Not Started.  
