@@ -1,24 +1,24 @@
 # Pocket Philosopher Master Scope
 
 ## Product Mission
-- Deliver a daily philosophical companion that blends habit tracking, reflective journaling, and multi-tradition AI mentors.
+- Deliver a daily philosophical companion that blends practice tracking, reflective journaling, and multi-tradition AI mentors.
 - Serve growth-oriented users seeking Stoic, Taoist, Existentialist, and related wisdom that adapts to their personal goals.
 
 ## Feature Scope
 - **Authentication & Profiles**: Supabase email/password auth, profile extensions for virtue focus, persona roster, notification cadence, privacy modes.
-- **Onboarding Flow**: Collect preferred virtues, inspirations, availability, reminder schedule; seed template habits and reflection prompts.
-- **Daily Practice Hub**: Unified today view for morning intentions, habit quick actions, inspirational quote, Return Score snapshot, and evening closeout.
-- **Habits Management**: CRUD for virtue-tagged habits, scheduling, reminders, mood tracking, drag-and-drop ordering, archive/restore.
+- **Onboarding Flow**: Collect preferred virtues, inspirations, availability, reminder schedule; seed template practices and reflection prompts.
+- **Daily Practice Hub**: Unified today view for morning intentions, practice quick actions, inspirational quote, Return Score snapshot, and evening closeout.
+- **Practices Management**: CRUD for virtue-tagged practices, scheduling, reminders, mood tracking, drag-and-drop ordering, archive/restore.
 - **Reflections & Journaling**: Guided morning/evening/midday forms with adaptive questions, mood sliders, virtue focus, timeline view.
 - **Pocket Philosopher Coaches**: Persona-driven chat UI with streaming responses, citation list, persona switcher, conversation persistence.
-- **Analytics & Return Score**: Weekly/monthly dashboards, virtue balance, streak tracking, habit heatmaps, personalized insights.
+- **Analytics & Return Score**: Weekly/monthly dashboards, virtue balance, streak tracking, practice heatmaps, personalized insights.
 - **Settings & Preferences**: Profile editing, philosophy theme toggle, notifications, privacy, data export, integrations roadmap.
 - **Support & Feedback**: Help center content, feedback submission with optional metadata, diagnostics endpoints.
 - **PWA Experience**: Installable shell, offline caching of dashboard data, queued updates, custom add-to-home prompt.
 
 ## Backend & Data Scope
-- Next.js API routes per feature (/api/auth, /api/habits, /api/daily-progress, /api/reflections, /api/marcus, /api/progress, /api/ai/*, /api/health, /api/debug).
-- Supabase PostgreSQL schema covering profiles, habits, habit_logs, reflections, daily_progress, progress_summaries, marcus_conversations/messages, app_settings, feedback, plus pgvector-backed corpus tables.
+- Next.js API routes per feature (/api/auth, /api/practices, /api/daily-progress, /api/reflections, /api/marcus, /api/progress, /api/ai/*, /api/health, /api/debug).
+- Supabase PostgreSQL schema covering profiles, habits (practices), habit_logs, reflections, daily_progress, progress_summaries, marcus_conversations/messages, app_settings, feedback, plus pgvector-backed corpus tables.
 - Row Level Security for user-owned tables, trigger-driven recalculation of daily progress, indexes on high-traffic queries.
 - Shared middleware for auth, rate limiting, sanitization, standardized response envelope, and structured logging.
 
@@ -38,18 +38,21 @@
 
 ## Success Criteria
 - Users complete a full daily loop (onboarding -> Today -> coach interaction -> evening reflection) without blockers on desktop or mobile web.
-- Return Score, virtue analytics, and habit data stay consistent between client, API, and database after triggers run.
+- Return Score, virtue analytics, and practice data stay consistent between client, API, and database after triggers run.
 - AI coach responses include at least one validated citation and actionable micro-steps in 95% of successful sessions.
-- PWA install prompt works on supported browsers; offline mode allows habit/reflection drafting with later sync.
+- PWA install prompt works on supported browsers; offline mode allows practice/reflection drafting with later sync.
 - CI pipeline enforces lint/type/test checks and bundler build passes against validated environment variables.
 
 ## Dependencies & Sequencing
 1. Provision Supabase schema, environment variables, and auth configuration to unblock API and frontend integration.
 2. Scaffold Next.js project with shared layout, providers, and state stores to host feature routes.
-3. Implement core API routes and data models powering habits, reflections, analytics, and coach conversations.
+3. Implement core API routes and data models powering practices, reflections, analytics, and coach conversations.
 4. Integrate AI service layer and retrieval pipeline once data models and conversation storage are available.
 5. Layer on analytics dashboards, PWA enhancements, and observability tooling after primary flows stabilize.
 6. Conduct end-to-end testing (Jest + Playwright) before enabling deployments and AI ingestion tooling.
+
+
+
 
 
 

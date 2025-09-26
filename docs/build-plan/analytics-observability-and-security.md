@@ -2,6 +2,7 @@
 
 ## 1. Telemetry Integration
 - Instrument PostHog analytics across frontend and backend surfaces.
+- Frontend PostHog provider and baseline pageview/event capture are configured; backend routing and schema docs still outstanding.
 - Capture AI metrics, usage events, and performance indicators.
 - Implement structured logging and health diagnostics endpoints.
 

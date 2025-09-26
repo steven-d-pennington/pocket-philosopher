@@ -23,7 +23,7 @@ import { selectSidebarCollapsed, selectUIActions, useUIStore } from "@/lib/store
 
 const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
   { label: "Today", href: "/today", icon: LayoutDashboard },
-  { label: "Habits", href: "/habits", icon: ListChecks },
+  { label: "Practices", href: "/practices", icon: ListChecks },
   { label: "Reflections", href: "/reflections", icon: NotebookPen },
   { label: "Coaches", href: "/marcus", icon: Bot },
   { label: "Profile", href: "/profile", icon: UserCircle },
@@ -90,3 +90,7 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
     </aside>
   );
 }
+
+
+
+

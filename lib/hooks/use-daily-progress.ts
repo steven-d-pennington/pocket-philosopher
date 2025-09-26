@@ -1,13 +1,8 @@
-"use client";
-
 import { useEffect, useMemo } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  selectDailyProgressActions,
-  useDailyProgressStore,
-} from "@/lib/stores/daily-progress-store";
+import { selectDailyProgressActions, useDailyProgressStore } from "@/lib/stores/daily-progress-store";
 
 import type { ApiResponse } from "./use-api";
 import { apiFetch } from "./use-api";
@@ -15,7 +10,7 @@ import { apiFetch } from "./use-api";
 export interface DailyProgressPayload {
   date: string;
   intention: string | null;
-  habitsCompleted: string[];
+  practicesCompleted: string[];
   virtueScores: Record<string, number | null>;
   returnScore: number | null;
   streakDays: number;
@@ -27,7 +22,10 @@ export interface DailyProgressPayload {
 }
 
 export function useDailyProgress(date?: string) {
-  const targetDate = useMemo(() => date ?? new Date().toISOString().slice(0, 10), [date]);
+  const targetDate = useMemo(
+    () => date ?? new Date().toISOString().slice(0, 10),
+    [date],
+  );
   const actions = useDailyProgressStore(selectDailyProgressActions);
 
   const query = useQuery({
@@ -56,3 +54,64 @@ export function useDailyProgress(date?: string) {
 
   return query;
 }
+
+export function useSetIntentionMutation(targetDate?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (intention: string) => {
+      const payload = await apiFetch<ApiResponse<{ date: string; intention: string }>>(
+        "/api/daily-progress",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "set_intention",
+            date: targetDate,
+            intention,
+          }),
+        },
+      );
+
+      return payload.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["daily-progress"] });
+    },
+  });
+}
+
+export function usePracticeCompletionMutation(targetDate?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      practiceId,
+      completed,
+    }: {
+      practiceId: string;
+      completed: boolean;
+    }) => {
+      const payload = await apiFetch<ApiResponse<{ practice_id: string; completed: boolean; date: string }>>(
+        "/api/daily-progress",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "complete_practice",
+            practice_id: practiceId,
+            completed,
+            date: targetDate,
+          }),
+        },
+      );
+
+      return payload.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["daily-progress"] });
+      queryClient.invalidateQueries({ queryKey: ["practices"] });
+    },
+  });
+}
+

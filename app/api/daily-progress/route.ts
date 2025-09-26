@@ -10,8 +10,8 @@ const postSchema = z.discriminatedUnion("action", [
     intention: z.string().min(1),
   }),
   z.object({
-    action: z.literal("complete_habit"),
-    habit_id: z.string().uuid(),
+    action: z.literal("complete_practice"),
+    practice_id: z.string().uuid(),
     date: z.string().optional(),
     completed: z.boolean().default(true),
   }),
@@ -67,8 +67,8 @@ export async function GET(request: Request) {
     .eq("date", targetDate);
 
   if (logsError) {
-    console.error("Failed to load habit logs", logsError);
-    return error("Failed to load habit logs", { status: 500 });
+    console.error("Failed to load practice logs", logsError);
+    return error("Failed to load practice logs", { status: 500 });
   }
 
   const { data: reflections, error: reflectionsError } = await supabase
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
   const responsePayload = {
     date: targetDate,
     intention: workingProgress.morning_intention,
-    habitsCompleted: logs?.map((log) => log.habit_id) ?? [],
+    practicesCompleted: logs?.map((log) => log.habit_id) ?? [],
     virtueScores: {
       wisdom: workingProgress.wisdom_score,
       justice: workingProgress.justice_score,
@@ -142,37 +142,37 @@ export async function POST(request: Request) {
 
       return success({ date: targetDate, intention: payload.intention });
     }
-    case "complete_habit": {
+    case "complete_practice": {
       if (payload.completed) {
         const { error: insertError } = await supabase.from("habit_logs").upsert(
           {
             user_id: user.id,
-            habit_id: payload.habit_id,
+            habit_id: payload.practice_id,
             date: targetDate,
           },
           { onConflict: "user_id,habit_id,date" },
         );
 
         if (insertError) {
-          console.error("Failed to log habit completion", insertError);
-          return error("Failed to log habit", { status: 500 });
+          console.error("Failed to log practice completion", insertError);
+          return error("Failed to log practice", { status: 500 });
         }
       } else {
         const { error: deleteError } = await supabase
           .from("habit_logs")
           .delete()
           .eq("user_id", user.id)
-          .eq("habit_id", payload.habit_id)
+          .eq("habit_id", payload.practice_id)
           .eq("date", targetDate);
 
         if (deleteError) {
-          console.error("Failed to remove habit log", deleteError);
-          return error("Failed to update habit log", { status: 500 });
+          console.error("Failed to remove practice log", deleteError);
+          return error("Failed to update practice log", { status: 500 });
         }
       }
 
       return success({
-        habit_id: payload.habit_id,
+        practice_id: payload.practice_id,
         completed: payload.completed,
         date: targetDate,
       });

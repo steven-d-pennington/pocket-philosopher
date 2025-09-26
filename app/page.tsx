@@ -2,12 +2,20 @@ import { ArrowRight, BookOpenCheck, LineChart, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Welcome",
+  description:
+    "Explore the Pocket Philosopher rebuild overview, feature highlights, and direct links into the build plan roadmap.",
+  path: "/",
+});
 
 const features = [
   {
     title: "Daily Practice Hub",
     description:
-      "Intentions, habits, reflections, and Return Score insights in a single resilient loop.",
+      "Intentions, practices, reflections, and Return Score insights in a single resilient loop.",
     icon: Sparkles,
   },
   {
@@ -95,3 +103,4 @@ export default function Home() {
     </main>
   );
 }
+

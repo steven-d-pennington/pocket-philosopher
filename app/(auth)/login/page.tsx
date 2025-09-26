@@ -1,6 +1,14 @@
 import Link from "next/link";
 
 import { AuthForm } from "@/components/auth/auth-form";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Log In",
+  description:
+    "Sign in to access the Pocket Philosopher dashboard, practices, reflections, analytics, and AI coaches.",
+  path: "/login",
+});
 
 export default function LoginPage() {
   return (
@@ -14,14 +22,14 @@ export default function LoginPage() {
             The daily practice hub for grounded courage and calm clarity.
           </h1>
           <p className="text-sm text-muted-foreground sm:text-base">
-            Log in to access the rebuilt dashboard, AI coaches, analytics, and habit rituals. This
+            Log in to access the rebuilt dashboard, AI coaches, analytics, and practice rituals. This
             environment evolves alongside the build plan—expect frequent updates.
           </p>
         </div>
         <ul className="grid gap-3 text-sm text-muted-foreground">
           <li className="flex gap-2">
             <span className="mt-1 inline-flex size-2 rounded-full bg-primary" aria-hidden />
-            Daily loops for intentions, habits, reflections, and Return Score insight.
+            Daily loops for intentions, practices, reflections, and Return Score insight.
           </li>
           <li className="flex gap-2">
             <span className="mt-1 inline-flex size-2 rounded-full bg-primary" aria-hidden />
@@ -29,7 +37,7 @@ export default function LoginPage() {
           </li>
           <li className="flex gap-2">
             <span className="mt-1 inline-flex size-2 rounded-full bg-primary" aria-hidden />
-            Virtue analytics, habit heatmaps, and upcoming philosophy themes.
+            Virtue analytics, practice heatmaps, and upcoming philosophy themes.
           </li>
         </ul>
       </section>
@@ -48,3 +56,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+

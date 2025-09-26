@@ -2,6 +2,14 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { CoachPreview } from "@/components/marcus/coach-preview";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Coaches",
+  description:
+    "Explore streaming conversations with Pocket Philosopher personas and prepare instrumentation for AI orchestration.",
+  path: "/marcus",
+});
 
 export default function MarcusPage() {
   return (

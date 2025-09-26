@@ -12,7 +12,7 @@
 
 ## Phase 3: Persona & Prompt Architecture
 1. Define persona metadata (voice, virtues, prompts, constraints) and register them within the AI service.
-2. Create system prompt templates and user-context assembly functions merging habits, reflections, and virtue focus.
+2. Create system prompt templates and user-context assembly functions merging practices, reflections, and virtue focus.
 3. Enforce output formatting rules that include acknowledgements, insights, micro-actions, and citations across personas.
 
 ## Phase 4: Conversation Workflow & Persistence
@@ -24,3 +24,4 @@
 1. Build ingestion scripts to normalize philosophy texts, chunk content, and generate embeddings for storage.
 2. Implement administrative endpoints for ingestion status, forcing re-ingestion, and monitoring corpus health.
 3. Document operations playbooks for maintaining and expanding the philosophy corpus across traditions.
+

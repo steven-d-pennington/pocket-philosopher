@@ -1,4 +1,12 @@
 import { ProfileSummary } from "@/components/dashboard/profile-summary";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Profile",
+  description:
+    "Review account basics, persona roster, and notification cadence settings connected to Supabase profiles.",
+  path: "/profile",
+});
 
 export default function ProfilePage() {
   return (

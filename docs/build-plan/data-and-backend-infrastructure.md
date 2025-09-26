@@ -12,7 +12,7 @@
 - Document automation logic and establish processes for future migrations.
 
 ## 3. Seed Data
-- Populate habit templates, persona metadata, and initial philosophy corpus records.
+- Populate practice templates, persona metadata, and initial philosophy corpus records.
 - Create ingestion utilities or scripts to support ongoing dataset updates.
 - Ensure seed scripts are idempotent and usable across environments.
 
@@ -22,6 +22,7 @@
 - Integrate logging and metrics hooks to support observability.
 
 ## 5. API Routes Implementation
-- Implement API endpoints for `auth`, `profile`, `habits`, `daily-progress`, `progress`, `reflections`, `marcus`, `ai/*`, `health`, and `debug`.
+- Implement API endpoints for `auth`, `profile`, `practices`, `daily-progress`, `progress`, `reflections`, `marcus`, `ai/*`, `health`, and `debug`.
 - Apply documented behaviors, rate limits, and payload contracts across endpoints.
 - Ensure robust error handling and response messaging.
+

@@ -4,7 +4,16 @@ import { readdir } from "node:fs/promises";
 
 import { ArrowRight } from "lucide-react";
 
+import { buildMetadata } from "@/lib/metadata";
+
 const DOCS_ROOT = path.join(process.cwd(), "docs", "build-plan");
+
+export const metadata = buildMetadata({
+  title: "Build Plan Library",
+  description:
+    "Browse the Pocket Philosopher build plan documents covering environment setup, frontend architecture, backend infrastructure, AI systems, and more.",
+  path: "/docs/build-plan",
+});
 
 async function getDocuments() {
   const entries = await readdir(DOCS_ROOT, { withFileTypes: true });

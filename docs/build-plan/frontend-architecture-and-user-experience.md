@@ -3,16 +3,17 @@
 ## 1. App Shell & Routing
 - Scaffold the App Router layout with public and authenticated segments.
 - Implement navigation shell, theme provider, analytics hooks, and offline-aware wrappers.
+- Add a centralized metadata helper and analytics provider (PostHog) to keep instrumentation consistent.
 - Ensure routing aligns with documented flow and accessibility requirements.
 
 ## 2. State Management
-- Rebuild Zustand stores for auth, daily progress, habits, streaming, and UI preferences.
+- Rebuild Zustand stores for auth, daily progress, practices, streaming, and UI preferences.
 - Integrate TanStack Query for server state management and caching.
 - Implement local storage hydration strategies for offline drafts and resiliency.
 
 ## 3. Core Pages & Flows
-- `(dashboard)/today`: morning intention, habit logging, analytics tiles, daily quote.
-- `(dashboard)/habits`: CRUD UI, scheduling controls, reminder settings.
+- `(dashboard)/today`: morning intention, practice logging, analytics tiles, daily quote.
+- `(dashboard)/practices`: CRUD UI, scheduling controls, reminder settings.
 - `(dashboard)/reflections`: guided journaling with mood sliders and persona cues.
 - `(dashboard)/coaches` (`/marcus`): chat interface, persona switcher, citation display, streaming status UI.
 - Profile, settings, onboarding, help/support pages aligned with experience specs.
@@ -26,3 +27,4 @@
 - Configure Workbox service worker with defined caching strategies.
 - Implement install prompts and offline storage synchronization flows.
 - Validate behavior across desktop and mobile scenarios.
+

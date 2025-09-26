@@ -6,6 +6,8 @@ import path from "node:path";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import { buildMetadata } from "@/lib/metadata";
+
 const DOCS_ROOT = path.join(process.cwd(), "docs", "build-plan");
 
 function normaliseSlug(param?: string[]): string[] {
@@ -13,6 +15,10 @@ function normaliseSlug(param?: string[]): string[] {
     return ["README"];
   }
   return param;
+}
+
+function toTitle(slug: string[]) {
+  return slug[slug.length - 1].replace(/-/g, " ");
 }
 
 async function resolveFilePath(slug: string[]) {
@@ -34,6 +40,25 @@ async function resolveFilePath(slug: string[]) {
   return normalised;
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{
+    slug?: string[];
+  }>;
+}) {
+  const resolvedParams = await params;
+  const slug = normaliseSlug(resolvedParams.slug);
+  const title = toTitle(slug);
+  const pathSegment = slug.join("/");
+
+  return buildMetadata({
+    title,
+    description: `Pocket Philosopher build plan entry for ${title}.`,
+    path: `/docs/build-plan/${pathSegment}`,
+  });
+}
+
 export default async function BuildPlanDocPage({
   params,
 }: {
@@ -50,7 +75,7 @@ export default async function BuildPlanDocPage({
   }
 
   const raw = await readFile(filePath, "utf8");
-  const title = slug[slug.length - 1].replace(/-/g, " ");
+  const title = toTitle(slug);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12">

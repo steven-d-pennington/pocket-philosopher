@@ -3,7 +3,7 @@ import { immer } from "zustand/middleware/immer";
 
 type ThemeMode = "system" | "light" | "dark";
 
-type ModalKey = "none" | "createHabit" | "editHabit" | "reflection" | "coachPersona" | "settings";
+type ModalKey = "none" | "createPractice" | "editPractice" | "reflection" | "coachPersona" | "settings";
 
 export interface ToastMessage {
   id: string;
@@ -93,3 +93,4 @@ export const useUIStore = create<UIState>()(
 export const selectTheme = (state: UIState) => state.theme;
 export const selectSidebarCollapsed = (state: UIState) => state.sidebarCollapsed;
 export const selectUIActions = (state: UIState) => state.actions;
+

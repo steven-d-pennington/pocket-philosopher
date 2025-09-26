@@ -21,6 +21,7 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   TOGETHER_API_KEY: z.string().optional(),
   OLLAMA_URL: z.string().url().optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
   POSTHOG_API_KEY: z.string().optional(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
   RESEND_API_KEY: z.string().optional(),
@@ -41,6 +42,7 @@ const envInput: EnvInput = {
   ANTHROPIC_API_KEY: toOptional(process.env.ANTHROPIC_API_KEY),
   TOGETHER_API_KEY: toOptional(process.env.TOGETHER_API_KEY),
   OLLAMA_URL: toOptional(process.env.OLLAMA_URL),
+  NEXT_PUBLIC_POSTHOG_KEY: toOptional(process.env.NEXT_PUBLIC_POSTHOG_KEY),
   POSTHOG_API_KEY: toOptional(process.env.POSTHOG_API_KEY),
   NEXT_PUBLIC_POSTHOG_HOST: toOptional(process.env.NEXT_PUBLIC_POSTHOG_HOST),
   RESEND_API_KEY: toOptional(process.env.RESEND_API_KEY),
@@ -65,6 +67,7 @@ export const env = parsed.data;
 export const clientEnv = {
   NEXT_PUBLIC_SUPABASE_URL: env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_POSTHOG_KEY: env.NEXT_PUBLIC_POSTHOG_KEY,
   NEXT_PUBLIC_POSTHOG_HOST: env.NEXT_PUBLIC_POSTHOG_HOST,
   PWA_DEV: env.PWA_DEV,
   CUSTOM_KEY: env.CUSTOM_KEY,

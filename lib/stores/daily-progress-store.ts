@@ -8,7 +8,7 @@ export interface VirtueScores {
 export interface DailyProgressState {
   date: string;
   intention: string | null;
-  habitsCompleted: string[];
+  practicesCompleted: string[];
   virtueScores: VirtueScores;
   returnScore: number | null;
   streakDays: number;
@@ -24,7 +24,7 @@ export interface DailyProgressState {
     setLoading: (value: boolean) => void;
     setError: (message: string | null) => void;
     setIntention: (intention: string) => void;
-    toggleHabitCompletion: (habitId: string) => void;
+    togglePracticeCompletion: (practiceId: string) => void;
     setVirtueScore: (virtue: string, score: number | null) => void;
     setReflectionStatus: (type: keyof DailyProgressState["reflections"], value: boolean) => void;
     reset: () => void;
@@ -34,7 +34,7 @@ export interface DailyProgressState {
 const initialState: Omit<DailyProgressState, "actions"> = {
   date: new Date().toISOString().slice(0, 10),
   intention: null,
-  habitsCompleted: [],
+  practicesCompleted: [],
   virtueScores: {},
   returnScore: null,
   streakDays: 0,
@@ -63,6 +63,7 @@ export const useDailyProgressStore = create<DailyProgressState>()(
             ...initialState.virtueScores,
             ...payload?.virtueScores,
           },
+          practicesCompleted: payload?.practicesCompleted ?? initialState.practicesCompleted,
         }));
       },
       setLoading: (value) => {
@@ -81,12 +82,12 @@ export const useDailyProgressStore = create<DailyProgressState>()(
           state.intention = intention;
         });
       },
-      toggleHabitCompletion: (habitId) => {
+      togglePracticeCompletion: (practiceId) => {
         set((state) => {
-          const exists = state.habitsCompleted.includes(habitId);
-          state.habitsCompleted = exists
-            ? state.habitsCompleted.filter((id) => id !== habitId)
-            : [...state.habitsCompleted, habitId];
+          const exists = state.practicesCompleted.includes(practiceId);
+          state.practicesCompleted = exists
+            ? state.practicesCompleted.filter((id) => id !== practiceId)
+            : [...state.practicesCompleted, practiceId];
         });
       },
       setVirtueScore: (virtue, score) => {

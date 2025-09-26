@@ -1,3 +1,12 @@
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Settings",
+  description:
+    "Configure integrations, privacy controls, and feature flags to support the evolving Pocket Philosopher experience.",
+  path: "/settings",
+});
+
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
@@ -12,10 +21,11 @@ export default function SettingsPage() {
         <p className="font-semibold text-foreground">Planned sections</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Notification preferences with timezone awareness.</li>
-          <li>Privacy modes for reflections and habit visibility.</li>
+          <li>Privacy modes for reflections and practice visibility.</li>
           <li>Integrations (email, calendar, push) with feature-flag awareness.</li>
         </ul>
       </section>
     </div>
   );
 }
+

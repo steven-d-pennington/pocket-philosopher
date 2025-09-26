@@ -12,6 +12,7 @@
 4. [Complete] Scaffold the environment variable validation module (lib/env-validation.ts) and supply an example .env.local template populated with placeholders for Supabase, AI providers, analytics, and email credentials. [P]
 
 ## Phase 3: Repository Structure Hardening
-1. [Complete] Recreate required top-level directories (pp/, lib/, database/, public/, scripts/) and seed each with placeholder docs describing intended responsibilities.
+1. [Complete] Recreate required top-level directories (app/, lib/, database/, public/, scripts/) and seed each with placeholder docs describing intended responsibilities.
 2. [Started] Verify references between specs and repository paths, updating documentation if discrepancies appear.
 3. [Complete] Run a workspace health check (lint, type check, unit smoke test) to ensure the baseline environment is reproducible for all contributors.
+

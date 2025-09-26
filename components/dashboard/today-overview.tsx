@@ -18,8 +18,8 @@ export function TodayOverview() {
           <h2 className="text-2xl font-semibold">Daily practice snapshot</h2>
         </div>
         <Button asChild variant="ghost" size="sm" className="gap-2">
-          <Link href="/habits">
-            Manage habits
+          <Link href="/practices">
+            Manage practices
             <ArrowRight className="size-4" aria-hidden />
           </Link>
         </Button>
@@ -37,8 +37,8 @@ export function TodayOverview() {
                 {data.intention ? data.intention : "Not set yet"}
               </p>
               <p className="text-sm">
-                Habits completed:{" "}
-                <span className="font-semibold">{data.habitsCompleted.length}</span>
+                Practices completed:{" "}
+                <span className="font-semibold">{data.practicesCompleted.length}</span>
               </p>
               <p className="text-sm">
                 Return Score:{" "}
@@ -48,7 +48,7 @@ export function TodayOverview() {
               </p>
             </div>
           ) : (
-            <p>No daily data yet—log a habit to kick things off.</p>
+            <p>No daily data yet—log a practice to kick things off.</p>
           )}
         </div>
         <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">

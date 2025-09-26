@@ -1,6 +1,14 @@
 import Link from "next/link";
 
 import { AuthForm } from "@/components/auth/auth-form";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Sign Up",
+  description:
+    "Create a Pocket Philosopher workspace to experiment with practices, reflections, analytics, and AI coaches.",
+  path: "/signup",
+});
 
 export default function SignupPage() {
   return (

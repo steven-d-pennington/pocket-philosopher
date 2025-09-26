@@ -1,4 +1,12 @@
 import { ReflectionsStatus } from "@/components/reflections/reflections-status";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Reflections",
+  description:
+    "Draft morning, midday, and evening reflections with persona-guided prompts and analytics-aware journaling.",
+  path: "/reflections",
+});
 
 export default function ReflectionsPage() {
   return (

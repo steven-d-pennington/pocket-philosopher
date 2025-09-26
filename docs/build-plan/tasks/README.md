@@ -10,16 +10,16 @@ This guide outlines a recommended execution sequence for the task plans derived 
    - **Status:** Started (local Supabase configured, schema and RLS applied; staging/production provisioning still pending).  
    - Execute Supabase provisioning tasks to ensure database availability for downstream work and coordinate on environment variables and access controls.
 3. **Frontend Architecture & User Experience (Phase 1 & 2)**  
-   - **Status:** In Progress (App Router layouts, auth guard, navigation, and dashboard stubs delivered; analytics metadata work pending).  
+   - **Status:** In Progress (App Router layouts, auth guard, navigation, and dashboard stubs delivered; analytics hooks + metadata scaffolding now live, offline persistence utilities still pending).  
    - Implement the application shell, routing, and state infrastructure per the task plan before beginning [P] analytics/local storage utilities.
 4. **AI & Knowledge System (Phase 1 & 2)**  
    - **Status:** Not Started.  
    - Stand up the provider abstraction and retrieval stack once Supabase schemas and environment variables are ready.
 5. **Data & Backend Infrastructure (Phases 2-4)**  
-   - **Status:** In Progress (automations implemented; core API routes for auth/profile/daily progress/habits/progress/reflections/health/debug complete; AI endpoints stubbed awaiting orchestration; logging/metrics tasks pending).  
+   - **Status:** In Progress (automations implemented; core API routes for auth/profile/daily progress/practices/progress/reflections/health/debug complete; AI endpoints stubbed awaiting orchestration; logging/metrics tasks pending).  
    - Implement database automations, middleware, and API routes, coordinating with AI and frontend teams to validate contracts and streaming behaviors.
 6. **Frontend Architecture & User Experience (Phases 3-4)**  
-   - **Status:** Started (core routes scaffolded with placeholder components; CRUD modals, streaming UI, and PWA work outstanding).  
+   - **Status:** Started (core routes scaffolded with placeholder components; practices CRUD modals, streaming UI, and PWA work outstanding).  
    - Build core dashboard flows, component libraries, and PWA enhancements as backend and AI endpoints stabilize.
 7. **AI & Knowledge System (Phases 3-5)**  
    - **Status:** Not Started.  
@@ -41,4 +41,5 @@ This guide outlines a recommended execution sequence for the task plans derived 
 - Treat **[P]** tasks as candidates for separate work streams once the preceding numbered items in their phase are finished.
 - Use weekly syncs between frontend, backend, and AI leads to coordinate shared dependencies and adjust sequencing as needed.
 - Maintain a shared Kanban board mirroring these steps to track ownership and progress.
+
 

@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
 import "./globals.css";
 
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AppToaster } from "@/components/providers/app-toaster";
+import { AnalyticsProvider } from "@/components/providers/analytics-provider";
 import { fontMono, fontSans } from "@/lib/fonts";
+import { buildMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: "Pocket Philosopher",
-  description:
-    "A daily practice companion blending Stoic, Taoist, and Existentialist wisdom with habits, reflections, and AI mentors.",
-};
+  disableSuffix: true,
+});
 
 export default function RootLayout({
   children,
@@ -23,11 +23,14 @@ export default function RootLayout({
       <body className={cn("font-sans antialiased", fontSans.variable, fontMono.variable)}>
         <ThemeProvider>
           <QueryProvider>
-            {children}
-            <AppToaster />
+            <AnalyticsProvider>
+              {children}
+              <AppToaster />
+            </AnalyticsProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

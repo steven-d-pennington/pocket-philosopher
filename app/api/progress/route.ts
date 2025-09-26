@@ -32,5 +32,11 @@ export async function GET() {
     return error("Failed to load daily progress", { status: 500 });
   }
 
-  return success({ summaries: summaries ?? [], daily: recentDaily ?? [] });
+  const daily = (recentDaily ?? []).map(({ habits_completed, ...rest }) => ({
+    ...rest,
+    practices_completed: habits_completed,
+  }));
+
+  return success({ summaries: summaries ?? [], daily });
 }
+

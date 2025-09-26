@@ -1,5 +1,14 @@
 import Link from "next/link";
 
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Help & Feedback",
+  description:
+    "Access documentation, debug tooling, and product feedback loops to support the Pocket Philosopher build.",
+  path: "/help",
+});
+
 export default function HelpPage() {
   return (
     <div className="space-y-6">
