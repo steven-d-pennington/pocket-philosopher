@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { TopBar } from "@/components/shared/top-bar";
+import { PracticeModals } from "@/components/practices/practice-modals";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 
 interface DashboardLayoutProps {
@@ -26,6 +27,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
         <div className="flex min-h-screen flex-1 flex-col">
           <TopBar userEmail={user.email} />
           <main className="flex-1 bg-muted/20 px-4 py-6 md:px-8">{children}</main>
+          <PracticeModals />
         </div>
       </div>
     </div>

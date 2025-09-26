@@ -6,11 +6,13 @@ import { PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { usePractices } from "@/lib/hooks/use-practices";
-import { selectUIActions, useUIStore } from "@/lib/stores/ui-store";
+import { selectPracticeModalActions, usePracticeModalStore } from "@/lib/stores/practice-modal-store";
+
+import { dayOptions } from "./practice-form-constants";
 
 export function PracticesOverview() {
   const { data, isLoading, error } = usePractices();
-  const actions = useUIStore(selectUIActions);
+  const modalActions = usePracticeModalStore(selectPracticeModalActions);
 
   return (
     <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
@@ -24,7 +26,7 @@ export function PracticesOverview() {
             type="button"
             size="sm"
             className="gap-2"
-            onClick={() => actions.openModal("createPractice")}
+            onClick={() => modalActions.openCreate()}
           >
             <PlusCircle className="size-4" aria-hidden />
             New practice
@@ -40,7 +42,15 @@ export function PracticesOverview() {
         {data && data.length === 0 && <p>No practices yet—use the New practice button to add one.</p>}
         {data && data.length > 0 ? (
           <ul className="grid gap-2">
-            {data.slice(0, 4).map((practice) => (
+            {data.slice(0, 4).map((practice) => {
+              const activeDaysLabel =
+                practice.activeDays && practice.activeDays.length > 0
+                  ? practice.activeDays
+                      .map((day) => dayOptions[day - 1]?.label ?? `Day ${day}`)
+                      .join(" · ")
+                  : "All days";
+
+              return (
               <li
                 key={practice.id}
                 className="rounded-2xl border border-dashed border-border/70 px-4 py-3 text-foreground"
@@ -54,8 +64,16 @@ export function PracticesOverview() {
                 {practice.description ? (
                   <p className="text-xs text-muted-foreground">{practice.description}</p>
                 ) : null}
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <span className="rounded-full border border-border/60 px-2 py-0.5 uppercase tracking-[0.18em]">
+                    {practice.frequency}
+                  </span>
+                  <span>{activeDaysLabel}</span>
+                  {practice.reminderTime ? <span>Reminder at {practice.reminderTime}</span> : null}
+                </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         ) : null}
       </div>

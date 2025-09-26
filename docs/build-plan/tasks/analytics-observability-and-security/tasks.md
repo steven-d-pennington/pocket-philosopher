@@ -1,7 +1,7 @@
 # Analytics, Observability & Security — Task Plan
 
 ## Phase 1: Telemetry Framework
-1. [Started] Integrate PostHog instrumentation across frontend routes and key backend actions, documenting event schemas and naming conventions.
+1. [Started] Integrate PostHog instrumentation across frontend routes and key backend actions, documenting event schemas and naming conventions (page views, auth-based identification, practice toggles, intention saves wired; backend actions pending).
 2. [Not Started] Capture AI-specific metrics (latency, token usage, retrieval count) and pipe them into monitoring dashboards. [P]
 3. [Not Started] Implement structured logging helpers and enrich `/api/health` diagnostics with dependency checks. [P]
 

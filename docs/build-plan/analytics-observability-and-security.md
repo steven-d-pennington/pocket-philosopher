@@ -2,7 +2,7 @@
 
 ## 1. Telemetry Integration
 - Instrument PostHog analytics across frontend and backend surfaces.
-- Frontend PostHog provider and baseline pageview/event capture are configured; backend routing and schema docs still outstanding.
+- Frontend PostHog provider now handles user identification from Supabase auth, captures page views, and records key UI events (practice toggles, intention saves); backend routing and schema docs still outstanding.
 - Capture AI metrics, usage events, and performance indicators.
 - Implement structured logging and health diagnostics endpoints.
 

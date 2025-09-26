@@ -8,11 +8,11 @@
 ## Phase 2: State Management & Data Access
 1. [Complete] Reconstruct Zustand stores for auth, daily progress, practices, UI, and streaming with TypeScript typings and Immer helpers.
 2. [Complete] Wire TanStack Query hooks for Supabase-backed data fetching, including caching, refetch intervals, and optimistic update patterns.
-3. [Not Started] Implement local storage hydration and offline draft persistence utilities shared across stores. [P]
+3. [Complete] Implement local storage hydration and offline draft persistence utilities shared across stores. [P]
 
 ## Phase 3: Core Experience Flows
 1. [Started] Build the (dashboard)/today experience: morning intention form, practice quick actions, Return Score tiles, and inspirational quote modules.
-2. [Started] Deliver (dashboard)/practices with CRUD modals, scheduling controls, reminder settings, and drag-and-drop ordering.
+2. [In Progress] Deliver (dashboard)/practices with CRUD modals, scheduling controls, reminder settings, and drag-and-drop ordering (create & edit modals live with archive/restore toggles; drag ordering still pending).
 3. [Started] Implement (dashboard)/reflections guided journaling, mood sliders, persona cues, and timeline views.
 4. [Started] Assemble (dashboard)/coaches (/marcus) streaming chat with persona switcher, citation list, and typing indicators.
 5. [Started] Complete supporting routes (onboarding, profile, settings, help) with consistent layout components and responsive design. [P]

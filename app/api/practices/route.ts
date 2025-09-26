@@ -15,7 +15,7 @@ const basePracticeSchema = z.object({
   active_days: z.array(z.number()).optional(),
   reminder_time: z.string().optional(),
   sort_order: z.number().optional(),
-  tags: z.array(z.string()).optional(),
+  metadata: z.record(z.any()).optional(),
 });
 
 const createPracticeSchema = basePracticeSchema;
@@ -116,6 +116,7 @@ export async function POST(request: Request) {
         ...practiceInput,
         user_id: user.id,
         active_days: practiceInput.active_days ?? [1, 2, 3, 4, 5, 6, 7],
+        metadata: practiceInput.metadata ?? {},
       })
       .select("*")
       .single();

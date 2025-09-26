@@ -9,11 +9,11 @@
 ## 2. State Management
 - Rebuild Zustand stores for auth, daily progress, practices, streaming, and UI preferences.
 - Integrate TanStack Query for server state management and caching.
-- Implement local storage hydration strategies for offline drafts and resiliency.
+- Implement local storage hydration strategies for offline drafts and resiliency using shared persist helpers and reusable draft hooks.
 
 ## 3. Core Pages & Flows
 - `(dashboard)/today`: morning intention, practice logging, analytics tiles, daily quote.
-- `(dashboard)/practices`: CRUD UI, scheduling controls, reminder settings.
+- `(dashboard)/practices`: CRUD UI, scheduling controls, reminder settings. Create/edit modals support virtue selection, cadence tweaks, reminders, and archive toggles with Supabase-backed mutations; drag ordering remains.
 - `(dashboard)/reflections`: guided journaling with mood sliders and persona cues.
 - `(dashboard)/coaches` (`/marcus`): chat interface, persona switcher, citation display, streaming status UI.
 - Profile, settings, onboarding, help/support pages aligned with experience specs.

@@ -1,5 +1,8 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+
+import { createPersistStorage, persistKey, persistVersion } from "@/lib/stores/persist-utils";
 
 type ThemeMode = "system" | "light" | "dark";
 
@@ -39,55 +42,68 @@ const initialState: Omit<UIState, "actions"> = {
   commandPaletteOpen: false,
 };
 
+type UIPersistedState = Pick<UIState, "theme" | "sidebarCollapsed">;
+
 export const useUIStore = create<UIState>()(
-  immer((set) => ({
-    ...initialState,
-    actions: {
-      setTheme: (theme) => {
-        set((state) => {
-          state.theme = theme;
-        });
+  persist(
+    immer((set) => ({
+      ...initialState,
+      actions: {
+        setTheme: (theme) => {
+          set((state) => {
+            state.theme = theme;
+          });
+        },
+        toggleSidebar: () => {
+          set((state) => {
+            state.sidebarCollapsed = !state.sidebarCollapsed;
+          });
+        },
+        setSidebar: (value) => {
+          set((state) => {
+            state.sidebarCollapsed = value;
+          });
+        },
+        openModal: (modal) => {
+          set((state) => {
+            state.activeModal = modal;
+          });
+        },
+        closeModal: () => {
+          set((state) => {
+            state.activeModal = "none";
+          });
+        },
+        pushToast: (toast) => {
+          set((state) => {
+            state.toasts.push(toast);
+          });
+        },
+        removeToast: (id) => {
+          set((state) => {
+            state.toasts = state.toasts.filter((toast) => toast.id !== id);
+          });
+        },
+        setCommandPalette: (value) => {
+          set((state) => {
+            state.commandPaletteOpen = value;
+          });
+        },
+        reset: () => {
+          set(() => ({ ...initialState }));
+        },
       },
-      toggleSidebar: () => {
-        set((state) => {
-          state.sidebarCollapsed = !state.sidebarCollapsed;
-        });
-      },
-      setSidebar: (value) => {
-        set((state) => {
-          state.sidebarCollapsed = value;
-        });
-      },
-      openModal: (modal) => {
-        set((state) => {
-          state.activeModal = modal;
-        });
-      },
-      closeModal: () => {
-        set((state) => {
-          state.activeModal = "none";
-        });
-      },
-      pushToast: (toast) => {
-        set((state) => {
-          state.toasts.push(toast);
-        });
-      },
-      removeToast: (id) => {
-        set((state) => {
-          state.toasts = state.toasts.filter((toast) => toast.id !== id);
-        });
-      },
-      setCommandPalette: (value) => {
-        set((state) => {
-          state.commandPaletteOpen = value;
-        });
-      },
-      reset: () => {
-        set(() => ({ ...initialState }));
-      },
+    })),
+    {
+      name: persistKey("ui"),
+      version: persistVersion,
+      storage: createPersistStorage<UIPersistedState>(),
+      partialize: ({ theme, sidebarCollapsed }): UIPersistedState => ({
+        theme,
+        sidebarCollapsed,
+      }),
     },
-  })),
+  ),
 );
 
 export const selectTheme = (state: UIState) => state.theme;
