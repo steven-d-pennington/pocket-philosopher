@@ -89,6 +89,8 @@ function ConversationHeader({ persona }: { persona: CoachPersona }) {
 
 function MessageBubble({ message }: { message: CoachMessage }) {
   const isUser = message.role === "user";
+  const hasCitations = !isUser && Array.isArray(message.citations) && message.citations.length > 0;
+  const citationColor = isUser ? "text-primary-foreground/80" : "text-muted-foreground";
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -100,6 +102,19 @@ function MessageBubble({ message }: { message: CoachMessage }) {
         }`}
       >
         <p className="whitespace-pre-wrap">{message.content}</p>
+        {hasCitations ? (
+          <div className={`mt-3 space-y-1 text-xs ${citationColor}`}>
+            <p className="font-semibold uppercase tracking-[0.18em] text-[11px]">Citations</p>
+            <ul className="space-y-1">
+              {message.citations!.map((citation) => (
+                <li key={citation.id} className="leading-relaxed">
+                  <span className="font-medium">{citation.title}</span>
+                  {citation.reference ? ` · ${citation.reference}` : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <span className="mt-2 block text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
           {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           {message.streaming ? " · streaming" : ""}
