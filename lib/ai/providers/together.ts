@@ -1,5 +1,4 @@
 import type {
-  AIChatMessage,
   AIChatStreamRequest,
   AIChatStreamResult,
   AIChatUsage,
@@ -9,41 +8,32 @@ import type {
 } from "@/lib/ai/types";
 import { env } from "@/lib/env-validation";
 
-export interface OpenAIChatMessage extends AIChatMessage {}
+const TOGETHER_CHAT_COMPLETIONS_URL = "https://api.together.xyz/v1/chat/completions";
+const TOGETHER_EMBEDDINGS_URL = "https://api.together.xyz/v1/embeddings";
+const TOGETHER_MODELS_URL = "https://api.together.xyz/v1/models";
 
-type OpenAIStreamOptions = Omit<AIChatStreamRequest, "messages"> & {
-  messages: OpenAIChatMessage[];
-  temperature: number;
-};
-
-interface OpenAIUsageResponse {
-  prompt_tokens?: number;
-  completion_tokens?: number;
-  total_tokens?: number;
+export class TogetherConfigurationError extends Error {
+  constructor() {
+    super("TOGETHER_API_KEY is not configured. Update your environment before requesting a response.");
+    this.name = "TogetherConfigurationError";
+  }
 }
 
-interface OpenAIStreamChunk {
+interface TogetherStreamChunk {
   error?: { message?: string };
   choices?: Array<{
     delta?: {
       content?: string;
     };
   }>;
-  usage?: OpenAIUsageResponse;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
 }
 
-const OPENAI_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions";
-const OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings";
-const OPENAI_MODELS_URL = "https://api.openai.com/v1/models";
-
-export class OpenAIConfigurationError extends Error {
-  constructor() {
-    super("OPENAI_API_KEY is not configured. Update your environment before requesting a coach response.");
-    this.name = "OpenAIConfigurationError";
-  }
-}
-
-function toAIUsage(usage?: OpenAIUsageResponse | null): AIChatUsage | undefined {
+function toUsage(usage?: TogetherStreamChunk["usage"]): AIChatUsage | undefined {
   if (!usage) return undefined;
   return {
     promptTokens: usage.prompt_tokens,
@@ -52,9 +42,9 @@ function toAIUsage(usage?: OpenAIUsageResponse | null): AIChatUsage | undefined 
   } satisfies AIChatUsage;
 }
 
-export async function createOpenAIChatStream(options: OpenAIStreamOptions): Promise<AIChatStreamResult> {
-  if (!env.OPENAI_API_KEY) {
-    throw new OpenAIConfigurationError();
+export async function createTogetherChatStream(options: AIChatStreamRequest): Promise<AIChatStreamResult> {
+  if (!env.TOGETHER_API_KEY) {
+    throw new TogetherConfigurationError();
   }
 
   const controller = new AbortController();
@@ -62,11 +52,11 @@ export async function createOpenAIChatStream(options: OpenAIStreamOptions): Prom
     options.signal.addEventListener("abort", () => controller.abort(options.signal?.reason));
   }
 
-  const response = await fetch(OPENAI_CHAT_COMPLETIONS_URL, {
+  const response = await fetch(TOGETHER_CHAT_COMPLETIONS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${env.TOGETHER_API_KEY}`,
     },
     body: JSON.stringify({
       model: options.model,
@@ -74,26 +64,28 @@ export async function createOpenAIChatStream(options: OpenAIStreamOptions): Prom
       temperature: options.temperature,
       stream: true,
       stream_options: { include_usage: true },
-      max_completion_tokens: options.maxOutputTokens,
+      max_tokens: options.maxOutputTokens,
+      top_p: options.topP,
+      metadata: options.metadata,
     }),
     signal: controller.signal,
   });
 
   if (!response.ok || !response.body) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`OpenAI request failed with status ${response.status}: ${detail}`);
+    throw new Error(`Together request failed with status ${response.status}: ${detail}`);
   }
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
-  let resolveUsage: (usage: OpenAIUsageResponse | undefined) => void = () => undefined;
+  let resolveUsage: (usage: AIChatUsage | undefined) => void = () => undefined;
   let rejectUsage: (error: unknown) => void = () => undefined;
-  const usagePromise = new Promise<OpenAIUsageResponse | undefined>((resolve, reject) => {
+  const usagePromise = new Promise<AIChatUsage | undefined>((resolve, reject) => {
     resolveUsage = resolve;
     rejectUsage = reject;
   });
 
-  const stream = (async function* streamGenerator() {
+  const stream = (async function* togetherStreamGenerator() {
     let buffer = "";
     try {
       while (true) {
@@ -117,16 +109,17 @@ export async function createOpenAIChatStream(options: OpenAIStreamOptions): Prom
               }
               continue;
             }
-            let parsed: OpenAIStreamChunk;
+
+            let parsed: TogetherStreamChunk;
             try {
-              parsed = JSON.parse(payload) as OpenAIStreamChunk;
+              parsed = JSON.parse(payload) as TogetherStreamChunk;
             } catch (error) {
-              console.warn("Failed to parse OpenAI payload", error);
+              console.warn("Failed to parse Together payload", error);
               continue;
             }
 
             if (parsed.error) {
-              const error = new Error(parsed.error?.message ?? "OpenAI streaming error");
+              const error = new Error(parsed.error?.message ?? "Together streaming error");
               rejectUsage(error);
               throw error;
             }
@@ -137,8 +130,9 @@ export async function createOpenAIChatStream(options: OpenAIStreamOptions): Prom
               yield delta;
             }
 
-            if (parsed.usage) {
-              resolveUsage(parsed.usage);
+            const usage = toUsage(parsed.usage);
+            if (usage) {
+              resolveUsage(usage);
             }
           }
         }
@@ -153,11 +147,11 @@ export async function createOpenAIChatStream(options: OpenAIStreamOptions): Prom
 
   return {
     stream,
-    usage: () => usagePromise.then((usage) => toAIUsage(usage)),
-  };
+    usage: () => usagePromise,
+  } satisfies AIChatStreamResult;
 }
 
-interface OpenAIEmbeddingResponsePayload {
+interface TogetherEmbeddingResponsePayload {
   data: Array<{ embedding: number[] }>;
   model?: string;
   usage?: {
@@ -166,9 +160,11 @@ interface OpenAIEmbeddingResponsePayload {
   };
 }
 
-export async function createOpenAIEmbedding(request: AIEmbeddingRequest): Promise<AIEmbeddingResponse> {
-  if (!env.OPENAI_API_KEY) {
-    throw new OpenAIConfigurationError();
+export async function createTogetherEmbedding(
+  request: AIEmbeddingRequest,
+): Promise<AIEmbeddingResponse> {
+  if (!env.TOGETHER_API_KEY) {
+    throw new TogetherConfigurationError();
   }
 
   const controller = new AbortController();
@@ -176,11 +172,11 @@ export async function createOpenAIEmbedding(request: AIEmbeddingRequest): Promis
     request.signal.addEventListener("abort", () => controller.abort(request.signal?.reason));
   }
 
-  const response = await fetch(OPENAI_EMBEDDINGS_URL, {
+  const response = await fetch(TOGETHER_EMBEDDINGS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${env.TOGETHER_API_KEY}`,
     },
     body: JSON.stringify({
       model: request.model,
@@ -191,10 +187,10 @@ export async function createOpenAIEmbedding(request: AIEmbeddingRequest): Promis
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`OpenAI embeddings request failed with status ${response.status}: ${detail}`);
+    throw new Error(`Together embeddings request failed with status ${response.status}: ${detail}`);
   }
 
-  const payload = (await response.json()) as OpenAIEmbeddingResponsePayload;
+  const payload = (await response.json()) as TogetherEmbeddingResponsePayload;
   const embeddings = payload.data.map((item) => item.embedding);
   const dimensions = embeddings[0]?.length;
 
@@ -211,15 +207,15 @@ export async function createOpenAIEmbedding(request: AIEmbeddingRequest): Promis
   } satisfies AIEmbeddingResponse;
 }
 
-export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProviderHealth> {
+export async function checkTogetherHealth(signal?: AbortSignal): Promise<AIProviderHealth> {
   const checkedAt = Date.now();
 
-  if (!env.OPENAI_API_KEY) {
+  if (!env.TOGETHER_API_KEY) {
     return {
-      providerId: "openai",
+      providerId: "together",
       status: "unavailable",
       error: {
-        message: "OPENAI_API_KEY is not configured",
+        message: "TOGETHER_API_KEY is not configured",
         code: "missing_api_key",
       },
       checkedAt,
@@ -228,9 +224,9 @@ export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProvide
 
   const start = Date.now();
   try {
-    const response = await fetch(OPENAI_MODELS_URL, {
+    const response = await fetch(TOGETHER_MODELS_URL, {
       headers: {
-        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${env.TOGETHER_API_KEY}`,
       },
       signal,
     });
@@ -238,11 +234,11 @@ export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProvide
 
     if (!response.ok) {
       return {
-        providerId: "openai",
+        providerId: "together",
         status: "degraded",
         latencyMs,
         error: {
-          message: `OpenAI health check failed with status ${response.status}`,
+          message: `Together health check failed with status ${response.status}`,
           code: String(response.status),
         },
         checkedAt,
@@ -250,7 +246,7 @@ export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProvide
     }
 
     return {
-      providerId: "openai",
+      providerId: "together",
       status: "healthy",
       latencyMs,
       error: null,
@@ -259,11 +255,11 @@ export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProvide
   } catch (error) {
     const latencyMs = Date.now() - start;
     return {
-      providerId: "openai",
+      providerId: "together",
       status: "unavailable",
       latencyMs,
       error: {
-        message: error instanceof Error ? error.message : "OpenAI health check failed",
+        message: error instanceof Error ? error.message : "Together health check failed",
       },
       checkedAt,
     } satisfies AIProviderHealth;
