@@ -11,11 +11,13 @@ export interface ProfileSummary {
   preferred_virtue?: string | null;
   preferred_persona?: string | null;
   experience_level?: string | null;
+  daily_practice_time?: string | null;
   philosophyTheme?: string | null;
   notifications_enabled?: boolean;
   privacy_level?: string | null;
   timezone?: string | null;
   virtues?: string[];
+  onboarding_complete?: boolean;
 }
 
 interface AuthState {

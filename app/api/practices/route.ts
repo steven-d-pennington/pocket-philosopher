@@ -37,8 +37,21 @@ const createPracticeActionSchema = z.object({
   practice: createPracticeSchema,
 });
 
+const reorderPracticesSchema = z.object({
+  action: z.literal("reorder"),
+  order: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        sort_order: z.number().int(),
+      }),
+    )
+    .min(1),
+});
+
 const practicePostSchema = z.discriminatedUnion("action", [
   createPracticeActionSchema,
+  reorderPracticesSchema,
   completePracticeSchema,
 ]);
 
@@ -127,6 +140,23 @@ export async function POST(request: Request) {
     }
 
     return success(data, { status: 201 });
+  }
+
+  if (payload.action === "reorder") {
+    for (const item of payload.order) {
+      const { error: updateError } = await supabase
+        .from("habits")
+        .update({ sort_order: item.sort_order })
+        .eq("user_id", user.id)
+        .eq("id", item.id);
+
+      if (updateError) {
+        console.error("Failed to update practice order", updateError);
+        return error("Failed to reorder practices", { status: 500 });
+      }
+    }
+
+    return success({ order: payload.order });
   }
 
   const { data, error: logError } = await supabase

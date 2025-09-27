@@ -2,11 +2,32 @@
 
 import { useMemo } from "react";
 
+import {
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
-import { useUpdatePracticeMutation, usePractices } from "@/lib/hooks/use-practices";
+import {
+  useUpdatePracticeMutation,
+  usePractices,
+  useReorderPracticesMutation,
+} from "@/lib/hooks/use-practices";
 import { usePracticeModalStore } from "@/lib/stores/practice-modal-store";
 import {
   selectPractices,
@@ -15,6 +36,7 @@ import {
   usePracticesStore,
   type Practice,
 } from "@/lib/stores/practices-store";
+import { cn } from "@/lib/utils";
 
 import { dayOptions, virtueOptions } from "./practice-form-constants";
 
@@ -45,16 +67,51 @@ export function PracticeList() {
   const modalActions = usePracticeModalStore((state) => state.actions);
 
   const updateMutation = useUpdatePracticeMutation();
+  const reorderMutation = useReorderPracticesMutation();
   const { capture: track } = useAnalytics();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const sortedPractices = useMemo(
+    () => [...practices].sort((a, b) => a.sortOrder - b.sortOrder),
+    [practices],
+  );
+
   const filteredPractices = useMemo(() => {
-    return practices.filter((practice) => {
+    return sortedPractices.filter((practice) => {
       if (filter.status === "active" && practice.status !== "active") return false;
       if (filter.status === "archived" && practice.status !== "archived") return false;
       if (filter.virtue && practice.virtue !== filter.virtue) return false;
       return true;
     });
-  }, [filter.status, filter.virtue, practices]);
+  }, [filter.status, filter.virtue, sortedPractices]);
+
+  const reorderDisabled = filter.status === "archived" || reorderMutation.isPending;
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (reorderDisabled) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const activeIndex = sortedPractices.findIndex((practice) => practice.id === active.id);
+    const overIndex = sortedPractices.findIndex((practice) => practice.id === over.id);
+
+    if (activeIndex === -1 || overIndex === -1) return;
+
+    const reordered = arrayMove(sortedPractices, activeIndex, overIndex).map((practice, index) => ({
+      id: practice.id,
+      sortOrder: index,
+    }));
+
+    reorderMutation.mutate(reordered);
+  };
 
   const handleArchiveToggle = (practice: Practice) => {
     const isArchiving = practice.status === "active";
@@ -130,76 +187,136 @@ export function PracticeList() {
         </label>
       </div>
       <div className="overflow-hidden rounded-3xl border border-border bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/60 text-left text-xs uppercase tracking-[0.26em] text-muted-foreground">
-            <tr>
-              <th className="px-5 py-4 font-medium">Practice</th>
-              <th className="px-5 py-4 font-medium">Cadence</th>
-              <th className="px-5 py-4 font-medium">Reminder</th>
-              <th className="px-5 py-4 font-medium">Status</th>
-              <th className="px-5 py-4 font-medium text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPractices.length === 0 ? (
+        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+          <table className="w-full text-sm">
+            <thead className="bg-muted/60 text-left text-xs uppercase tracking-[0.26em] text-muted-foreground">
               <tr>
-                <td className="px-5 py-5 text-sm text-muted-foreground" colSpan={5}>
-                  No practices match this filter yet. Try another virtue or create a new routine.
-                </td>
+                <th className="w-12 px-4 py-4"></th>
+                <th className="px-5 py-4 font-medium">Practice</th>
+                <th className="px-5 py-4 font-medium">Cadence</th>
+                <th className="px-5 py-4 font-medium">Reminder</th>
+                <th className="px-5 py-4 font-medium">Status</th>
+                <th className="px-5 py-4 font-medium text-right">Actions</th>
               </tr>
-            ) : (
-              filteredPractices.map((practice) => (
-                <tr key={practice.id} className="border-t border-border/60">
-                  <td className="px-5 py-4">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-semibold text-foreground">{practice.name}</span>
-                      {practice.description ? (
-                        <span className="text-xs text-muted-foreground">{practice.description}</span>
-                      ) : null}
-                      <span className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                        {practice.virtue}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-muted-foreground">
-                    <div className="flex flex-col gap-1">
-                      <span className="font-medium text-foreground capitalize">{practice.frequency}</span>
-                      <span>{toActiveDaysLabel(practice)}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-muted-foreground">
-                    {practice.reminderTime ? `At ${practice.reminderTime}` : "—"}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-muted-foreground">
-                    {practice.status === "active" ? "Active" : "Archived"}
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => modalActions.openEdit(practice)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={practice.status === "active" ? "ghost" : "default"}
-                        onClick={() => handleArchiveToggle(practice)}
-                        disabled={updateMutation.isPending}
-                      >
-                        {practice.status === "active" ? "Archive" : "Restore"}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <SortableContext
+              items={filteredPractices.map((practice) => practice.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <tbody>
+                {filteredPractices.length === 0 ? (
+                  <tr>
+                    <td className="px-5 py-5 text-sm text-muted-foreground" colSpan={6}>
+                      No practices match this filter yet. Try another virtue or create a new routine.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPractices.map((practice) => (
+                    <PracticeRow
+                      key={practice.id}
+                      practice={practice}
+                      disabled={reorderDisabled}
+                      onEdit={modalActions.openEdit}
+                      onArchiveToggle={handleArchiveToggle}
+                      archivePending={updateMutation.isPending}
+                    />
+                  ))
+                )}
+              </tbody>
+            </SortableContext>
+          </table>
+        </DndContext>
       </div>
     </section>
+  );
+}
+
+interface PracticeRowProps {
+  practice: Practice;
+  disabled: boolean;
+  onEdit: (practice: Practice) => void;
+  onArchiveToggle: (practice: Practice) => void;
+  archivePending: boolean;
+}
+
+function PracticeRow({
+  practice,
+  disabled,
+  onEdit,
+  onArchiveToggle,
+  archivePending,
+}: PracticeRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: practice.id,
+    disabled,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "border-t border-border/60 bg-card",
+        isDragging && "relative z-10 shadow-lg ring-2 ring-primary/30",
+      )}
+    >
+      <td className="w-12 px-4 py-4 align-middle">
+        <button
+          type="button"
+          className={cn(
+            "flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-muted-foreground transition",
+            disabled ? "cursor-not-allowed opacity-50" : "hover:border-primary/60 hover:text-primary",
+          )}
+          disabled={disabled}
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="size-4" aria-hidden />
+          <span className="sr-only">Reorder practice</span>
+        </button>
+      </td>
+      <td className="px-5 py-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-semibold text-foreground">{practice.name}</span>
+          {practice.description ? (
+            <span className="text-xs text-muted-foreground">{practice.description}</span>
+          ) : null}
+          <span className="text-xs uppercase tracking-[0.28em] text-muted-foreground">{practice.virtue}</span>
+        </div>
+      </td>
+      <td className="px-5 py-4 text-sm text-muted-foreground">
+        <div className="flex flex-col gap-1">
+          <span className="font-medium text-foreground capitalize">{practice.frequency}</span>
+          <span>{toActiveDaysLabel(practice)}</span>
+        </div>
+      </td>
+      <td className="px-5 py-4 text-sm text-muted-foreground">
+        {practice.reminderTime ? `At ${practice.reminderTime}` : "—"}
+      </td>
+      <td className="px-5 py-4 text-sm text-muted-foreground">
+        {practice.status === "active" ? "Active" : "Archived"}
+      </td>
+      <td className="px-5 py-4">
+        <div className="flex justify-end gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={() => onEdit(practice)}>
+            Edit
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={practice.status === "active" ? "ghost" : "default"}
+            onClick={() => onArchiveToggle(practice)}
+            disabled={archivePending}
+          >
+            {practice.status === "active" ? "Archive" : "Restore"}
+          </Button>
+        </div>
+      </td>
+    </tr>
   );
 }

@@ -37,6 +37,8 @@ export interface PracticesState {
     upsertPractice: (practice: Practice) => void;
     archivePractice: (id: string) => void;
     removePractice: (id: string) => void;
+    reorderPractices: (order: { id: string; sortOrder: number }[]) => void;
+    setPractices: (practices: Practice[]) => void;
     setLoading: (value: boolean) => void;
     setError: (message: string | null) => void;
     reset: () => void;
@@ -92,6 +94,23 @@ export const usePracticesStore = create<PracticesState>()(
         removePractice: (id) => {
           set((state) => {
             state.practices = state.practices.filter((item) => item.id !== id);
+          });
+        },
+        reorderPractices: (order) => {
+          set((state) => {
+            const sortMap = new Map(order.map((item, index) => [item.id, item.sortOrder ?? index]));
+            state.practices = state.practices.map((practice) => {
+              if (sortMap.has(practice.id)) {
+                return { ...practice, sortOrder: sortMap.get(practice.id)! };
+              }
+              return practice;
+            });
+            state.practices.sort((a, b) => a.sortOrder - b.sortOrder);
+          });
+        },
+        setPractices: (practices) => {
+          set((state) => {
+            state.practices = [...practices].sort((a, b) => a.sortOrder - b.sortOrder);
           });
         },
         setLoading: (value) => {

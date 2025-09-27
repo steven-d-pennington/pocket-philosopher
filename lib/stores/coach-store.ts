@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
+import type { CoachCitation } from "@/lib/ai/types";
+
 export type CoachRole = "user" | "coach" | "system";
 
 export interface CoachMessage {
@@ -10,6 +12,7 @@ export interface CoachMessage {
   content: string;
   createdAt: string;
   streaming?: boolean;
+  citations?: CoachCitation[];
 }
 
 export interface CoachPersona {
@@ -26,6 +29,7 @@ interface ConversationState {
   isStreaming: boolean;
   tokens: number;
   typing: boolean;
+  conversationId?: string;
 }
 
 interface CoachState {
@@ -37,9 +41,15 @@ interface CoachState {
     sendUserMessage: (personaId: string, content: string) => CoachMessage;
     startStreaming: (personaId: string, messageId: string) => void;
     appendStreamingChunk: (personaId: string, messageId: string, chunk: string, tokens: number) => void;
-    completeStreaming: (personaId: string, messageId: string) => void;
+    completeStreaming: (
+      personaId: string,
+      messageId: string,
+      payload?: { citations?: CoachCitation[]; tokens?: number },
+    ) => void;
+    failStreaming: (personaId: string, messageId: string, errorMessage: string) => void;
     setTyping: (personaId: string, value: boolean) => void;
     resetConversation: (personaId: string) => void;
+    setConversationId: (personaId: string, conversationId: string) => void;
   };
 }
 
@@ -48,6 +58,7 @@ const createInitialConversation = (): ConversationState => ({
   isStreaming: false,
   tokens: 0,
   typing: false,
+  conversationId: undefined,
 });
 
 const defaultPersonas: CoachPersona[] = [
@@ -143,12 +154,13 @@ export const useCoachStore = create<CoachState>()(
           conversation.isStreaming = true;
           conversation.tokens = 0;
           conversation.typing = true;
+          const now = new Date().toISOString();
           conversation.messages.push({
             id: messageId,
             personaId,
             role: "coach",
             content: "",
-            createdAt: new Date().toISOString(),
+            createdAt: now,
             streaming: true,
           });
         });
@@ -164,12 +176,31 @@ export const useCoachStore = create<CoachState>()(
           }
         });
       },
-      completeStreaming: (personaId, messageId) => {
+      completeStreaming: (personaId, messageId, payload) => {
         set((state) => {
           const conversation = ensureConversation(state, personaId);
           const message = conversation.messages.find((item) => item.id === messageId);
           if (message) {
             message.streaming = false;
+            if (payload?.citations) {
+              message.citations = payload.citations;
+            }
+          }
+          conversation.isStreaming = false;
+          conversation.typing = false;
+          if (typeof payload?.tokens === "number") {
+            conversation.tokens = payload.tokens;
+          }
+        });
+      },
+      failStreaming: (personaId, messageId, errorMessage) => {
+        set((state) => {
+          const conversation = ensureConversation(state, personaId);
+          const message = conversation.messages.find((item) => item.id === messageId);
+          if (message) {
+            message.content = errorMessage;
+            message.streaming = false;
+            message.citations = undefined;
           }
           conversation.isStreaming = false;
           conversation.typing = false;
@@ -184,6 +215,12 @@ export const useCoachStore = create<CoachState>()(
       resetConversation: (personaId) => {
         set((state) => {
           state.conversations[personaId] = createInitialConversation();
+        });
+      },
+      setConversationId: (personaId, conversationId) => {
+        set((state) => {
+          const conversation = ensureConversation(state, personaId);
+          conversation.conversationId = conversationId;
         });
       },
     },
