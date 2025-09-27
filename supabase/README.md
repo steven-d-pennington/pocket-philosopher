@@ -1,6 +1,6 @@
 # Supabase Environment Guide
 
-This guide captures the provisioning steps and parity requirements for the Pocket Philosopher Supabase stack across local, staging, and production environments.
+This guide captures the provisioning steps, authentication configuration, and parity requirements for the Pocket Philosopher Supabase stack across local, staging, and production environments.
 
 ## Environments
 
@@ -23,9 +23,56 @@ This guide captures the provisioning steps and parity requirements for the Pocke
    npx supabase db remote commit --project-ref <project-ref>  # staging/production (if using CLI-managed migrations)
    psql "$SUPABASE_DB_URL" -f supabase/seed.sql              # or run within the SQL editor
    ```
-4. **Enable Row Level Security** (already applied in `schema.sql`) and confirm policies are active via the Dashboard.
-5. **Configure auth providers and SMTP** to match environment requirements (email OTP, Resend SMTP credentials, etc.).
-6. **Set backups & monitoring**: activate nightly backups, log retention, and connect observability tools (Supabase logs to PostHog/Axiom or your preferred target).
+4. **Confirm Row Level Security** (policies are defined in `database/schema.sql`). See "RLS Verification" below for suggested checks.
+5. **Configure authentication** (email OTP, Resend SMTP credentials, optional OAuth providers). Instructions in "Authentication Providers" below.
+6. **Set backups & monitoring**: activate nightly backups, log retention, and connect observability tools. See "Backups & Monitoring" for recommended settings.
+
+## Authentication Providers
+
+1. Navigate to **Settings > Authentication > Providers** in the Supabase Dashboard.
+2. Enable **Email** sign-in and configure SMTP settings. Recommended setup:
+   - Host: `smtp.resend.com`
+   - Port: `587`
+   - Username: `resend`
+   - Password: use your `RESEND_API_KEY`
+   - Sender: value of `EMAIL_FROM` (must be a verified domain in Resend).
+3. Optional OAuth providers (Google, Apple, etc.) can be toggled here. Record client IDs/secrets in your secrets manager and map them to Supabase when ready.
+4. Under **Authentication > Policies**, set **Disable anonymous sign-ups** unless the product explicitly requires them.
+5. Configure **Rate limits** for email and OTP endpoints to guard against abuse (Authentication > Rate limits > Email). Suggested starter: 20 requests / 5 minutes per IP.
+
+## RLS Verification
+
+The schema already enables RLS on all user-owned tables. After applying migrations, run these checks:
+
+```sql
+-- Should return `permissive` policies when RLS is active
+select tablename, rowsecurity from pg_tables where schemaname = 'public' and tablename in (
+  'profiles','habits','habit_logs','reflections','daily_progress','progress_summaries','marcus_conversations','marcus_messages','feedback'
+);
+
+-- Verify a sample policy
+select *
+from pg_policies
+where schemaname = 'public' and tablename = 'habits';
+```
+
+If `rowsecurity` is `t` and policies exist per table, RLS is configured correctly. Test Supabase client interactions with a limited JWT to ensure policies behave as expected.
+
+## Backups & Monitoring
+
+1. **Backups**
+   - Dashboard > Database > Backups: enable **Daily Backups** (retain 7-14 days).
+   - Configure **Point-in-time Recovery** if on a paid plan.
+   - Export weekly dumps with `supabase db dump --project-ref <ref>` and archive to cloud storage (S3/GCS).
+2. **Log Retention & Alerts**
+   - Dashboard > Logs > Settings: set retention to at least 30 days for staging and 90 days for production.
+   - Create alert rules for auth failures, rate-limit breaches, and storage errors. Alerts can be sent to Slack/email via Supabase Logflare or webhook integrations.
+3. **Monitoring Integrations**
+   - Enable the built-in **Performance** dashboard and configure the **Edge Functions** inspector if applicable.
+   - Forward logs to your observability stack (e.g., PostHog, Axiom, Datadog). Use the `Log drains` feature under Logs to ship structured logs.
+   - Record environment URLs and alert contacts in your runbook.
+4. **Health Checks**
+   - Ensure `/api/health` in the Next.js app is monitored by your uptime service. Add Supabase connectivity checks to that endpoint as additional validation.
 
 ## Environment Parity & Secrets
 
@@ -55,8 +102,12 @@ This guide captures the provisioning steps and parity requirements for the Pocke
 
 ## Related Files
 
-- `database/schema.sql` – canonical schema, functions, triggers, and policies.
-- `supabase/seed.sql` – idempotent seed data for personas, practice templates, and philosophy corpus snippets.
-- `docs/build-plan/tasks/data-and-backend-infrastructure/tasks.md` – execution tracking for backend workstreams.
+- `database/schema.sql` - canonical schema, functions, triggers, and policies.
+- `supabase/seed.sql` - idempotent seed data for personas, practice templates, and philosophy corpus snippets.
+- `docs/build-plan/tasks/data-and-backend-infrastructure/tasks.md` - execution tracking for backend workstreams.
 
 Update this guide whenever provisioning steps or environment requirements change.
+
+
+
+
