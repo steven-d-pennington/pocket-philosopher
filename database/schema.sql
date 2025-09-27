@@ -1,7 +1,7 @@
 -- Pocket Philosopher core schema
 create extension if not exists "pgcrypto";
 create extension if not exists "uuid-ossp";
-create extension if not exists "pgvector";
+create extension if not exists "vector";
 
 create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
