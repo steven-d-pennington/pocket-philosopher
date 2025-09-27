@@ -1,0 +1,108 @@
+"use client";
+
+import { useEffect } from "react";
+
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useProfile, useUpdateProfileMutation } from "@/lib/hooks/use-profile";
+
+interface SettingsFormValues {
+  timezone: string;
+  privacy_level: string;
+  notifications_enabled: boolean;
+}
+
+const privacyOptions = [
+  { value: "standard", label: "Standard (default)" },
+  { value: "stealth", label: "Stealth (hide reflections)" },
+  { value: "community", label: "Community (share anonymized insights)" },
+];
+
+export function SettingsPreferences() {
+  const { data: profile, isLoading } = useProfile();
+  const mutation = useUpdateProfileMutation();
+
+  const form = useForm<SettingsFormValues>({
+    defaultValues: {
+      timezone: "UTC",
+      privacy_level: "standard",
+      notifications_enabled: true,
+    },
+  });
+
+  useEffect(() => {
+    if (!profile) return;
+    form.reset({
+      timezone: profile.timezone ?? "UTC",
+      privacy_level: profile.privacy_level ?? "standard",
+      notifications_enabled: profile.notifications_enabled ?? true,
+    });
+  }, [profile, form]);
+
+  const onSubmit = form.handleSubmit((values) => {
+    mutation.mutate(values, {
+      onSuccess: () => toast.success("Settings saved"),
+      onError: (error) => toast.error(error instanceof Error ? error.message : "Unable to save settings"),
+    });
+  });
+
+  return (
+    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+      <header className="space-y-1">
+        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Preferences</p>
+        <h2 className="text-2xl font-semibold">Notifications & privacy</h2>
+      </header>
+      <form className="mt-6 space-y-5" onSubmit={onSubmit}>
+        <div className="space-y-2">
+          <Label htmlFor="timezone">Timezone</Label>
+          <Input
+            id="timezone"
+            placeholder="e.g. America/Los_Angeles"
+            disabled={isLoading || mutation.isPending}
+            {...form.register("timezone")}
+          />
+          <p className="text-xs text-muted-foreground">
+            Used for scheduling reminders and summarizing reflections on the correct day.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="privacy_level">Privacy level</Label>
+          <select
+            id="privacy_level"
+            className="w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm"
+            disabled={isLoading || mutation.isPending}
+            {...form.register("privacy_level")}
+          >
+            {privacyOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-3 rounded-3xl border border-border/60 bg-muted/20 px-4 py-3">
+          <input
+            id="notifications_enabled"
+            type="checkbox"
+            className="size-4"
+            disabled={isLoading || mutation.isPending}
+            {...form.register("notifications_enabled")}
+          />
+          <div>
+            <Label htmlFor="notifications_enabled">Enable email reminders</Label>
+            <p className="text-xs text-muted-foreground">
+              Toggle global reminders. Specific practice reminders can be controlled per habit.
+            </p>
+          </div>
+        </div>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "Saving…" : "Save settings"}
+        </Button>
+      </form>
+    </section>
+  );
+}

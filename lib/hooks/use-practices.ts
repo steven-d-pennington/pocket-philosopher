@@ -205,6 +205,40 @@ export function useDeletePracticeMutation() {
   });
 }
 
+export function useReorderPracticesMutation() {
+  const queryClient = useQueryClient();
+  const actions = usePracticesStore(selectPracticesActions);
+
+  return useMutation({
+    mutationFn: async (order: { id: string; sortOrder: number }[]) => {
+      await apiFetch<ApiResponse<{ order: { id: string; sort_order: number }[] }>>("/api/practices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "reorder",
+          order: order.map((item) => ({ id: item.id, sort_order: item.sortOrder })),
+        }),
+      });
+      return order;
+    },
+    onMutate: async (order) => {
+      const previous = usePracticesStore
+        .getState()
+        .practices.map((practice) => ({ ...practice }));
+      actions.reorderPractices(order);
+      return { previous };
+    },
+    onError: (_error, _order, context) => {
+      if (context?.previous) {
+        actions.setPractices(context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["practices"] });
+    },
+  });
+}
+
 export type { CreatePracticeInput };
 
 export type PracticeUpdateInput = UpdatePracticeInput;

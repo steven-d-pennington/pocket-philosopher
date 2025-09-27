@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata = buildMetadata({
@@ -11,14 +12,12 @@ export const metadata = buildMetadata({
 
 export default function HelpPage() {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Help & Feedback</h1>
-        <p className="text-sm text-muted-foreground">
-          Surface documentation, share feedback, and monitor build health. Hook this page to the
-          /api/debug and /api/health routes as they evolve.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <DashboardPageHeader
+        eyebrow="Support"
+        title="Help & feedback"
+        description="Access build documentation, share product feedback, and review diagnostics for the Pocket Philosopher workspace."
+      />
       <section className="grid gap-4 rounded-3xl border border-border p-6 text-sm text-muted-foreground">
         <p className="font-semibold text-foreground">Quick links</p>
         <ul className="grid gap-2 md:grid-cols-2">
@@ -53,11 +52,19 @@ export default function HelpPage() {
           </li>
         </ul>
       </section>
-      <section className="rounded-3xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-        <p className="font-semibold text-foreground">In progress</p>
-        <p>
-          Feedback submission and diagnostics reporting will connect to Supabase tables (eedback,
-          pp_settings) once the backend endpoints are finalized.
+      <section className="grid gap-4 rounded-3xl border border-border/60 bg-muted/10 p-6 text-sm text-muted-foreground md:grid-cols-2">
+        <div className="space-y-2">
+          <p className="font-semibold text-foreground">Diagnostics</p>
+          <p>
+            Run <code className="rounded bg-muted px-2 py-1">/api/health</code> and <code className="rounded bg-muted px-2 py-1">/api/debug</code> to inspect service status once backend endpoints land.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <p className="font-semibold text-foreground">Feedback</p>
+          <p>
+            Feedback submission and diagnostics reporting will connect to Supabase tables (<code className="rounded bg-muted px-1 py-0.5">feedback</code>, <code className="rounded bg-muted px-1 py-0.5">app_settings</code>) as part of the upcoming infrastructure milestone.
+          </p>
+        </div>
         </p>
       </section>
     </div>

@@ -1,3 +1,5 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { SettingsPreferences } from "@/components/settings/settings-preferences";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata = buildMetadata({
@@ -9,20 +11,19 @@ export const metadata = buildMetadata({
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          Configure notifications, privacy controls, integrations, and feature flags. This page will
-          orchestrate multiple modal flows and rely heavily on shared utilities in lib/hooks.
-        </p>
-      </div>
-      <section className="grid gap-4 rounded-3xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-        <p className="font-semibold text-foreground">Planned sections</p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>Notification preferences with timezone awareness.</li>
-          <li>Privacy modes for reflections and practice visibility.</li>
-          <li>Integrations (email, calendar, push) with feature-flag awareness.</li>
+    <div className="space-y-8">
+      <DashboardPageHeader
+        eyebrow="Settings"
+        title="System preferences"
+        description="Adjust timezone-aware notifications, privacy defaults, and forthcoming integrations for the Pocket Philosopher experience."
+      />
+      <SettingsPreferences />
+      <section className="rounded-3xl border border-border/60 bg-muted/10 p-6 text-sm text-muted-foreground">
+        <p className="font-semibold text-foreground">Integrations (coming soon)</p>
+        <ul className="mt-3 list-disc space-y-1 pl-5">
+          <li>Calendar sync for practice reminders.</li>
+          <li>Slack and email digests summarizing Return Score trends.</li>
+          <li>Service-worker powered push notifications.</li>
         </ul>
       </section>
     </div>
