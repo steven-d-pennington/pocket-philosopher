@@ -64,7 +64,7 @@ export const usePracticesStore = create<PracticesState>()(
         initialize: (practices) => {
           set(() => ({
             ...initialState,
-            practices: practices.sort((a, b) => a.sortOrder - b.sortOrder),
+            practices: [...practices].sort((a, b) => a.sortOrder - b.sortOrder),
           }));
         },
         setFilter: (filter) => {

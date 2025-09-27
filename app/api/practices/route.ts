@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { error, success } from "@/app/api/_lib/response";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
+import { serverAnalytics } from "@/lib/analytics/server";
 import type { Database } from "@/lib/supabase/types";
 
 const basePracticeSchema = z.object({
@@ -139,6 +140,17 @@ export async function POST(request: Request) {
       return error("Failed to create practice", { status: 500 });
     }
 
+    serverAnalytics.capture({
+      event: "practice_created",
+      distinctId: user.id,
+      properties: {
+        practice_id: data?.id,
+        virtue: data?.virtue,
+        frequency: data?.frequency,
+        has_reminder: Boolean(data?.reminder_time),
+      },
+    });
+
     return success(data, { status: 201 });
   }
 
@@ -155,6 +167,14 @@ export async function POST(request: Request) {
         return error("Failed to reorder practices", { status: 500 });
       }
     }
+
+    serverAnalytics.capture({
+      event: "practice_reordered",
+      distinctId: user.id,
+      properties: {
+        order_size: payload.order.length,
+      },
+    });
 
     return success({ order: payload.order });
   }
@@ -182,6 +202,20 @@ export async function POST(request: Request) {
     console.error("Failed to log practice", logError);
     return error("Failed to log practice", { status: 500 });
   }
+
+  serverAnalytics.capture({
+    event: "practice_completed",
+    distinctId: user.id,
+    properties: {
+      practice_id: data?.habit_id,
+      date: data?.date,
+      has_notes: Boolean(payload.notes),
+      mood_before: payload.mood_before,
+      mood_after: payload.mood_after,
+      value: payload.value ?? null,
+      target_value: payload.target_value ?? null,
+    },
+  });
 
   return success({
     practice_id: data.habit_id,
@@ -222,6 +256,15 @@ export async function PUT(request: Request) {
     return error("Failed to update practice", { status: 500 });
   }
 
+  serverAnalytics.capture({
+    event: "practice_updated",
+    distinctId: user.id,
+    properties: {
+      practice_id: id,
+      updated_fields: Object.keys(updates),
+    },
+  });
+
   return success(data);
 }
 
@@ -255,5 +298,20 @@ export async function DELETE(request: Request) {
     return error("Failed to delete practice", { status: 500 });
   }
 
+  serverAnalytics.capture({
+    event: "practice_deleted",
+    distinctId: user.id,
+    properties: {
+      practice_id: id,
+    },
+  });
+
   return success({ id });
 }
+
+
+
+
+
+
+
