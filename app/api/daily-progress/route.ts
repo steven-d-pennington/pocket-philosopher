@@ -1,7 +1,14 @@
 import { z } from "zod";
 
-import { error, success } from "@/app/api/_lib/response";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
+import {
+  createApiRequestLogger,
+  respondWithError,
+  respondWithSuccess,
+  withUserContext,
+} from "@/app/api/_lib/logger";
+
+const ROUTE = "/api/daily-progress";
 
 const postSchema = z.discriminatedUnion("action", [
   z.object({
@@ -22,10 +29,13 @@ function todayISO() {
 }
 
 export async function GET(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to daily progress", { method: "GET" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -39,8 +49,8 @@ export async function GET(request: Request) {
     .maybeSingle();
 
   if (progressError && progressError.code !== "PGRST116") {
-    console.error("Failed to fetch daily progress", progressError);
-    return error("Failed to load daily progress", { status: 500 });
+    logger.error("Failed to fetch daily progress", progressError, { targetDate });
+    return respondWithError(logger, "Failed to load daily progress", { status: 500 });
   }
 
   let workingProgress = progressRow;
@@ -53,8 +63,8 @@ export async function GET(request: Request) {
       .single();
 
     if (insertError) {
-      console.error("Failed to seed daily progress", insertError);
-      return error("Failed to initialize daily progress", { status: 500 });
+      logger.error("Failed to seed daily progress", insertError, { targetDate });
+      return respondWithError(logger, "Failed to initialize daily progress", { status: 500 });
     }
 
     workingProgress = inserted;
@@ -67,8 +77,8 @@ export async function GET(request: Request) {
     .eq("date", targetDate);
 
   if (logsError) {
-    console.error("Failed to load practice logs", logsError);
-    return error("Failed to load practice logs", { status: 500 });
+    logger.error("Failed to load practice logs", logsError, { targetDate });
+    return respondWithError(logger, "Failed to load practice logs", { status: 500 });
   }
 
   const { data: reflections, error: reflectionsError } = await supabase
@@ -78,8 +88,8 @@ export async function GET(request: Request) {
     .eq("date", targetDate);
 
   if (reflectionsError) {
-    console.error("Failed to load reflections", reflectionsError);
-    return error("Failed to load reflections", { status: 500 });
+    logger.error("Failed to load reflections", reflectionsError, { targetDate });
+    return respondWithError(logger, "Failed to load reflections", { status: 500 });
   }
 
   const responsePayload = {
@@ -101,21 +111,26 @@ export async function GET(request: Request) {
     },
   };
 
-  return success(responsePayload);
+  logger.info("Daily progress retrieved", { targetDate });
+  return respondWithSuccess(logger, responsePayload);
 }
 
 export async function POST(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to daily progress", { method: "POST" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const json = await request.json().catch(() => null);
   const parseResult = postSchema.safeParse(json);
 
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid daily progress payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -124,7 +139,9 @@ export async function POST(request: Request) {
   const payload = parseResult.data;
   const targetDate = payload.date ?? todayISO();
 
-  switch (payload.action) {
+  const action = payload.action;
+
+  switch (action) {
     case "set_intention": {
       const { error: upsertError } = await supabase.from("daily_progress").upsert(
         {
@@ -136,11 +153,12 @@ export async function POST(request: Request) {
       );
 
       if (upsertError) {
-        console.error("Failed to set intention", upsertError);
-        return error("Failed to set intention", { status: 500 });
+        logger.error("Failed to set intention", upsertError, { targetDate });
+        return respondWithError(logger, "Failed to set intention", { status: 500 });
       }
 
-      return success({ date: targetDate, intention: payload.intention });
+      logger.info("Daily intention set", { targetDate });
+      return respondWithSuccess(logger, { date: targetDate, intention: payload.intention });
     }
     case "complete_practice": {
       if (payload.completed) {
@@ -154,8 +172,11 @@ export async function POST(request: Request) {
         );
 
         if (insertError) {
-          console.error("Failed to log practice completion", insertError);
-          return error("Failed to log practice", { status: 500 });
+          logger.error("Failed to log practice completion", insertError, {
+            targetDate,
+            practiceId: payload.practice_id,
+          });
+          return respondWithError(logger, "Failed to log practice", { status: 500 });
         }
       } else {
         const { error: deleteError } = await supabase
@@ -166,18 +187,29 @@ export async function POST(request: Request) {
           .eq("date", targetDate);
 
         if (deleteError) {
-          console.error("Failed to remove practice log", deleteError);
-          return error("Failed to update practice log", { status: 500 });
+          logger.error("Failed to remove practice log", deleteError, {
+            targetDate,
+            practiceId: payload.practice_id,
+          });
+          return respondWithError(logger, "Failed to update practice log", { status: 500 });
         }
       }
 
-      return success({
+      logger.info("Practice completion recorded", {
+        targetDate,
+        practiceId: payload.practice_id,
+        completed: payload.completed,
+      });
+
+      return respondWithSuccess(logger, {
         practice_id: payload.practice_id,
         completed: payload.completed,
         date: targetDate,
       });
     }
     default:
-      return error("Unsupported action", { status: 400 });
+      logger.warn("Unsupported daily progress action", { action });
+      return respondWithError(logger, "Unsupported action", { status: 400 });
   }
 }
+

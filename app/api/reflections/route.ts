@@ -1,7 +1,14 @@
 import { z } from "zod";
 
-import { error, success } from "@/app/api/_lib/response";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
+import {
+  createApiRequestLogger,
+  respondWithError,
+  respondWithSuccess,
+  withUserContext,
+} from "@/app/api/_lib/logger";
+
+const ROUTE = "/api/reflections";
 
 const baseReflectionSchema = z.object({
   date: z.string().min(1),
@@ -29,10 +36,13 @@ const deleteReflectionSchema = z.object({
 });
 
 export async function GET(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to reflections", { method: "GET" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -51,25 +61,30 @@ export async function GET(request: Request) {
   const { data, error: dbError } = await query;
 
   if (dbError) {
-    console.error("Failed to fetch reflections", dbError);
-    return error("Failed to load reflections", { status: 500 });
+    logger.error("Failed to fetch reflections", dbError, { targetDate });
+    return respondWithError(logger, "Failed to load reflections", { status: 500 });
   }
 
-  return success({ reflections: data ?? [] });
+  logger.info("Reflections retrieved", { count: data?.length ?? 0, targetDate });
+  return respondWithSuccess(logger, { reflections: data ?? [] });
 }
 
 export async function POST(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to reflections", { method: "POST" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const json = await request.json().catch(() => null);
   const parseResult = createReflectionSchema.safeParse(json);
 
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid reflection payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -90,25 +105,33 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError) {
-    console.error("Failed to save reflection", insertError);
-    return error("Failed to save reflection", { status: 500 });
+    logger.error("Failed to save reflection", insertError, {
+      date: payload.date,
+      type: payload.type,
+    });
+    return respondWithError(logger, "Failed to save reflection", { status: 500 });
   }
 
-  return success(data, { status: 201 });
+  logger.info("Reflection saved", { date: payload.date, type: payload.type });
+  return respondWithSuccess(logger, data, { status: 201 });
 }
 
 export async function PUT(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to reflections", { method: "PUT" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const json = await request.json().catch(() => null);
   const parseResult = updateReflectionSchema.safeParse(json);
 
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid reflection update payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -125,25 +148,30 @@ export async function PUT(request: Request) {
     .single();
 
   if (updateError) {
-    console.error("Failed to update reflection", updateError);
-    return error("Failed to update reflection", { status: 500 });
+    logger.error("Failed to update reflection", updateError, { id });
+    return respondWithError(logger, "Failed to update reflection", { status: 500 });
   }
 
-  return success(data);
+  logger.info("Reflection updated", { id });
+  return respondWithSuccess(logger, data);
 }
 
 export async function DELETE(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to reflections", { method: "DELETE" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const json = await request.json().catch(() => null);
   const parseResult = deleteReflectionSchema.safeParse(json);
 
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid reflection delete payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -158,9 +186,10 @@ export async function DELETE(request: Request) {
     .eq("id", id);
 
   if (deleteError) {
-    console.error("Failed to delete reflection", deleteError);
-    return error("Failed to delete reflection", { status: 500 });
+    logger.error("Failed to delete reflection", deleteError, { id });
+    return respondWithError(logger, "Failed to delete reflection", { status: 500 });
   }
 
-  return success({ id });
+  logger.info("Reflection deleted", { id });
+  return respondWithSuccess(logger, { id });
 }

@@ -1,7 +1,13 @@
 import { z } from "zod";
 
-import { error, success } from "@/app/api/_lib/response";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
+import {
+  createApiRequestLogger,
+  respondWithError,
+  respondWithSuccess,
+} from "@/app/api/_lib/logger";
+
+const ROUTE = "/api/auth";
 
 const authSchema = z.object({
   action: z.enum(["signIn", "signUp"]),
@@ -10,13 +16,15 @@ const authSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const logger = createApiRequestLogger(request, ROUTE);
   const { supabase } = await createRouteContext();
 
   const json = await request.json().catch(() => null);
   const parseResult = authSchema.safeParse(json);
 
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid auth payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -28,11 +36,12 @@ export async function POST(request: Request) {
     const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
 
     if (signUpError) {
-      console.error("Supabase sign-up failed", signUpError);
-      return error(signUpError.message, { status: 400 });
+      logger.error("Supabase sign-up failed", signUpError, {});
+      return respondWithError(logger, signUpError.message, { status: 400 });
     }
 
-    return success(data);
+    logger.info("User signed up", {});
+    return respondWithSuccess(logger, data);
   }
 
   const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -41,22 +50,26 @@ export async function POST(request: Request) {
   });
 
   if (signInError) {
-    console.error("Supabase sign-in failed", signInError);
-    return error(signInError.message, { status: 400 });
+    logger.error("Supabase sign-in failed", signInError, {});
+    return respondWithError(logger, signInError.message, { status: 400 });
   }
 
-  return success(data);
+  logger.info("User signed in", {});
+  return respondWithSuccess(logger, data);
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
+  const logger = createApiRequestLogger(request, ROUTE);
   const { supabase } = await createRouteContext();
 
   const { error: signOutError } = await supabase.auth.signOut();
 
   if (signOutError) {
-    console.error("Supabase sign-out failed", signOutError);
-    return error(signOutError.message, { status: 500 });
+    logger.error("Supabase sign-out failed", signOutError);
+    return respondWithError(logger, signOutError.message, { status: 500 });
   }
 
-  return success({ success: true });
+  logger.info("User signed out");
+  return respondWithSuccess(logger, { success: true });
 }
+

@@ -1,13 +1,23 @@
-import { env, clientEnv } from "@/lib/env-validation";
+import { clientEnv, env } from "@/lib/env-validation";
 
-import { error, success } from "@/app/api/_lib/response";
+import {
+  createApiRequestLogger,
+  respondWithError,
+  respondWithSuccess,
+  withUserContext,
+} from "@/app/api/_lib/logger";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
 
-export async function GET() {
+const ROUTE = "/api/debug";
+
+export async function GET(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to debug endpoint");
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const payload = {
@@ -17,5 +27,6 @@ export async function GET() {
     hasServiceRoleKey: Boolean(env.SUPABASE_SERVICE_ROLE_KEY),
   };
 
-  return success(payload);
+  logger.info("Debug status retrieved");
+  return respondWithSuccess(logger, payload);
 }

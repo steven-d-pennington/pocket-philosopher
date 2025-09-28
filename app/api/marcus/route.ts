@@ -1,10 +1,17 @@
 import { z } from "zod";
 
-import { error, success } from "@/app/api/_lib/response";
+import {
+  createApiRequestLogger,
+  respondWithError,
+  respondWithSuccess,
+  withUserContext,
+} from "@/app/api/_lib/logger";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
 import { createCoachStream } from "@/lib/ai/orchestrator";
 import type { ConversationTurn } from "@/lib/ai/types";
 import type { Json } from "@/lib/supabase/types";
+
+const ROUTE = "/api/marcus";
 
 const chatSchema = z.object({
   conversation_id: z.string().uuid().optional(),
@@ -12,11 +19,14 @@ const chatSchema = z.object({
   persona: z.string().default("marcus"),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to coach conversations", { method: "GET" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const { data, error: dbError } = await supabase
@@ -27,25 +37,30 @@ export async function GET() {
     .limit(20);
 
   if (dbError) {
-    console.error("Failed to load conversations", dbError);
-    return error("Failed to load conversations", { status: 500 });
+    logger.error("Failed to load conversations", dbError);
+    return respondWithError(logger, "Failed to load conversations", { status: 500 });
   }
 
-  return success({ conversations: data ?? [] });
+  logger.info("Coach conversations retrieved", { count: data?.length ?? 0 });
+  return respondWithSuccess(logger, { conversations: data ?? [] });
 }
 
 export async function POST(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to coach conversations", { method: "POST" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const json = await request.json().catch(() => null);
   const parseResult = chatSchema.safeParse(json);
 
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid coach chat payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -68,11 +83,12 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError || !newConversation) {
-      console.error("Failed to create conversation", insertError);
-      return error("Failed to create conversation", { status: 500 });
+      logger.error("Failed to create conversation", insertError);
+      return respondWithError(logger, "Failed to create conversation", { status: 500 });
     }
 
     activeConversationId = newConversation.id;
+    logger.info("Conversation created", { conversationId: activeConversationId });
   }
 
   const { error: messageError } = await supabase.from("marcus_messages").insert({
@@ -84,8 +100,8 @@ export async function POST(request: Request) {
   });
 
   if (messageError) {
-    console.error("Failed to persist user message", messageError);
-    return error("Failed to store message", { status: 500 });
+    logger.error("Failed to persist user message", messageError, { conversationId: activeConversationId });
+    return respondWithError(logger, "Failed to store message", { status: 500 });
   }
 
   const { data: historyRows, error: historyError } = await supabase
@@ -96,7 +112,7 @@ export async function POST(request: Request) {
     .limit(20);
 
   if (historyError) {
-    console.error("Failed to load conversation history", historyError);
+    logger.warn("Failed to load conversation history", { conversationId: activeConversationId, error: historyError });
   }
 
   const history: ConversationTurn[] = (historyRows ?? []).map((row) => {
@@ -107,6 +123,8 @@ export async function POST(request: Request) {
   const assistantMessageId = crypto.randomUUID();
   const encoder = new TextEncoder();
 
+  const streamLogger = logger.child({ metadata: { conversationId: activeConversationId, persona } });
+
   const stream = new ReadableStream({
     async start(controller) {
       const send = (event: string, data: unknown) => {
@@ -114,6 +132,7 @@ export async function POST(request: Request) {
       };
 
       try {
+        streamLogger.info("Coach stream started");
         send("start", {
           conversation_id: activeConversationId,
           message_id: assistantMessageId,
@@ -145,7 +164,7 @@ export async function POST(request: Request) {
         });
 
         if (assistantInsertError) {
-          console.error("Failed to persist assistant message", assistantInsertError);
+          streamLogger.error("Failed to persist assistant message", assistantInsertError);
           send("error", { message: "Unable to store coach response." });
           return;
         }
@@ -160,9 +179,10 @@ export async function POST(request: Request) {
           .eq("user_id", user.id);
 
         if (updateError) {
-          console.error("Failed to update conversation metadata", updateError);
+          streamLogger.warn("Failed to update conversation metadata", { error: updateError });
         }
 
+        streamLogger.info("Coach stream completed", { tokens: result.tokens });
         send("complete", {
           conversation_id: activeConversationId,
           message_id: assistantMessageId,
@@ -170,7 +190,7 @@ export async function POST(request: Request) {
           tokens: result.tokens,
         });
       } catch (streamError) {
-        console.error("Coach streaming failed", streamError);
+        streamLogger.error("Coach streaming failed", streamError);
         send("error", {
           message: "Your coach is unavailable right now. Please try again shortly.",
         });
@@ -185,6 +205,9 @@ export async function POST(request: Request) {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
+      "X-Request-ID": logger.requestId,
     },
   });
 }
+
+

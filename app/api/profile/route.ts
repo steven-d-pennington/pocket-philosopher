@@ -1,8 +1,15 @@
 import { z } from "zod";
 
-import { error, success } from "@/app/api/_lib/response";
 import { createRouteContext } from "@/app/api/_lib/supabase-route";
+import {
+  createApiRequestLogger,
+  respondWithError,
+  respondWithSuccess,
+  withUserContext,
+} from "@/app/api/_lib/logger";
 import type { Database } from "@/lib/supabase/types";
+
+const ROUTE = "/api/profile";
 
 const profileUpdateSchema = z.object({
   preferred_virtue: z.string().min(1).optional(),
@@ -50,34 +57,42 @@ async function ensureProfile(
   return created as ProfileRow;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to profile", { method: "GET" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   try {
     const profile = await ensureProfile(supabase, user.id);
-    return success(profile);
+    logger.info("Profile retrieved");
+    return respondWithSuccess(logger, profile);
   } catch (err) {
-    console.error("Failed to fetch profile", err);
-    return error("Failed to fetch profile", { status: 500 });
+    logger.error("Failed to fetch profile", err);
+    return respondWithError(logger, "Failed to fetch profile", { status: 500 });
   }
 }
 
 export async function PUT(request: Request) {
+  const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
+  const logger = withUserContext(baseLogger, user?.id);
 
   if (!user) {
-    return error("Unauthorized", { status: 401 });
+    logger.warn("Unauthorized access to profile", { method: "PUT" });
+    return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
   const json = await request.json().catch(() => null);
-
   const parseResult = profileUpdateSchema.safeParse(json);
+
   if (!parseResult.success) {
-    return error("Invalid payload", {
+    logger.warn("Invalid profile payload", { issues: parseResult.error.flatten() });
+    return respondWithError(logger, "Invalid payload", {
       status: 400,
       details: parseResult.error.flatten(),
     });
@@ -96,13 +111,14 @@ export async function PUT(request: Request) {
       .single();
 
     if (updateError) {
-      console.error("Failed to update profile", updateError);
-      return error("Failed to update profile", { status: 500 });
+      logger.error("Failed to update profile", updateError);
+      return respondWithError(logger, "Failed to update profile", { status: 500 });
     }
 
-    return success(data);
+    logger.info("Profile updated", { fields: Object.keys(payload) });
+    return respondWithSuccess(logger, data);
   } catch (err) {
-    console.error("Profile update failed", err);
-    return error("Failed to update profile", { status: 500 });
+    logger.error("Profile update failed", err);
+    return respondWithError(logger, "Failed to update profile", { status: 500 });
   }
 }
