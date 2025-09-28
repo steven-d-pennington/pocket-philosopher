@@ -65,7 +65,6 @@ export default function HelpPage() {
             Feedback submission and diagnostics reporting will connect to Supabase tables (<code className="rounded bg-muted px-1 py-0.5">feedback</code>, <code className="rounded bg-muted px-1 py-0.5">app_settings</code>) as part of the upcoming infrastructure milestone.
           </p>
         </div>
-        </p>
       </section>
     </div>
   );

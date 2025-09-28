@@ -156,10 +156,12 @@ export async function createOllamaChatStream(options: AIChatStreamRequest): Prom
 }
 
 export async function createOllamaEmbedding(
-  _request: AIEmbeddingRequest,
+  request: AIEmbeddingRequest,
 ): Promise<AIEmbeddingResponse> {
+  void request;
   throw new Error("Ollama embeddings are not yet supported. Implement once upstream support is available.");
 }
+
 
 export async function checkOllamaHealth(signal?: AbortSignal): Promise<AIProviderHealth> {
   const checkedAt = Date.now();

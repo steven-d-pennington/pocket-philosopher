@@ -157,20 +157,23 @@ export async function createAnthropicChatStream(options: AIChatStreamRequest): P
             continue;
           }
 
-          const type = eventName ?? parsed.type;
+          const resolvedType = eventName ?? parsed.type;
 
-          if (type === "content_block_delta") {
-            const text = parsed.delta?.text;
+          if (resolvedType === "content_block_delta") {
+            const deltaEvent = parsed as Extract<AnthropicStreamEvent, { type: "content_block_delta" }>; 
+            const text = deltaEvent.delta?.text;
             if (typeof text === "string" && text.length > 0) {
               yield text;
             }
-          } else if (type === "message_delta") {
-            const usage = toAnthropicUsage(parsed.usage);
+          } else if (resolvedType === "message_delta") {
+            const messageEvent = parsed as Extract<AnthropicStreamEvent, { type: "message_delta" }>; 
+            const usage = toAnthropicUsage(messageEvent.usage);
             if (usage) {
               resolveUsage(usage);
             }
-          } else if (type === "error") {
-            const error = new Error(parsed.error?.message ?? "Anthropic streaming error");
+          } else if (resolvedType === "error") {
+            const errorEvent = parsed as Extract<AnthropicStreamEvent, { type: "error" }>; 
+            const error = new Error(errorEvent.error?.message ?? "Anthropic streaming error");
             rejectUsage(error);
             throw error;
           }
@@ -193,10 +196,12 @@ export async function createAnthropicChatStream(options: AIChatStreamRequest): P
 }
 
 export async function createAnthropicEmbedding(
-  _request: AIEmbeddingRequest,
+  request: AIEmbeddingRequest,
 ): Promise<AIEmbeddingResponse> {
+  void request;
   throw new Error("Anthropic embeddings are not available. Track upstream support before enabling.");
 }
+
 
 export async function checkAnthropicHealth(signal?: AbortSignal): Promise<AIProviderHealth> {
   const checkedAt = Date.now();
@@ -257,3 +262,5 @@ export async function checkAnthropicHealth(signal?: AbortSignal): Promise<AIProv
     } satisfies AIProviderHealth;
   }
 }
+
+

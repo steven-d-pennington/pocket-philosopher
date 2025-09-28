@@ -2,6 +2,8 @@ import { PostHog } from "posthog-node";
 
 import { env } from "@/lib/env-validation";
 
+type PostHogPropertyValue = string | number;
+
 type CaptureOptions = {
   event: string;
   distinctId: string;
@@ -30,52 +32,83 @@ const warn = (message: string, error: unknown) => {
   }
 };
 
+function normalizeProperties(input?: Record<string, unknown>): Record<string, PostHogPropertyValue> | undefined {
+  if (!input) return undefined;
+  const result: Record<string, PostHogPropertyValue> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value == null) {
+      continue;
+    }
+    if (typeof value === "string" || typeof value === "number") {
+      result[key] = value;
+      continue;
+    }
+    if (typeof value === "boolean") {
+      result[key] = value ? 1 : 0;
+      continue;
+    }
+    try {
+      result[key] = JSON.stringify(value);
+    } catch {
+      result[key] = String(value);
+    }
+  }
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 export const serverAnalytics = {
   isEnabled: Boolean(posthogClient),
   capture({ event, distinctId, properties, groups }: CaptureOptions) {
     if (!posthogClient) return;
 
-    posthogClient
-      .capture({
+    try {
+      posthogClient.capture({
         distinctId,
         event,
-        properties,
-        groups,
-      })
-      .catch((error) => warn(`PostHog capture failed for ${event}`, error));
+        properties: normalizeProperties(properties),
+        groups: normalizeProperties(groups),
+      });
+    } catch (error) {
+      warn(`PostHog capture failed for ${event}`, error);
+    }
   },
   identify({ distinctId, properties }: IdentifyOptions) {
     if (!posthogClient) return;
 
-    posthogClient
-      .identify({
+    try {
+      posthogClient.identify({
         distinctId,
-        properties,
-      })
-      .catch((error) => warn(`PostHog identify failed for ${distinctId}`, error));
+        properties: normalizeProperties(properties),
+      });
+    } catch (error) {
+      warn(`PostHog identify failed for ${distinctId}`, error);
+    }
   },
   async flush() {
     if (!posthogClient) return;
 
-    await new Promise<void>((resolve) => {
-      posthogClient.flush((error) => {
-        if (error) {
-          warn("PostHog flush failed", error);
-        }
-        resolve();
-      });
-    });
+    const client = posthogClient as unknown as { flush?: () => Promise<void> | void };
+    const flushFn = client.flush;
+    if (typeof flushFn === "function") {
+      try {
+        await Promise.resolve(flushFn.call(posthogClient));
+      } catch (error) {
+        warn("PostHog flush failed", error);
+      }
+    }
   },
   async shutdown() {
     if (!posthogClient) return;
 
-    await new Promise<void>((resolve) => {
-      posthogClient.shutdown((error) => {
-        if (error) {
-          warn("PostHog shutdown failed", error);
-        }
-        resolve();
-      });
-    });
+    const client = posthogClient as unknown as { shutdown?: (timeout?: number) => Promise<void> | void };
+    const shutdownFn = client.shutdown;
+    if (typeof shutdownFn === "function") {
+      try {
+        await Promise.resolve(shutdownFn.call(posthogClient));
+      } catch (error) {
+        warn("PostHog shutdown failed", error);
+      }
+    }
   },
 };
+

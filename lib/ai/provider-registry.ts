@@ -73,6 +73,7 @@ async function evaluateHealth<T extends ProviderWithHealth<{ id: string }>>(
     } satisfies AIProviderHealth;
   }
 
+
   if (result.providerId !== provider.id) {
     result = { ...result, providerId: provider.id } satisfies AIProviderHealth;
   }

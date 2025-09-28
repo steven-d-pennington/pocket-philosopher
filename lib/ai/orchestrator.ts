@@ -238,7 +238,7 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
           return undefined;
         });
         const { sanitized, citations } = resolveCitations(aggregated, knowledge);
-        const tokens = usage?.total_tokens ?? lastTokenEstimate ?? estimateTokensFromText(aggregated);
+        const tokens = usage?.totalTokens ?? lastTokenEstimate ?? estimateTokensFromText(aggregated);
         return {
           content: sanitized,
           citations,
@@ -254,3 +254,4 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
     finalize,
   };
 }
+

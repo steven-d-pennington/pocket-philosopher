@@ -9,11 +9,9 @@ import type {
 } from "@/lib/ai/types";
 import { env } from "@/lib/env-validation";
 
-export interface OpenAIChatMessage extends AIChatMessage {}
 
-type OpenAIStreamOptions = Omit<AIChatStreamRequest, "messages"> & {
-  messages: OpenAIChatMessage[];
-  temperature: number;
+type OpenAIStreamOptions = AIChatStreamRequest & {
+  messages: AIChatMessage[];
 };
 
 interface OpenAIUsageResponse {
@@ -71,7 +69,7 @@ export async function createOpenAIChatStream(options: OpenAIStreamOptions): Prom
     body: JSON.stringify({
       model: options.model,
       messages: options.messages,
-      temperature: options.temperature,
+      temperature: options.temperature ?? 0.7,
       stream: true,
       stream_options: { include_usage: true },
       max_completion_tokens: options.maxOutputTokens,
@@ -172,43 +170,55 @@ export async function createOpenAIEmbedding(request: AIEmbeddingRequest): Promis
   }
 
   const controller = new AbortController();
+  let abortHandler: (() => void) | undefined;
   if (request.signal) {
-    request.signal.addEventListener("abort", () => controller.abort(request.signal?.reason));
+    if (request.signal.aborted) {
+      controller.abort(request.signal.reason);
+    } else {
+      abortHandler = () => controller.abort(request.signal?.reason);
+      request.signal.addEventListener("abort", abortHandler);
+    }
   }
 
-  const response = await fetch(OPENAI_EMBEDDINGS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: request.model,
-      input: request.input,
-    }),
-    signal: controller.signal,
-  });
+  try {
+    const response = await fetch(OPENAI_EMBEDDINGS_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: request.model,
+        input: request.input,
+      }),
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(`OpenAI embeddings request failed with status ${response.status}: ${detail}`);
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new Error(`OpenAI embeddings request failed with status ${response.status}: ${detail}`);
+    }
+
+    const payload = (await response.json()) as OpenAIEmbeddingResponsePayload;
+    const embeddings = payload.data.map((item) => item.embedding);
+    const dimensions = embeddings[0]?.length;
+
+    return {
+      embeddings,
+      dimensions,
+      model: payload.model ?? request.model,
+      usage: payload.usage
+        ? {
+            promptTokens: payload.usage.prompt_tokens,
+            totalTokens: payload.usage.total_tokens,
+          }
+        : undefined,
+    } satisfies AIEmbeddingResponse;
+  } finally {
+    if (abortHandler) {
+      request.signal?.removeEventListener("abort", abortHandler);
+    }
   }
-
-  const payload = (await response.json()) as OpenAIEmbeddingResponsePayload;
-  const embeddings = payload.data.map((item) => item.embedding);
-  const dimensions = embeddings[0]?.length;
-
-  return {
-    embeddings,
-    dimensions,
-    model: payload.model ?? request.model,
-    usage: payload.usage
-      ? {
-          promptTokens: payload.usage.prompt_tokens,
-          totalTokens: payload.usage.total_tokens,
-        }
-      : undefined,
-  } satisfies AIEmbeddingResponse;
 }
 
 export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProviderHealth> {
@@ -269,3 +279,4 @@ export async function checkOpenAIHealth(signal?: AbortSignal): Promise<AIProvide
     } satisfies AIProviderHealth;
   }
 }
+
