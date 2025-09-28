@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.vscode
+__tests__
+coverage
+.env*
+
+# Local caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

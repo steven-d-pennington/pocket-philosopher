@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npm run dev -- -H 0.0.0.0
+    env_file:
+      - .env.local
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: 
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 
+      NEXT_PUBLIC_POSTHOG_HOST: 
+      HOST: 0.0.0.0
+    ports:
+      - ":3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    profiles:
+      - app
+
+  ollama:
+    image: ghcr.io/ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - ":11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    profiles:
+      - ollama
+
+volumes:
+  ollama-data:
