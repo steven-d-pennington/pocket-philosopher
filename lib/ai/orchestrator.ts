@@ -351,7 +351,7 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
 
         if (!outcomeRecorded) {
           outcomeRecorded = true;
-          recordProviderSuccess(providerId);
+          recordProviderSuccess(providerId, { latencyMs });
         }
 
         const analyticsProperties = {
@@ -359,6 +359,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
           providerStatus,
           personaId: options.personaId,
           fallbackUsed,
+          degradedMode: providerStatus === "degraded",
+          failoverCount: Math.max(0, attemptSummaries.length - 1),
           latencyMs,
           startedAt: new Date(requestStartedAt).toISOString(),
           completedAt: new Date(completedAt).toISOString(),
