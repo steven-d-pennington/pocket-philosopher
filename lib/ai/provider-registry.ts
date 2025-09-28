@@ -41,8 +41,10 @@ const lastKnownStatus = new Map<string, AIProviderStatus | undefined>();
 type ProviderRuntimeCounters = {
   successCount: number;
   failureCount: number;
+  degradedCount: number;
   lastSuccessAt?: number;
   lastFailureAt?: number;
+  lastSuccessLatencyMs?: number;
 };
 
 type ProviderHealthSnapshot = AIProviderHealth & {
@@ -70,7 +72,11 @@ let lastChatSelection: (ProviderSelectionResult<AIChatProvider> & { selectedAt: 
 function getRuntimeCounters(providerId: string): ProviderRuntimeCounters {
   let counters = providerRuntimeCounters.get(providerId);
   if (!counters) {
-    counters = { successCount: 0, failureCount: 0 } satisfies ProviderRuntimeCounters;
+    counters = {
+      successCount: 0,
+      failureCount: 0,
+      degradedCount: 0,
+    } satisfies ProviderRuntimeCounters;
     providerRuntimeCounters.set(providerId, counters);
   }
   return counters;
@@ -125,6 +131,13 @@ async function evaluateHealth<T extends ProviderWithHealth<{ id: string }>>(
 
   healthCache.set(provider.id, { value: normalizedResult, expiresAt: now + HEALTH_TTL_MS });
   providerHealthSnapshots.set(provider.id, normalizedResult);
+
+  const counters = getRuntimeCounters(provider.id);
+  if (normalizedResult.status === "degraded") {
+    counters.degradedCount += 1;
+  } else if (normalizedResult.status === "unavailable") {
+    counters.failureCount += 1;
+  }
 
   const previousStatus = lastKnownStatus.get(provider.id);
   lastKnownStatus.set(provider.id, normalizedResult.status);
@@ -272,10 +285,46 @@ export function recordProviderFailure(
   });
 }
 
-export function recordProviderSuccess(providerId: string): void {
+export function recordProviderSuccess(
+  providerId: string,
+  options: { latencyMs?: number } = {},
+): void {
   const counters = getRuntimeCounters(providerId);
   counters.successCount += 1;
   counters.lastSuccessAt = Date.now();
+  if (typeof options.latencyMs === "number") {
+    counters.lastSuccessLatencyMs = options.latencyMs;
+  }
+}
+
+export type ProviderStatistics = {
+  providerId: string;
+  status: AIProviderStatus | "unknown";
+  successes: number;
+  failures: number;
+  degraded: number;
+  lastLatencyMs: number | null;
+  lastCheckedAt: number | null;
+};
+
+export function getProviderStatistics(): ProviderStatistics[] {
+  const providers = new Map<string, true>();
+  chatProviders.forEach((provider) => providers.set(provider.id, true));
+  embeddingProviders.forEach((provider) => providers.set(provider.id, true));
+
+  return Array.from(providers.keys()).map((providerId) => {
+    const counters = getRuntimeCounters(providerId);
+    const snapshot = providerHealthSnapshots.get(providerId);
+    return {
+      providerId,
+      status: snapshot?.status ?? lastKnownStatus.get(providerId) ?? "unknown",
+      successes: counters.successCount,
+      failures: counters.failureCount,
+      degraded: counters.degradedCount,
+      lastLatencyMs: counters.lastSuccessLatencyMs ?? snapshot?.latencyMs ?? null,
+      lastCheckedAt: snapshot?.checkedAt ?? null,
+    } satisfies ProviderStatistics;
+  });
 }
 
 export function getChatProviderDiagnostics() {

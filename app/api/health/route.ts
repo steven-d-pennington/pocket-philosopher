@@ -3,7 +3,10 @@ import { createRequestLogger } from "@/lib/logging/logger";
 import { serverAnalytics } from "@/lib/analytics/server";
 import { env } from "@/lib/env-validation";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service-role-client";
-import { getChatProviderDiagnostics } from "@/lib/ai/provider-registry";
+import {
+  getChatProviderDiagnostics,
+  getProviderStatistics,
+} from "@/lib/ai/provider-registry";
 
 const ROUTE = "/api/health";
 
@@ -27,20 +30,39 @@ export async function GET(request: Request) {
   const supabaseLatency = (Date.now() - startedAt);
 
   const providerDiagnostics = getChatProviderDiagnostics();
+  const providerStatistics = getProviderStatistics();
   const providerStats = Object.fromEntries(
-    Object.entries(providerDiagnostics.providers).map(([providerId, stats]) => [
-      providerId,
-      {
-        status: stats.status ?? "unknown",
-        lastCheckedAt: stats.checkedAt ? new Date(stats.checkedAt).toISOString() : null,
-        latencyMs: stats.latencyMs ?? null,
-        error: stats.error ?? null,
-        successCount: stats.successCount,
-        failureCount: stats.failureCount,
-        lastSuccessAt: stats.lastSuccessAt ? new Date(stats.lastSuccessAt).toISOString() : null,
-        lastFailureAt: stats.lastFailureAt ? new Date(stats.lastFailureAt).toISOString() : null,
-      },
-    ]),
+    providerStatistics.map((stat) => {
+      const diagnostics = providerDiagnostics.providers[stat.providerId];
+      const lastCheckedAt = stat.lastCheckedAt ? new Date(stat.lastCheckedAt).toISOString() : null;
+      const payload = {
+        status: stat.status,
+        lastCheckedAt,
+        latencyMs: stat.lastLatencyMs,
+        successCount: stat.successes,
+        failureCount: stat.failures,
+        degradedCount: stat.degraded,
+        lastSuccessAt: diagnostics?.lastSuccessAt
+          ? new Date(diagnostics.lastSuccessAt).toISOString()
+          : null,
+        lastFailureAt: diagnostics?.lastFailureAt
+          ? new Date(diagnostics.lastFailureAt).toISOString()
+          : null,
+        error: diagnostics?.error ?? null,
+      } as const;
+
+      const logDetails = {
+        providerId: stat.providerId,
+        ...payload,
+      };
+      if (stat.status === "degraded" || stat.status === "unavailable") {
+        logger.warn("Provider health degraded", logDetails);
+      } else {
+        logger.info("Provider health status", logDetails);
+      }
+
+      return [stat.providerId, payload] as const;
+    }),
   );
 
   const lastSelected = providerDiagnostics.lastSelected
