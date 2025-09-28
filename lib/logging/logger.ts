@@ -139,14 +139,18 @@ function createLogger(state: LoggerState): RequestLogger {
       log({ level: "error", message, meta, error, state });
     },
     child(options) {
+      const nextContext: LoggerContext = {
+        requestId: state.context.requestId,
+        route: options.route ?? state.context.route,
+        method: options.method ?? state.context.method,
+        userId: options.userId ?? state.context.userId,
+      };
+
+      const nextMetadata = { ...state.metadata, ...(options.metadata ?? {}) };
+
       return createLogger({
-        context: stripUndefined({
-          ...state.context,
-          route: options.route ?? state.context.route,
-          method: options.method ?? state.context.method,
-          userId: options.userId ?? state.context.userId,
-        }),
-        metadata: { ...state.metadata, ...(options.metadata ?? {}) },
+        context: nextContext,
+        metadata: nextMetadata,
       });
     },
     withUser(userId: string) {
@@ -183,3 +187,5 @@ export function createRequestLogger(options: CreateRequestLoggerOptions = {}): R
 
   return createLogger(state);
 }
+
+
