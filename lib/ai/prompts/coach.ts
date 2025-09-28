@@ -1,10 +1,10 @@
 import type { PersonaProfile } from "@/lib/ai/personas";
 import type {
+  AIChatMessage,
   CoachKnowledgeChunk,
   CoachUserContextSummary,
   ConversationTurn,
 } from "@/lib/ai/types";
-import type { OpenAIChatMessage } from "@/lib/ai/providers/openai";
 
 function buildKnowledgeBlock(chunks: CoachKnowledgeChunk[]): string {
   if (chunks.length === 0) {
@@ -52,7 +52,7 @@ function buildUserContextBlock(context: CoachUserContextSummary): string {
   return lines.join("\n");
 }
 
-function transformHistory(history: ConversationTurn[]): OpenAIChatMessage[] {
+function transformHistory(history: ConversationTurn[]): AIChatMessage[] {
   return history.slice(-12).map((turn) => ({
     role: turn.role,
     content: turn.content,
@@ -85,13 +85,13 @@ export interface CoachPromptParams {
   knowledge: CoachKnowledgeChunk[];
 }
 
-export function buildCoachMessages(params: CoachPromptParams): OpenAIChatMessage[] {
+export function buildCoachMessages(params: CoachPromptParams): AIChatMessage[] {
   const systemPrompt = buildSystemPrompt(params.persona);
   const knowledgeBlock = buildKnowledgeBlock(params.knowledge);
   const userContextBlock = buildUserContextBlock(params.userContext);
   const historyMessages = transformHistory(params.history);
 
-  const messages: OpenAIChatMessage[] = [
+  const messages: AIChatMessage[] = [
     { role: "system", content: systemPrompt },
     {
       role: "system",

@@ -38,6 +38,44 @@ const embeddingProviders: AIEmbeddingProvider[] = [];
 const healthCache = new Map<string, CachedHealth>();
 const lastKnownStatus = new Map<string, AIProviderStatus | undefined>();
 
+type ProviderRuntimeCounters = {
+  successCount: number;
+  failureCount: number;
+  lastSuccessAt?: number;
+  lastFailureAt?: number;
+};
+
+type ProviderHealthSnapshot = AIProviderHealth & {
+  latencyMs: number;
+  checkedAt: number;
+};
+
+type ProviderSelectionAttempt = {
+  providerId: string;
+  status: AIProviderStatus;
+};
+
+export type ProviderSelectionResult<T extends { id: string }> = {
+  provider: T;
+  health: AIProviderHealth;
+  fallbackUsed: boolean;
+  attempts: ProviderSelectionAttempt[];
+};
+
+const providerRuntimeCounters = new Map<string, ProviderRuntimeCounters>();
+const providerHealthSnapshots = new Map<string, ProviderHealthSnapshot>();
+
+let lastChatSelection: (ProviderSelectionResult<AIChatProvider> & { selectedAt: number }) | null = null;
+
+function getRuntimeCounters(providerId: string): ProviderRuntimeCounters {
+  let counters = providerRuntimeCounters.get(providerId);
+  if (!counters) {
+    counters = { successCount: 0, failureCount: 0 } satisfies ProviderRuntimeCounters;
+    providerRuntimeCounters.set(providerId, counters);
+  }
+  return counters;
+}
+
 function orderProviders<T extends { priority: number; weight?: number }>(providers: T[]): T[] {
   return [...providers].sort((a, b) => {
     if (a.priority !== b.priority) {
@@ -59,6 +97,7 @@ async function evaluateHealth<T extends ProviderWithHealth<{ id: string }>>(
     return cached.value;
   }
 
+  const startedAt = Date.now();
   let result: AIProviderHealth;
   try {
     result = await provider.checkHealth(signal);
@@ -66,61 +105,92 @@ async function evaluateHealth<T extends ProviderWithHealth<{ id: string }>>(
     result = {
       providerId: provider.id,
       status: "unavailable",
+      latencyMs: Date.now() - startedAt,
       error: {
         message: error instanceof Error ? error.message : "Provider health check failed",
+        code: error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code) : undefined,
       },
       checkedAt: Date.now(),
     } satisfies AIProviderHealth;
   }
 
+  const latencyMs = typeof result.latencyMs === "number" ? result.latencyMs : Date.now() - startedAt;
+  const checkedAt = typeof result.checkedAt === "number" ? result.checkedAt : Date.now();
 
   if (result.providerId !== provider.id) {
     result = { ...result, providerId: provider.id } satisfies AIProviderHealth;
   }
 
-  healthCache.set(provider.id, { value: result, expiresAt: now + HEALTH_TTL_MS });
+  const normalizedResult = { ...result, latencyMs, checkedAt } satisfies ProviderHealthSnapshot;
+
+  healthCache.set(provider.id, { value: normalizedResult, expiresAt: now + HEALTH_TTL_MS });
+  providerHealthSnapshots.set(provider.id, normalizedResult);
 
   const previousStatus = lastKnownStatus.get(provider.id);
-  lastKnownStatus.set(provider.id, result.status);
-  if (previousStatus && previousStatus !== result.status) {
+  lastKnownStatus.set(provider.id, normalizedResult.status);
+  if (previousStatus && previousStatus !== normalizedResult.status) {
     serverAnalytics.capture({
-      event: "ai_provider_health_changed",
+      event: "i_provider_health_changed",
       distinctId: DISTINCT_ID,
       properties: {
         providerId: provider.id,
         previousStatus,
-        currentStatus: result.status,
-        latencyMs: result.latencyMs,
-        error: result.error?.message,
+        currentStatus: normalizedResult.status,
+        latencyMs: normalizedResult.latencyMs,
+        checkedAt: normalizedResult.checkedAt,
+        errorMessage: normalizedResult.error?.message,
+        errorCode: normalizedResult.error?.code,
       },
     });
   }
 
-  return result;
+  return normalizedResult;
 }
 
-async function selectProvider<T extends ProviderWithHealth<{ id: string; priority: number; weight?: number }>>(
+async function selectProvider<
+  T extends ProviderWithHealth<{ id: string; priority: number; weight?: number }>,
+>(
   providers: T[],
   signal?: AbortSignal,
-): Promise<T | null> {
+): Promise<ProviderSelectionResult<T> | null> {
   if (providers.length === 0) {
     return null;
   }
 
   const ordered = orderProviders(providers);
-  let degradedCandidate: T | null = null;
-  let fallback: T | null = null;
+  const attempts: ProviderSelectionAttempt[] = [];
+  let degradedCandidate: ProviderSelectionResult<T> | null = null;
+  let fallback: ProviderSelectionResult<T> | null = null;
 
   for (const provider of ordered) {
     const health = await evaluateHealth(provider, signal);
+    attempts.push({ providerId: provider.id, status: health.status });
+
     if (health.status === "healthy") {
-      return provider;
+      return {
+        provider,
+        health,
+        fallbackUsed: false,
+        attempts: [...attempts],
+      } satisfies ProviderSelectionResult<T>;
     }
+
     if (health.status === "degraded" && !degradedCandidate) {
-      degradedCandidate = provider;
+      degradedCandidate = {
+        provider,
+        health,
+        fallbackUsed: true,
+        attempts: [...attempts],
+      } satisfies ProviderSelectionResult<T>;
     }
+
     if (!fallback) {
-      fallback = provider;
+      fallback = {
+        provider,
+        health,
+        fallbackUsed: true,
+        attempts: [...attempts],
+      } satisfies ProviderSelectionResult<T>;
     }
   }
 
@@ -141,11 +211,19 @@ export function registerEmbeddingProvider(provider: AIEmbeddingProvider): void {
   }
 }
 
-export async function getActiveChatProvider(signal?: AbortSignal): Promise<AIChatProvider | null> {
-  return selectProvider(chatProviders, signal);
+export async function getActiveChatProvider(
+  signal?: AbortSignal,
+): Promise<ProviderSelectionResult<AIChatProvider> | null> {
+  const selection = await selectProvider(chatProviders, signal);
+  if (selection) {
+    lastChatSelection = { ...selection, selectedAt: Date.now() };
+  }
+  return selection;
 }
 
-export async function getActiveEmbeddingProvider(signal?: AbortSignal): Promise<AIEmbeddingProvider | null> {
+export async function getActiveEmbeddingProvider(
+  signal?: AbortSignal,
+): Promise<ProviderSelectionResult<AIEmbeddingProvider> | null> {
   return selectProvider(embeddingProviders, signal);
 }
 
@@ -159,21 +237,79 @@ export async function getProviderHealth(providerId: string, signal?: AbortSignal
   return evaluateHealth(provider, signal);
 }
 
+interface ProviderFailureOptions {
+  durationMs?: number;
+  errorCode?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export function recordProviderFailure(
   providerId: string,
   error: unknown,
-  properties?: Record<string, unknown>,
+  options: ProviderFailureOptions = {},
 ): void {
   const message = error instanceof Error ? error.message : String(error);
+  const inferredCode =
+    options.errorCode ??
+    (error && typeof error === "object" && "code" in error
+      ? String((error as { code?: unknown }).code)
+      : undefined);
+
+  const counters = getRuntimeCounters(providerId);
+  counters.failureCount += 1;
+  counters.lastFailureAt = Date.now();
+
   serverAnalytics.capture({
-    event: "ai_request_failed",
+    event: "i_request_failed",
     distinctId: DISTINCT_ID,
     properties: {
       providerId,
       message,
-      ...properties,
+      durationMs: options.durationMs,
+      errorCode: inferredCode,
+      ...options.metadata,
     },
   });
+}
+
+export function recordProviderSuccess(providerId: string): void {
+  const counters = getRuntimeCounters(providerId);
+  counters.successCount += 1;
+  counters.lastSuccessAt = Date.now();
+}
+
+export function getChatProviderDiagnostics() {
+  const diagnostics = Object.fromEntries(
+    chatProviders.map((provider) => {
+      const counters = getRuntimeCounters(provider.id);
+      const health = providerHealthSnapshots.get(provider.id);
+      return [
+        provider.id,
+        {
+          status: health?.status,
+          checkedAt: health?.checkedAt,
+          latencyMs: health?.latencyMs,
+          error: health?.error ?? null,
+          successCount: counters.successCount,
+          failureCount: counters.failureCount,
+          lastSuccessAt: counters.lastSuccessAt,
+          lastFailureAt: counters.lastFailureAt,
+        },
+      ];
+    }),
+  );
+
+  return {
+    providers: diagnostics,
+    lastSelected: lastChatSelection
+      ? {
+          providerId: lastChatSelection.provider.id,
+          status: lastChatSelection.health.status,
+          fallbackUsed: lastChatSelection.fallbackUsed,
+          selectedAt: lastChatSelection.selectedAt,
+        }
+      : null,
+  };
 }
 
 function bootstrap(): void {
