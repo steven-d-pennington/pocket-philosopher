@@ -2,9 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { buildCoachMessages } from "@/lib/ai/prompts/coach";
 import { getPersonaProfile } from "@/lib/ai/personas";
-import { createOpenAIChatStream } from "@/lib/ai/providers/openai";
+import {
+  getActiveChatProvider,
+  recordProviderFailure,
+  recordProviderSuccess,
+} from "@/lib/ai/provider-registry";
 import { retrieveKnowledgeForCoach } from "@/lib/ai/retrieval";
 import type {
+  AIChatStreamResult,
   CoachCitation,
   CoachKnowledgeChunk,
   CoachStreamChunk,
@@ -13,6 +18,8 @@ import type {
   ConversationTurn,
 } from "@/lib/ai/types";
 import type { Database } from "@/lib/supabase/types";
+import { serverAnalytics } from "@/lib/analytics/server";
+import { createRequestLogger, type RequestLogger } from "@/lib/logging/logger";
 
 interface CoachStreamOptions {
   supabase: SupabaseClient<Database>;
@@ -21,6 +28,7 @@ interface CoachStreamOptions {
   message: string;
   history: ConversationTurn[];
   signal?: AbortSignal;
+  logger?: RequestLogger;
 }
 
 interface CoachStreamSession {
@@ -195,6 +203,15 @@ function resolveCitations(
 
 export async function createCoachStream(options: CoachStreamOptions): Promise<CoachStreamSession> {
   const persona = getPersonaProfile(options.personaId);
+  const baseLogger = (options.logger ?? createRequestLogger({ route: "lib/ai/orchestrator" }))
+    .withUser(options.userId);
+  const logger = baseLogger.child({
+    metadata: {
+      personaId: options.personaId,
+      defaultModel: persona.defaultModel,
+    },
+  });
+
   const [knowledge, userContext] = await Promise.all([
     retrieveKnowledgeForCoach(options.supabase, persona, options.message),
     buildUserContext(options.supabase, options.userId),
@@ -208,24 +225,108 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
     knowledge,
   });
 
-  const openAIStream = await createOpenAIChatStream({
-    messages,
-    model: persona.defaultModel,
-    temperature: persona.temperature,
-    signal: options.signal,
+  const requestStartedAt = Date.now();
+  const providerSelection = await getActiveChatProvider(options.signal);
+
+  if (!providerSelection) {
+    const error = new Error("No AI chat providers are currently available");
+    logger.error("No AI chat providers available", error, {
+      startedAt: new Date(requestStartedAt).toISOString(),
+    });
+    throw error;
+  }
+
+  const { provider, health, fallbackUsed, attempts } = providerSelection;
+  const providerId = provider.id;
+  const providerStatus = health.status;
+  const attemptSummaries = attempts.map((attempt) => ({
+    providerId: attempt.providerId,
+    status: attempt.status,
+  }));
+
+  logger.info("Coach stream provider selected", {
+    providerId,
+    providerStatus,
+    fallbackUsed,
+    attempts: attemptSummaries,
+    healthLatencyMs: health.latencyMs,
+    healthCheckedAt: health.checkedAt,
+    startedAt: new Date(requestStartedAt).toISOString(),
   });
+
+  let aiStream: AIChatStreamResult;
+  try {
+    aiStream = await provider.createChatStream({
+      messages,
+      model: persona.defaultModel,
+      temperature: persona.temperature,
+      signal: options.signal,
+      metadata: {
+        personaId: options.personaId,
+        fallbackUsed,
+        historyTurns: options.history.length,
+        knowledgeChunks: knowledge.length,
+      },
+    });
+  } catch (error) {
+    const durationMs = Date.now() - requestStartedAt;
+    recordProviderFailure(providerId, error, {
+      durationMs,
+      metadata: {
+        stage: "createChatStream",
+        fallbackUsed,
+        providerStatus,
+      },
+    });
+    logger.error("Coach stream provider initialization failed", error, {
+      providerId,
+      providerStatus,
+      fallbackUsed,
+      durationMs,
+    });
+    throw error;
+  }
 
   let aggregated = "";
   let lastTokenEstimate = 0;
+  let outcomeRecorded = false;
+
+  const recordFailureOnce = (error: unknown, stage: string) => {
+    if (outcomeRecorded) {
+      return;
+    }
+    outcomeRecorded = true;
+    const durationMs = Date.now() - requestStartedAt;
+    recordProviderFailure(providerId, error, {
+      durationMs,
+      metadata: {
+        stage,
+        fallbackUsed,
+        providerStatus,
+      },
+    });
+    logger.error("Coach stream failed", error, {
+      providerId,
+      providerStatus,
+      fallbackUsed,
+      durationMs,
+      stage,
+    });
+  };
 
   const stream = (async function* coachStreamGenerator() {
-    for await (const delta of openAIStream.stream) {
-      if (!delta) {
-        continue;
+    try {
+      for await (const delta of aiStream.stream) {
+        if (!delta) {
+          continue;
+        }
+        aggregated += delta;
+        lastTokenEstimate = estimateTokensFromText(aggregated);
+        yield { delta, tokens: lastTokenEstimate } satisfies CoachStreamChunk;
       }
-      aggregated += delta;
-      lastTokenEstimate = estimateTokensFromText(aggregated);
-      yield { delta, tokens: lastTokenEstimate } satisfies CoachStreamChunk;
+    } catch (error) {
+      recordFailureOnce(error, "stream");
+      throw error;
     }
   })();
 
@@ -233,12 +334,49 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
   const finalize = () => {
     if (!finalization) {
       finalization = (async () => {
-        const usage = await openAIStream.usage().catch((error) => {
-          console.error("Failed to retrieve OpenAI usage metrics", error);
-          return undefined;
-        });
+        let usage: Awaited<ReturnType<typeof aiStream.usage>> | undefined;
+        try {
+          usage = await aiStream.usage();
+        } catch (error) {
+          logger.warn("Failed to retrieve AI usage metrics", {
+            providerId,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+
         const { sanitized, citations } = resolveCitations(aggregated, knowledge);
         const tokens = usage?.totalTokens ?? lastTokenEstimate ?? estimateTokensFromText(aggregated);
+        const completedAt = Date.now();
+        const latencyMs = completedAt - requestStartedAt;
+
+        if (!outcomeRecorded) {
+          outcomeRecorded = true;
+          recordProviderSuccess(providerId);
+        }
+
+        const analyticsProperties = {
+          providerId,
+          providerStatus,
+          personaId: options.personaId,
+          fallbackUsed,
+          latencyMs,
+          startedAt: new Date(requestStartedAt).toISOString(),
+          completedAt: new Date(completedAt).toISOString(),
+          tokensPrompt: usage?.promptTokens ?? null,
+          tokensCompletion: usage?.completionTokens ?? null,
+          tokensTotal: tokens,
+          attempts: attemptSummaries,
+          knowledgeChunks: knowledge.length,
+          historyTurns: options.history.length,
+        } as const;
+
+        logger.info("Coach stream completed", analyticsProperties);
+        serverAnalytics.capture({
+          event: "i_chat_completed",
+          distinctId: options.userId,
+          properties: analyticsProperties,
+        });
+
         return {
           content: sanitized,
           citations,
