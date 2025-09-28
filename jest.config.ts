@@ -7,8 +7,9 @@ const createJestConfig = nextJest({
 const config = {
   clearMocks: true,
   coverageProvider: "v8",
+  setupFiles: ["<rootDir>/jest.setup.env.ts"],
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/",
+    "^@/(.*)": "<rootDir>/",
     "^.+\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
