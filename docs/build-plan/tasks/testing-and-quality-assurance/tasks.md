@@ -2,7 +2,7 @@
 
 ## Phase 1: Automated Testing Foundations
 1. [Started] Configure Jest for unit and integration coverage across stores, hooks, API routes, and AI modules, including module mocks and shared fixtures.
-2. Stand up Playwright end-to-end suites covering auth, onboarding, habit logging, reflections, coach chat, and offline scenarios; define test data management strategy.
+2. [Started] Stand up Playwright end-to-end suites covering auth, onboarding, habit logging, reflections, coach chat, and offline scenarios; initial `auth`, `dashboard`, and `coach` specs now run against deterministic Supabase fixtures seeded in Playwright global setup.
 3. Establish reusable testing utilities (factories, Supabase seeders, mock AI providers) to streamline scenario creation. [P]
 
 ## Phase 2: AI Evaluation Harness
