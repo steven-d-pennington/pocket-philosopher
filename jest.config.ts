@@ -1,20 +1,53 @@
 import nextJest from "next/jest";
+import type { Config } from "jest";
 
 const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config = {
+const baseConfig: Config = {
   clearMocks: true,
-  coverageProvider: "v8",
-  setupFiles: ["<rootDir>/jest.setup.env.ts"],
   moduleNameMapper: {
     "^@/(.*)": "<rootDir>/",
-    "^.+\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "^.+\\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
-  testEnvironment: "jest-environment-jsdom",
-  testMatch: ["**/__tests__/**/*.test.{ts,tsx}", "**/?(*.)+(spec|test).{ts,tsx}"],
+  setupFiles: ["<rootDir>/jest.setup.env.ts"],
 };
 
-export default createJestConfig(config);
+const clientProjectConfig: Config = {
+  ...baseConfig,
+  displayName: "client",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  testEnvironment: "jest-environment-jsdom",
+  testMatch: [
+    "<rootDir>/{app,components}/**/__tests__/**/*.{spec,test}.{ts,tsx}",
+    "<rootDir>/{app,components}/**/?(*.)+(spec|test).{ts,tsx}",
+  ],
+};
+
+const serverProjectConfig: Config = {
+  ...baseConfig,
+  displayName: "server",
+  testEnvironment: "node",
+  testMatch: [
+    "<rootDir>/__tests__/**/*.{spec,test}.{ts,tsx}",
+  ],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.server.ts"],
+};
+
+const createClientJestConfig = createJestConfig(clientProjectConfig);
+const createServerJestConfig = createJestConfig(serverProjectConfig);
+
+const combinedConfig = async (): Promise<Config> => {
+  const [client, server] = await Promise.all([
+    createClientJestConfig(),
+    createServerJestConfig(),
+  ]);
+
+  return {
+    coverageProvider: "v8",
+    projects: [client, server],
+  };
+};
+
+export default combinedConfig;
