@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BookOpenCheck, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConnectivityIndicator } from "@/components/shared/connectivity-banner";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { selectUIActions, useUIStore } from "@/lib/stores/ui-store";
 
@@ -34,6 +35,7 @@ export function TopBar({ userEmail }: TopBarProps) {
         </div>
       </div>
       <div className="flex items-center gap-2">
+        <ConnectivityIndicator />
         <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
           <Link href="/docs/build-plan" className="gap-2">
             <BookOpenCheck className="size-4" aria-hidden />

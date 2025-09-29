@@ -1,11 +1,9 @@
+"use client";
+
 import { CloudOff, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-
-export const metadata = {
-  title: "Offline · Pocket Philosopher",
-};
 
 export default function OfflinePage() {
   return (

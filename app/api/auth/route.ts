@@ -9,11 +9,21 @@ import {
 
 const ROUTE = "/api/auth";
 
-const authSchema = z.object({
-  action: z.enum(["signIn", "signUp"]),
-  email: z.string().email(),
-  password: z.string().min(6),
-});
+const authSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("signIn"),
+    email: z.string().email(),
+    password: z.string().min(6),
+  }),
+  z.object({
+    action: z.literal("signUp"),
+    email: z.string().email(),
+    password: z.string().min(6),
+  }),
+  z.object({
+    action: z.literal("anonymous"),
+  }),
+]);
 
 export async function POST(request: Request) {
   const logger = createApiRequestLogger(request, ROUTE);
@@ -30,10 +40,25 @@ export async function POST(request: Request) {
     });
   }
 
-  const { action, email, password } = parseResult.data;
+  const data = parseResult.data;
 
-  if (action === "signUp") {
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+  if (data.action === "anonymous") {
+    const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+
+    if (anonError) {
+      logger.error("Supabase anonymous sign-in failed", anonError, {});
+      return respondWithError(logger, anonError.message, { status: 400 });
+    }
+
+    logger.info("Anonymous user signed in", {});
+    return respondWithSuccess(logger, anonData);
+  }
+
+  if (data.action === "signUp") {
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+    });
 
     if (signUpError) {
       logger.error("Supabase sign-up failed", signUpError, {});
@@ -41,12 +66,13 @@ export async function POST(request: Request) {
     }
 
     logger.info("User signed up", {});
-    return respondWithSuccess(logger, data);
+    return respondWithSuccess(logger, signUpData);
   }
 
-  const { data, error: signInError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+  // signIn case
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    email: data.email,
+    password: data.password,
   });
 
   if (signInError) {
@@ -55,7 +81,7 @@ export async function POST(request: Request) {
   }
 
   logger.info("User signed in", {});
-  return respondWithSuccess(logger, data);
+  return respondWithSuccess(logger, signInData);
 }
 
 export async function DELETE(request: Request) {

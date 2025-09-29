@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/shared/app-sidebar";
+import { ConnectivityBanner } from "@/components/shared/connectivity-banner";
 import { TopBar } from "@/components/shared/top-bar";
 import { PracticeModals } from "@/components/practices/practice-modals";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
@@ -30,6 +31,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
           <PracticeModals />
         </div>
       </div>
+      <ConnectivityBanner />
     </div>
   );
 }

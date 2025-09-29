@@ -1,0 +1,1 @@
+I think it would be cool if instead of talking to the coaches as purely coaches we could have a "buddy" mode or something that is just more conversational and not so coachy

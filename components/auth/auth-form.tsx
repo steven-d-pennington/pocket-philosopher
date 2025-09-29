@@ -53,6 +53,37 @@ export function AuthForm({ mode }: AuthFormProps) {
     });
   };
 
+  const onAnonymousSubmit = () => {
+    setError(null);
+
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/auth", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "anonymous",
+          }),
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload?.error ?? "Request failed");
+        }
+
+        router.replace("/today");
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Unexpected error. Please try again.");
+        }
+      }
+    });
+  };
+
   const heading = mode === "login" ? "Welcome back" : "Create your account";
   const subheading =
     mode === "login"
@@ -95,6 +126,23 @@ export function AuthForm({ mode }: AuthFormProps) {
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Please wait…" : mode === "login" ? "Sign In" : "Create Account"}
+      </Button>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or</span>
+        </div>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full"
+        disabled={isPending}
+        onClick={onAnonymousSubmit}
+      >
+        {isPending ? "Please wait…" : "Continue Anonymously"}
       </Button>
     </form>
   );

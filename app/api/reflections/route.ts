@@ -32,6 +32,8 @@ const updateReflectionSchema = baseReflectionSchema.partial().extend({
   id: z.string().uuid(),
 });
 
+type ReflectionUpdates = Omit<z.infer<typeof updateReflectionSchema>, 'id'>;
+
 const deleteReflectionSchema = z.object({
   id: z.string().uuid(),
 });
@@ -53,7 +55,7 @@ function sanitizeReflectionPayload(payload: z.infer<typeof createReflectionSchem
   };
 }
 
-function sanitizeReflectionUpdates(updates: z.infer<typeof updateReflectionSchema>) {
+function sanitizeReflectionUpdates(updates: ReflectionUpdates) {
   return {
     ...updates,
     virtue_focus:

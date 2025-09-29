@@ -1,5 +1,7 @@
 import "./globals.css";
 
+import { Suspense } from "react";
+
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AppToaster } from "@/components/providers/app-toaster";
@@ -35,12 +37,14 @@ export default function RootLayout({
       <body className={cn("font-sans antialiased", fontSans.variable, fontMono.variable)}>
         <ThemeProvider>
           <QueryProvider>
-            <AnalyticsProvider>
-              <ServiceWorkerProvider>
-                {children}
-                <AppToaster />
-              </ServiceWorkerProvider>
-            </AnalyticsProvider>
+            <Suspense fallback={null}>
+              <AnalyticsProvider>
+                <ServiceWorkerProvider>
+                  {children}
+                  <AppToaster />
+                </ServiceWorkerProvider>
+              </AnalyticsProvider>
+            </Suspense>
           </QueryProvider>
         </ThemeProvider>
       </body>
