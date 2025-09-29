@@ -1,7 +1,7 @@
 # Testing & Quality Assurance — Task Plan
 
 ## Phase 1: Automated Testing Foundations
-1. [Started] Configure Jest for unit and integration coverage across stores, hooks, API routes, and AI modules, including module mocks and shared fixtures.
+1. [Complete] Configure Jest for unit and integration coverage across stores, hooks, API routes, and AI modules, including module mocks and shared fixtures. Client-side suites now run under a dedicated jsdom project while Node-oriented helpers execute in an isolated server project with environment polyfills and teardown helpers so analytics clients shut down cleanly.
 2. [Started] Stand up Playwright end-to-end suites covering auth, onboarding, habit logging, reflections, coach chat, and offline scenarios; initial `auth`, `dashboard`, and `coach` specs now run against deterministic Supabase fixtures seeded in Playwright global setup.
 3. Establish reusable testing utilities (factories, Supabase seeders, mock AI providers) to streamline scenario creation. [P]
 
