@@ -2,7 +2,7 @@ import { PostHog } from "posthog-node";
 
 import { env } from "@/lib/env-validation";
 
-type PostHogPropertyValue = string | number;
+export type PostHogPropertyValue = string | number;
 
 type CaptureOptions = {
   event: string;
@@ -32,7 +32,7 @@ const warn = (message: string, error: unknown) => {
   }
 };
 
-function normalizeProperties(input?: Record<string, unknown>): Record<string, PostHogPropertyValue> | undefined {
+export function normalizeAnalyticsProperties(input?: Record<string, unknown>): Record<string, PostHogPropertyValue> | undefined {
   if (!input) return undefined;
   const result: Record<string, PostHogPropertyValue> = {};
   for (const [key, value] of Object.entries(input)) {
@@ -65,8 +65,8 @@ export const serverAnalytics = {
       posthogClient.capture({
         distinctId,
         event,
-        properties: normalizeProperties(properties),
-        groups: normalizeProperties(groups),
+        properties: normalizeAnalyticsProperties(properties),
+        groups: normalizeAnalyticsProperties(groups),
       });
     } catch (error) {
       warn(`PostHog capture failed for ${event}`, error);
@@ -78,7 +78,7 @@ export const serverAnalytics = {
     try {
       posthogClient.identify({
         distinctId,
-        properties: normalizeProperties(properties),
+        properties: normalizeAnalyticsProperties(properties),
       });
     } catch (error) {
       warn(`PostHog identify failed for ${distinctId}`, error);
@@ -111,4 +111,5 @@ export const serverAnalytics = {
     }
   },
 };
+
 
