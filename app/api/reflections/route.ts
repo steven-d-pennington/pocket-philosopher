@@ -7,6 +7,7 @@ import {
   respondWithSuccess,
   withUserContext,
 } from "@/app/api/_lib/logger";
+import { sanitizeNullableText, sanitizeStringArray, sanitizeUserText } from "@/lib/security/sanitize";
 
 const ROUTE = "/api/reflections";
 
@@ -34,6 +35,65 @@ const updateReflectionSchema = baseReflectionSchema.partial().extend({
 const deleteReflectionSchema = z.object({
   id: z.string().uuid(),
 });
+
+const REFLECTION_TEXT_MAX = 4000;
+
+function sanitizeReflectionPayload(payload: z.infer<typeof createReflectionSchema>) {
+  return {
+    ...payload,
+    virtue_focus: sanitizeNullableText(payload.virtue_focus, { maxLength: 120 }),
+    intention: sanitizeNullableText(payload.intention, { maxLength: REFLECTION_TEXT_MAX }),
+    lesson: sanitizeNullableText(payload.lesson, { maxLength: REFLECTION_TEXT_MAX }),
+    gratitude: sanitizeNullableText(payload.gratitude, { maxLength: REFLECTION_TEXT_MAX }),
+    challenge: sanitizeNullableText(payload.challenge, { maxLength: REFLECTION_TEXT_MAX }),
+    journal_entry: sanitizeNullableText(payload.journal_entry, { maxLength: REFLECTION_TEXT_MAX }),
+    key_insights: sanitizeStringArray(payload.key_insights, { maxLength: 240 }) ?? [],
+    challenges_faced: sanitizeStringArray(payload.challenges_faced, { maxLength: 240 }) ?? [],
+    wins_celebrated: sanitizeStringArray(payload.wins_celebrated, { maxLength: 240 }) ?? [],
+  };
+}
+
+function sanitizeReflectionUpdates(updates: z.infer<typeof updateReflectionSchema>) {
+  return {
+    ...updates,
+    virtue_focus:
+      updates.virtue_focus !== undefined
+        ? sanitizeNullableText(updates.virtue_focus ?? null, { maxLength: 120 })
+        : undefined,
+    intention:
+      updates.intention !== undefined
+        ? sanitizeNullableText(updates.intention ?? null, { maxLength: REFLECTION_TEXT_MAX })
+        : undefined,
+    lesson:
+      updates.lesson !== undefined
+        ? sanitizeNullableText(updates.lesson ?? null, { maxLength: REFLECTION_TEXT_MAX })
+        : undefined,
+    gratitude:
+      updates.gratitude !== undefined
+        ? sanitizeNullableText(updates.gratitude ?? null, { maxLength: REFLECTION_TEXT_MAX })
+        : undefined,
+    challenge:
+      updates.challenge !== undefined
+        ? sanitizeNullableText(updates.challenge ?? null, { maxLength: REFLECTION_TEXT_MAX })
+        : undefined,
+    journal_entry:
+      updates.journal_entry !== undefined
+        ? sanitizeNullableText(updates.journal_entry ?? null, { maxLength: REFLECTION_TEXT_MAX })
+        : undefined,
+    key_insights:
+      updates.key_insights !== undefined
+        ? sanitizeStringArray(updates.key_insights, { maxLength: 240 }) ?? []
+        : undefined,
+    challenges_faced:
+      updates.challenges_faced !== undefined
+        ? sanitizeStringArray(updates.challenges_faced, { maxLength: 240 }) ?? []
+        : undefined,
+    wins_celebrated:
+      updates.wins_celebrated !== undefined
+        ? sanitizeStringArray(updates.wins_celebrated, { maxLength: 240 }) ?? []
+        : undefined,
+  };
+}
 
 export async function GET(request: Request) {
   const baseLogger = createApiRequestLogger(request, ROUTE);
@@ -90,7 +150,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const payload = parseResult.data;
+  const payload = sanitizeReflectionPayload(parseResult.data);
 
   const { data, error: insertError } = await supabase
     .from("reflections")
@@ -137,7 +197,8 @@ export async function PUT(request: Request) {
     });
   }
 
-  const { id, ...updates } = parseResult.data;
+  const { id, ...rest } = parseResult.data;
+  const updates = sanitizeReflectionUpdates(rest);
 
   const { data, error: updateError } = await supabase
     .from("reflections")

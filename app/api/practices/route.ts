@@ -8,6 +8,7 @@ import {
   withUserContext,
 } from "@/app/api/_lib/logger";
 import { serverAnalytics } from "@/lib/analytics/server";
+import { sanitizeNullableText, sanitizeUserText } from "@/lib/security/sanitize";
 import type { Database } from "@/lib/supabase/types";
 
 const ROUTE = "/api/practices";
@@ -78,6 +79,42 @@ type PracticeRow = Database["public"]["Tables"]["habits"]["Row"];
 
 type CompletePracticePayload = z.infer<typeof completePracticeSchema>;
 
+const PRACTICE_TEXT_MAX = 2048;
+
+function sanitizePracticeStrings<T extends Record<string, unknown>>(input: T) {
+  return {
+    ...input,
+    name:
+      "name" in input && typeof input.name === "string"
+        ? sanitizeUserText(input.name, { maxLength: 120 })
+        : input.name,
+    description:
+      "description" in input
+        ? sanitizeNullableText(input.description as string | null | undefined, { maxLength: PRACTICE_TEXT_MAX })
+        : input.description,
+    virtue:
+      "virtue" in input && typeof input.virtue === "string"
+        ? sanitizeUserText(input.virtue, { maxLength: 120 })
+        : input.virtue,
+    tracking_type:
+      "tracking_type" in input && typeof input.tracking_type === "string"
+        ? sanitizeUserText(input.tracking_type, { maxLength: 120 })
+        : input.tracking_type,
+    difficulty_level:
+      "difficulty_level" in input && typeof input.difficulty_level === "string"
+        ? sanitizeUserText(input.difficulty_level, { maxLength: 120 })
+        : input.difficulty_level,
+    frequency:
+      "frequency" in input && typeof input.frequency === "string"
+        ? sanitizeUserText(input.frequency, { maxLength: 120 })
+        : input.frequency,
+    reminder_time:
+      "reminder_time" in input && typeof input.reminder_time === "string"
+        ? sanitizeUserText(input.reminder_time, { maxLength: 32 })
+        : input.reminder_time,
+  } as T;
+}
+
 export async function GET(request: Request) {
   const baseLogger = createApiRequestLogger(request, ROUTE);
   const { supabase, user } = await createRouteContext();
@@ -141,7 +178,13 @@ export async function POST(request: Request) {
   const payload = parseResult.data;
 
   if (payload.action === "create") {
-    const practiceInput = payload.practice;
+    const practiceInput = sanitizePracticeStrings(payload.practice);
+
+    if (!practiceInput.name || !practiceInput.virtue) {
+      logger.warn("Sanitized practice input invalid", { practiceName: payload.practice?.name });
+      return respondWithError(logger, "Invalid practice content", { status: 400 });
+    }
+
     const { data, error: insertError } = await supabase
       .from("habits")
       .insert({
@@ -218,10 +261,10 @@ export async function POST(request: Request) {
         date: completionPayload.date ?? new Date().toISOString().slice(0, 10),
         value: completionPayload.value ?? null,
         target_value: completionPayload.target_value ?? null,
-        notes: completionPayload.notes ?? null,
-        mood_before: completionPayload.mood_before ?? null,
-        mood_after: completionPayload.mood_after ?? null,
-        difficulty_felt: completionPayload.difficulty_felt ?? null,
+        notes: sanitizeNullableText(completionPayload.notes, { maxLength: PRACTICE_TEXT_MAX }),
+        mood_before: sanitizeNullableText(completionPayload.mood_before, { maxLength: 120 }),
+        mood_after: sanitizeNullableText(completionPayload.mood_after, { maxLength: 120 }),
+        difficulty_felt: sanitizeNullableText(completionPayload.difficulty_felt, { maxLength: 120 }),
       },
       { onConflict: "user_id,habit_id,date" },
     )
@@ -281,7 +324,18 @@ export async function PUT(request: Request) {
     });
   }
 
-  const { id, ...updates } = parseResult.data;
+  const { id, ...rawUpdates } = parseResult.data;
+  const updates = sanitizePracticeStrings(rawUpdates);
+
+  if (updates.name !== undefined && !updates.name) {
+    logger.warn("Practice update sanitised to empty name", { id });
+    return respondWithError(logger, "Invalid practice name", { status: 400 });
+  }
+
+  if (updates.virtue !== undefined && !updates.virtue) {
+    logger.warn("Practice update sanitised to empty virtue", { id });
+    return respondWithError(logger, "Invalid practice virtue", { status: 400 });
+  }
 
   const { data, error: updateError } = await supabase
     .from("habits")

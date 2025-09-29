@@ -7,6 +7,8 @@ import {
   respondWithSuccess,
   withUserContext,
 } from "@/app/api/_lib/logger";
+import { serverAnalytics } from "@/lib/analytics/server";
+import { sanitizeUserText } from "@/lib/security/sanitize";
 
 const ROUTE = "/api/daily-progress";
 
@@ -143,11 +145,13 @@ export async function POST(request: Request) {
 
   switch (action) {
     case "set_intention": {
+      const sanitizedIntention = sanitizeUserText(payload.intention, { maxLength: 1000 });
+
       const { error: upsertError } = await supabase.from("daily_progress").upsert(
         {
           user_id: user.id,
           date: targetDate,
-          morning_intention: payload.intention,
+          morning_intention: sanitizedIntention,
         },
         { onConflict: "user_id,date" },
       );
@@ -157,8 +161,17 @@ export async function POST(request: Request) {
         return respondWithError(logger, "Failed to set intention", { status: 500 });
       }
 
+      serverAnalytics.capture({
+        event: "daily_intention_set",
+        distinctId: user.id,
+        properties: {
+          date: targetDate,
+          intention_length: sanitizedIntention.length,
+        },
+      });
+
       logger.info("Daily intention set", { targetDate });
-      return respondWithSuccess(logger, { date: targetDate, intention: payload.intention });
+      return respondWithSuccess(logger, { date: targetDate, intention: sanitizedIntention });
     }
     case "complete_practice": {
       if (payload.completed) {
@@ -199,6 +212,16 @@ export async function POST(request: Request) {
         targetDate,
         practiceId: payload.practice_id,
         completed: payload.completed,
+      });
+
+      serverAnalytics.capture({
+        event: "daily_practice_toggled",
+        distinctId: user.id,
+        properties: {
+          practice_id: payload.practice_id,
+          date: targetDate,
+          completed: payload.completed,
+        },
       });
 
       return respondWithSuccess(logger, {
