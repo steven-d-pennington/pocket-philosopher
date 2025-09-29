@@ -158,8 +158,58 @@ export async function createOllamaChatStream(options: AIChatStreamRequest): Prom
 export async function createOllamaEmbedding(
   request: AIEmbeddingRequest,
 ): Promise<AIEmbeddingResponse> {
-  void request;
-  throw new Error("Ollama embeddings are not yet supported. Implement once upstream support is available.");
+  const baseUrl = getBaseUrl();
+  const inputs = Array.isArray(request.input) ? request.input : [request.input];
+  if (inputs.length === 0) {
+    return { embeddings: [] } satisfies AIEmbeddingResponse;
+  }
+
+  const controller = new AbortController();
+  if (request.signal) {
+    request.signal.addEventListener("abort", () => controller.abort(request.signal?.reason));
+  }
+
+  const response = await fetch(`${baseUrl}/api/embeddings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: request.model,
+      prompt: inputs.join("\n\n"),
+    }),
+    signal: controller.signal,
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    if (response.status === 404) {
+      throw new Error(
+        "Ollama embeddings endpoint is unavailable on this host. Update to a recent Ollama release to enable embeddings.",
+      );
+    }
+    throw new Error(`Ollama embeddings request failed with status ${response.status}: ${detail}`);
+  }
+
+  const payload = (await response.json()) as { embedding?: number[]; embeddings?: number[][]; model?: string };
+  const rawEmbeddings = Array.isArray(payload.embeddings) && payload.embeddings.length > 0
+    ? payload.embeddings
+    : payload.embedding
+      ? [payload.embedding]
+      : [];
+
+  const normalized = rawEmbeddings.map((vector) =>
+    Array.isArray(vector) ? vector.map((value) => Number(value)) : [],
+  );
+
+  const first = normalized[0];
+  const dimensions = Array.isArray(first) ? first.length : undefined;
+
+  return {
+    embeddings: normalized,
+    dimensions,
+    model: payload.model ?? request.model,
+  } satisfies AIEmbeddingResponse;
 }
 
 

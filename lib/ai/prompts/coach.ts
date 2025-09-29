@@ -6,6 +6,15 @@ import type {
   ConversationTurn,
 } from "@/lib/ai/types";
 
+const PROMPT_CACHE_TTL_MS = 30_000;
+
+type CachedPrompt = {
+  expiresAt: number;
+  messages: AIChatMessage[];
+};
+
+const promptCache = new Map<string, CachedPrompt>();
+
 function buildKnowledgeBlock(chunks: CoachKnowledgeChunk[]): string {
   if (chunks.length === 0) {
     return "No knowledge snippets were retrieved for this request.";
@@ -19,6 +28,9 @@ function buildKnowledgeBlock(chunks: CoachKnowledgeChunk[]): string {
       }
       if (chunk.author) {
         headerParts.push(`by ${chunk.author}`);
+      }
+      if (chunk.virtue) {
+        headerParts.push(`virtue: ${chunk.virtue}`);
       }
       const header = headerParts.join(" · ");
       return `[[${chunk.id}]] ${header}\n${chunk.content}`;
@@ -66,12 +78,14 @@ function buildSystemPrompt(persona: PersonaProfile): string {
     `Focus: ${persona.focus}.`,
     `Core virtues: ${persona.virtues.join(", ")}.`,
     `Signature practices you may recommend: ${persona.signaturePractices.join(", ")}.`,
+    `Tone checks to uphold: ${persona.toneChecks.join("; ")}.`,
     "Always coach with warmth, empathy, and grounded philosophical rigor.",
     "Keep paragraphs under 90 words and avoid filler disclaimers.",
-    "Offer two or three concise micro-actions tailored to the user's situation.",
+    `Offer two or three concise micro-actions tailored to the user's situation. Examples: ${persona.microActionExamples.join(", ")}.`,
     "When referencing provided knowledge snippets, cite them inline using [[chunk_id]].",
     "Do not invent citations. If no snippet fits, acknowledge and coach from general principles without a citation.",
     "Do not include a separate citations section; the client will render citations from the inline markers.",
+    persona.closingReminder,
   ]
     .filter(Boolean)
     .join("\n");
@@ -85,7 +99,33 @@ export interface CoachPromptParams {
   knowledge: CoachKnowledgeChunk[];
 }
 
+function buildPromptCacheKey(params: CoachPromptParams): string {
+  const historyKey = params.history
+    .slice(-6)
+    .map((turn) => `${turn.role}:${turn.content.length}`)
+    .join("|");
+  const knowledgeKey = params.knowledge.map((chunk) => `${chunk.id}:${chunk.relevance ?? 0}`).join(",");
+  const contextKey = [
+    params.userContext.preferredPersona ?? "",
+    params.userContext.preferredVirtue ?? "",
+    params.userContext.activePractices.length,
+    params.userContext.recentReflections.length,
+  ].join(":");
+  return `${params.persona.id}::${params.message.trim().toLowerCase()}::${knowledgeKey}::${contextKey}::${historyKey}`;
+}
+
+function cloneMessages(messages: AIChatMessage[]): AIChatMessage[] {
+  return messages.map((message) => ({ ...message }));
+}
+
 export function buildCoachMessages(params: CoachPromptParams): AIChatMessage[] {
+  const cacheKey = buildPromptCacheKey(params);
+  const cached = promptCache.get(cacheKey);
+  const now = Date.now();
+  if (cached && cached.expiresAt > now) {
+    return cloneMessages(cached.messages);
+  }
+
   const systemPrompt = buildSystemPrompt(params.persona);
   const knowledgeBlock = buildKnowledgeBlock(params.knowledge);
   const userContextBlock = buildUserContextBlock(params.userContext);
@@ -110,5 +150,10 @@ export function buildCoachMessages(params: CoachPromptParams): AIChatMessage[] {
     },
   ];
 
-  return messages;
+  promptCache.set(cacheKey, {
+    messages,
+    expiresAt: now + PROMPT_CACHE_TTL_MS,
+  });
+
+  return cloneMessages(messages);
 }

@@ -5,6 +5,10 @@ const openaiHealthMock = jest.fn();
 const anthropicHealthMock = jest.fn();
 const togetherHealthMock = jest.fn();
 const ollamaHealthMock = jest.fn();
+const openaiEmbeddingMock = jest.fn();
+const anthropicEmbeddingMock = jest.fn();
+const togetherEmbeddingMock = jest.fn();
+const ollamaEmbeddingMock = jest.fn();
 
 jest.mock("../lib/analytics/server", () => ({
   serverAnalytics: {
@@ -16,23 +20,25 @@ jest.mock("../lib/analytics/server", () => ({
 jest.mock("../lib/ai/providers/openai", () => ({
   createOpenAIChatStream: jest.fn(),
   checkOpenAIHealth: openaiHealthMock,
-  createOpenAIEmbedding: jest.fn(),
+  createOpenAIEmbedding: openaiEmbeddingMock,
 }));
 
 jest.mock("../lib/ai/providers/anthropic", () => ({
   createAnthropicChatStream: jest.fn(),
   checkAnthropicHealth: anthropicHealthMock,
+  createAnthropicEmbedding: anthropicEmbeddingMock,
 }));
 
 jest.mock("../lib/ai/providers/together", () => ({
   createTogetherChatStream: jest.fn(),
-  createTogetherEmbedding: jest.fn(),
+  createTogetherEmbedding: togetherEmbeddingMock,
   checkTogetherHealth: togetherHealthMock,
 }));
 
 jest.mock("../lib/ai/providers/ollama", () => ({
   createOllamaChatStream: jest.fn(),
   checkOllamaHealth: ollamaHealthMock,
+  createOllamaEmbedding: ollamaEmbeddingMock,
 }));
 
 describe("provider registry telemetry", () => {
@@ -109,5 +115,54 @@ describe("provider registry telemetry", () => {
     });
 
     expect(indexById.together.status).toBe("unknown");
+  });
+
+  it("prioritizes embedding providers with graceful failover and health cache ttl", async () => {
+    jest.useFakeTimers().setSystemTime(new Date("2024-01-02T00:00:00Z"));
+    jest.resetModules();
+
+    openaiHealthMock.mockReset().mockResolvedValue({
+      providerId: "openai",
+      status: "unavailable" as const,
+      checkedAt: Date.now(),
+    });
+    togetherHealthMock.mockReset().mockResolvedValue({
+      providerId: "together",
+      status: "degraded" as const,
+      latencyMs: 200,
+      checkedAt: Date.now(),
+    });
+    anthropicHealthMock.mockReset().mockResolvedValue({
+      providerId: "anthropic",
+      status: "healthy" as const,
+      latencyMs: 80,
+      checkedAt: Date.now(),
+    });
+    ollamaHealthMock.mockReset().mockResolvedValue({
+      providerId: "ollama",
+      status: "healthy" as const,
+      latencyMs: 120,
+      checkedAt: Date.now(),
+    });
+
+    const registry = await import("../lib/ai/provider-registry");
+
+    const selection = await registry.getActiveEmbeddingProvider();
+    expect(selection?.provider.id).toBe("anthropic");
+    expect(selection?.fallbackUsed).toBe(false);
+    expect(selection?.attempts).toEqual([
+      { providerId: "openai", status: "unavailable" },
+      { providerId: "together", status: "degraded" },
+      { providerId: "anthropic", status: "healthy" },
+    ]);
+
+    await registry.getActiveEmbeddingProvider();
+    expect(openaiHealthMock).toHaveBeenCalledTimes(1);
+    expect(togetherHealthMock).toHaveBeenCalledTimes(1);
+
+    jest.advanceTimersByTime(31_000);
+    await registry.getActiveEmbeddingProvider();
+    expect(openaiHealthMock).toHaveBeenCalledTimes(2);
+    expect(togetherHealthMock).toHaveBeenCalledTimes(2);
   });
 });

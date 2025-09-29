@@ -22,7 +22,7 @@ This document outlines the core telemetry events captured by the AI orchestratio
   - `providerId` – provider that raised the error.
   - `durationMs` – elapsed time before the failure surfaced.
   - `errorCode` and `message` – sanitized diagnostic information.
-  - Additional metadata passed by the orchestrator (e.g., failure stage, fallback usage).
+  - Additional metadata passed by the orchestrator (e.g., failure stage, fallback usage, `failoverCount`, and the evaluated `attempts`).
 
 ### `i_provider_health_changed`
 - **When**: Triggered when a provider’s health state transitions (healthy ↔ degraded/unavailable).
@@ -34,6 +34,7 @@ This document outlines the core telemetry events captured by the AI orchestratio
 
 ### Suggested auxiliary events
 - `i_provider_health_snapshot` (optional) – batch capture of `getProviderStatistics()` output if periodic snapshots are required for long-term trending.
+- `client_offline_event` – emitted by the service worker provider to track install prompts, offline transitions, and draft queue usage (`action` property enumerates events such as `offline`, `online`, `draft_queued`, `draft_synced`).
 
 ## Dashboard Blueprint
 

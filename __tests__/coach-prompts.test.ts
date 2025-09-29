@@ -14,6 +14,9 @@ const persona: PersonaProfile = {
   knowledgeTags: ["marcus", "stoicism"],
   defaultModel: "gpt-4o-mini",
   temperature: 0.7,
+  toneChecks: ["Stay calm", "Be pragmatic"],
+  closingReminder: "Ask for one concrete action.",
+  microActionExamples: ["Plan an evening review"],
 };
 
 const knowledge = [

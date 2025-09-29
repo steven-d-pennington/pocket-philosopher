@@ -95,8 +95,13 @@ export interface CoachKnowledgeChunk {
   author?: string | null;
   tradition?: string | null;
   section?: string | null;
+  virtue?: string | null;
+  personaTags?: string[] | null;
   content: string;
   metadata?: Record<string, unknown> | null;
+  embedding?: number[] | null;
+  createdAt?: string | null;
+  relevance?: number;
 }
 
 export interface CoachUserContextSummary {

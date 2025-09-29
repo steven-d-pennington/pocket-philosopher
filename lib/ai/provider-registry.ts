@@ -8,6 +8,7 @@ import { serverAnalytics } from "@/lib/analytics/server";
 import {
   checkAnthropicHealth,
   createAnthropicChatStream,
+  createAnthropicEmbedding,
 } from "@/lib/ai/providers/anthropic";
 import {
   checkOpenAIHealth,
@@ -19,7 +20,11 @@ import {
   createTogetherChatStream,
   createTogetherEmbedding,
 } from "@/lib/ai/providers/together";
-import { checkOllamaHealth, createOllamaChatStream } from "@/lib/ai/providers/ollama";
+import {
+  checkOllamaHealth,
+  createOllamaChatStream,
+  createOllamaEmbedding,
+} from "@/lib/ai/providers/ollama";
 
 const HEALTH_TTL_MS = 30_000;
 const DISTINCT_ID = "ai-provider-registry";
@@ -414,6 +419,24 @@ function bootstrap(): void {
     weight: 1,
     createEmbedding: createTogetherEmbedding,
     checkHealth: checkTogetherHealth,
+  });
+
+  registerEmbeddingProvider({
+    id: "anthropic",
+    displayName: "Anthropic",
+    priority: 3,
+    weight: 1,
+    createEmbedding: createAnthropicEmbedding,
+    checkHealth: checkAnthropicHealth,
+  });
+
+  registerEmbeddingProvider({
+    id: "ollama",
+    displayName: "Ollama",
+    priority: 4,
+    weight: 1,
+    createEmbedding: createOllamaEmbedding,
+    checkHealth: checkOllamaHealth,
   });
 }
 
