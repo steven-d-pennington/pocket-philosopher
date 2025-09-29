@@ -7,7 +7,7 @@ import {
   respondWithSuccess,
   withUserContext,
 } from "@/app/api/_lib/logger";
-import { sanitizeNullableText, sanitizeStringArray, sanitizeUserText } from "@/lib/security/sanitize";
+import { sanitizeNullableText, sanitizeStringArray } from "@/lib/security/sanitize";
 
 const ROUTE = "/api/reflections";
 
