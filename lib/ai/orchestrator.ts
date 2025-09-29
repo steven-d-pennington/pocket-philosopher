@@ -276,6 +276,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
         stage: "createChatStream",
         fallbackUsed,
         providerStatus,
+        failoverCount: Math.max(0, attemptSummaries.length - 1),
+        attempts: attemptSummaries,
       },
     });
     logger.error("Coach stream provider initialization failed", error, {
@@ -303,6 +305,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
         stage,
         fallbackUsed,
         providerStatus,
+        failoverCount: Math.max(0, attemptSummaries.length - 1),
+        attempts: attemptSummaries,
       },
     });
     logger.error("Coach stream failed", error, {

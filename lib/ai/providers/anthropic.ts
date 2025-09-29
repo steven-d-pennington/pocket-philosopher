@@ -10,6 +10,8 @@ import { env } from "@/lib/env-validation";
 
 const ANTHROPIC_MESSAGES_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODELS_URL = "https://api.anthropic.com/v1/models";
+const ANTHROPIC_EMBEDDINGS_URL = "https://api.anthropic.com/v1/embeddings";
+const DEFAULT_ANTHROPIC_EMBEDDING_MODEL = "claude-embed-v1";
 const ANTHROPIC_VERSION = "2023-06-01";
 
 export class AnthropicConfigurationError extends Error {
@@ -198,8 +200,66 @@ export async function createAnthropicChatStream(options: AIChatStreamRequest): P
 export async function createAnthropicEmbedding(
   request: AIEmbeddingRequest,
 ): Promise<AIEmbeddingResponse> {
-  void request;
-  throw new Error("Anthropic embeddings are not available. Track upstream support before enabling.");
+  if (!env.ANTHROPIC_API_KEY) {
+    throw new AnthropicConfigurationError();
+  }
+
+  const inputs = Array.isArray(request.input) ? request.input : [request.input];
+  if (inputs.length === 0) {
+    return { embeddings: [] } satisfies AIEmbeddingResponse;
+  }
+
+  const controller = new AbortController();
+  if (request.signal) {
+    request.signal.addEventListener("abort", () => controller.abort(request.signal?.reason));
+  }
+
+  const response = await fetch(ANTHROPIC_EMBEDDINGS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": env.ANTHROPIC_API_KEY,
+      "anthropic-version": ANTHROPIC_VERSION,
+    },
+    body: JSON.stringify({
+      model: request.model || DEFAULT_ANTHROPIC_EMBEDDING_MODEL,
+      input: inputs,
+    }),
+    signal: controller.signal,
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    const status = response.status;
+    if (status === 404 || status === 501) {
+      throw new Error(
+        `Anthropic embeddings are not enabled for this account. Received status ${status}: ${detail}`,
+      );
+    }
+    throw new Error(`Anthropic embeddings request failed with status ${status}: ${detail}`);
+  }
+
+  const payload = (await response.json()) as {
+    data: Array<{ embedding: number[]; index: number }>;
+    model?: string;
+    usage?: { input_tokens?: number; output_tokens?: number };
+  };
+
+  const embeddings = payload.data?.map((item) => item.embedding) ?? [];
+  const dimensions = embeddings[0]?.length;
+
+  return {
+    embeddings,
+    dimensions,
+    model: payload.model ?? request.model ?? DEFAULT_ANTHROPIC_EMBEDDING_MODEL,
+    usage: {
+      promptTokens: payload.usage?.input_tokens,
+      totalTokens:
+        typeof payload.usage?.input_tokens === "number"
+          ? payload.usage?.input_tokens
+          : undefined,
+    },
+  } satisfies AIEmbeddingResponse;
 }
 
 

@@ -1,6 +1,7 @@
-import { ArrowRight, BookOpenCheck, LineChart, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { FeatureGrid } from "@/components/home/feature-grid";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/metadata";
 
@@ -16,19 +17,19 @@ const features = [
     title: "Daily Practice Hub",
     description:
       "Intentions, practices, reflections, and Return Score insights in a single resilient loop.",
-    icon: Sparkles,
+    icon: "sparkles" as const,
   },
   {
     title: "Pocket Philosopher Coaches",
     description:
       "Persona-based guidance powered by retrieval-augmented generation and your recent activity.",
-    icon: BookOpenCheck,
+    icon: "book" as const,
   },
   {
     title: "Virtue Analytics",
     description:
       "Track streaks, virtue balance, and the Return Score over time with shame-free visualizations.",
-    icon: LineChart,
+    icon: "chart" as const,
   },
 ];
 
@@ -70,18 +71,7 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {features.map(({ title, description, icon: Icon }) => (
-            <article
-              key={title}
-              className="rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg"
-            >
-              <Icon className="mb-4 size-10 text-primary" aria-hidden />
-              <h2 className="mb-2 text-lg font-semibold">{title}</h2>
-              <p className="text-sm text-muted-foreground">{description}</p>
-            </article>
-          ))}
-        </div>
+        <FeatureGrid features={features} />
 
         <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-6">
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -91,11 +81,11 @@ export default function Home() {
             {workstreams.map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-3 rounded-lg bg-background/80 p-4 shadow-sm"
-              >
-                <span className="mt-1 inline-flex size-2 rounded-full bg-primary" aria-hidden />
-                <span>{item}</span>
-              </li>
+              className="flex items-start gap-3 rounded-lg bg-background/80 p-4 shadow-sm transition focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 hover:-translate-y-0.5"
+            >
+              <span className="mt-1 inline-flex size-2 rounded-full bg-primary" aria-hidden />
+              <span>{item}</span>
+            </li>
             ))}
           </ul>
         </div>

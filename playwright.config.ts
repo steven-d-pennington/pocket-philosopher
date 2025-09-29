@@ -29,5 +29,9 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      ...process.env,
+      PWA_DEV: "true",
+    },
   },
 });
