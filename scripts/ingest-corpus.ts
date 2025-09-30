@@ -60,6 +60,7 @@ interface CorpusSection {
   content: string;
   virtue: string;
   persona_tags: string[];
+  citation?: string;
 }
 
 interface PhilosophyChunk {
@@ -70,6 +71,7 @@ interface PhilosophyChunk {
   virtue: string;
   persona_tags: string[];
   content: string;
+  citation?: string;
   embedding: number[];
   metadata: Record<string, unknown>;
 }
@@ -158,11 +160,20 @@ async function ingestCorpus() {
       virtue TEXT,
       persona_tags TEXT[],
       content TEXT NOT NULL,
+      citation TEXT,
       embedding VECTOR(1536),
       metadata JSONB DEFAULT '{}'::jsonb,
       created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
     );
   `);
+
+  // Add citation column if it doesn't exist (for existing tables)
+  try {
+    await pgClient.query(`ALTER TABLE philosophy_chunks ADD COLUMN IF NOT EXISTS citation TEXT;`);
+  } catch (error) {
+    console.log('Citation column already exists or could not be added:', error);
+  }
+
   console.log('Ensured philosophy_chunks table exists');
 
   // Load corpus data
@@ -202,6 +213,7 @@ async function ingestCorpus() {
         virtue: section.virtue,
         persona_tags: section.persona_tags,
         content: chunk,
+        citation: section.citation,
         metadata: {
           chunk_index: index,
           total_chunks: textChunks.length,
@@ -217,8 +229,8 @@ async function ingestCorpus() {
 
         await pgClient.query(`
           INSERT INTO philosophy_chunks (
-            work, author, tradition, section, virtue, persona_tags, content, embedding, metadata
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            work, author, tradition, section, virtue, persona_tags, content, citation, embedding, metadata
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `, [
           chunk.work,
           chunk.author,
@@ -227,6 +239,7 @@ async function ingestCorpus() {
           chunk.virtue,
           chunk.persona_tags,
           chunk.content,
+          chunk.citation,
           `[${embedding.join(',')}]`,
           chunk.metadata
         ]);

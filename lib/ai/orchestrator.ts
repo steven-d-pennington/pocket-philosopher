@@ -153,17 +153,21 @@ function estimateTokensFromText(text: string): number {
   return Math.max(1, Math.ceil(normalized.length / 4));
 }
 
-function resolveCitations(
+export function resolveCitations(
   content: string,
   knowledge: CoachKnowledgeChunk[],
+  providedUsedIds?: Set<string>,
 ): { sanitized: string; citations: CoachCitation[] } {
   const citationPattern = /\[\[([^\]]+)\]\]/g;
-  const usedIds = new Set<string>();
-  let match: RegExpExecArray | null;
-  while ((match = citationPattern.exec(content)) !== null) {
-    const id = match[1]?.trim();
-    if (id) {
-      usedIds.add(id);
+  const usedIds = providedUsedIds || new Set<string>();
+  
+  if (!providedUsedIds) {
+    let match: RegExpExecArray | null;
+    while ((match = citationPattern.exec(content)) !== null) {
+      const id = match[1]?.trim();
+      if (id) {
+        usedIds.add(id);
+      }
     }
   }
 
@@ -193,10 +197,24 @@ function resolveCitations(
     };
   });
 
-  const sanitized = content
-    .replace(citationPattern, "")
+  let sanitized = content
+    .replace(/\s*\[\[([^\]]+)\]\]\s*/g, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+  // Remove any citations section that the AI might have generated despite instructions
+  const citationsSectionPatterns = [
+    /\n\s*(citations?|references?|sources?)\s*:\s*\n(?:[-•*]\s*.+\n?)+/gi,
+    /\n\s*(citations?|references?|sources?)\s*:\s*\n(?:\d+\.\s*.+\n?)+/gi,
+    /\n\s*citations?\s*\n(?:[-•*]\s*.+\n?)+/gi,
+    /\n\s*references?\s*\n(?:[-•*]\s*.+\n?)+/gi,
+    /\n\s*sources?\s*\n(?:[-•*]\s*.+\n?)+/gi,
+    /\n\s*(citations?|references?|sources?)\s*\n(?:.+\n?)+/gi, // Citations followed by any content
+  ];
+
+  for (const pattern of citationsSectionPatterns) {
+    sanitized = sanitized.replace(pattern, "").trim();
+  }
 
   return { sanitized, citations };
 }
@@ -292,6 +310,7 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
   let aggregated = "";
   let lastTokenEstimate = 0;
   let outcomeRecorded = false;
+  const allUsedIds = new Set<string>();
 
   const recordFailureOnce = (error: unknown, stage: string) => {
     if (outcomeRecorded) {
@@ -319,14 +338,49 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
   };
 
   const stream = (async function* coachStreamGenerator() {
+    let buffer = "";
     try {
       for await (const delta of aiStream.stream) {
         if (!delta) {
           continue;
         }
+        
+        buffer += delta;
         aggregated += delta;
-        lastTokenEstimate = estimateTokensFromText(aggregated);
-        yield { delta, tokens: lastTokenEstimate } satisfies CoachStreamChunk;
+        
+        // Extract citation IDs from the accumulated buffer
+        const citationPattern = /\[\[([^\]]+)\]\]/g;
+        let match: RegExpExecArray | null;
+        while ((match = citationPattern.exec(buffer)) !== null) {
+          const id = match[1]?.trim();
+          if (id) {
+            allUsedIds.add(id);
+          }
+        }
+        
+        // Check if buffer ends with incomplete marker
+        const endsWithIncompleteMarker = /\[\[[^\]]*$/.test(buffer);
+        
+        // Yield if we don't end with incomplete marker and have content
+        if (!endsWithIncompleteMarker && buffer.length > 0) {
+          // Remove all complete markers from the buffer
+          const cleanBuffer = buffer.replace(/\s*\[\[([^\]]+)\]\]\s*/g, "");
+          
+          if (cleanBuffer.length > 0) {
+            lastTokenEstimate = estimateTokensFromText(aggregated);
+            yield { delta: cleanBuffer, tokens: lastTokenEstimate } satisfies CoachStreamChunk;
+            buffer = ""; // Clear buffer after yielding
+          }
+        }
+      }
+      
+      // Yield any remaining buffer content
+      if (buffer.length > 0) {
+        const cleanBuffer = buffer.replace(/\s*\[\[([^\]]+)\]\]\s*/g, "");
+        if (cleanBuffer.length > 0) {
+          lastTokenEstimate = estimateTokensFromText(aggregated);
+          yield { delta: cleanBuffer, tokens: lastTokenEstimate } satisfies CoachStreamChunk;
+        }
       }
     } catch (error) {
       recordFailureOnce(error, "stream");
@@ -348,7 +402,7 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
           });
         }
 
-        const { sanitized, citations } = resolveCitations(aggregated, knowledge);
+        const { sanitized, citations } = resolveCitations(aggregated, knowledge, allUsedIds);
         const tokens = usage?.totalTokens ?? lastTokenEstimate ?? estimateTokensFromText(aggregated);
         const completedAt = Date.now();
         const latencyMs = completedAt - requestStartedAt;

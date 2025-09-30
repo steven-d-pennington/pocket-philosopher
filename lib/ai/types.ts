@@ -98,6 +98,7 @@ export interface CoachKnowledgeChunk {
   virtue?: string | null;
   personaTags?: string[] | null;
   content: string;
+  citation?: string | null;
   metadata?: Record<string, unknown> | null;
   embedding?: number[] | null;
   createdAt?: string | null;

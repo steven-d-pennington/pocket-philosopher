@@ -82,7 +82,8 @@ function extractSearchQuery(message: string): string | null {
   return tokens.join(" ");
 }
 
-function mapChunk(row: PhilosophyChunkRow): CoachKnowledgeChunk {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapChunk(row: any): CoachKnowledgeChunk {
   return {
     id: row.id,
     work: row.work,
@@ -92,6 +93,7 @@ function mapChunk(row: PhilosophyChunkRow): CoachKnowledgeChunk {
     virtue: row.virtue,
     personaTags: row.persona_tags ?? null,
     content: row.content,
+    citation: row.citation ?? null,
     metadata: row.metadata as Record<string, unknown> | null,
     embedding: normalizeVector(row.embedding),
     createdAt: row.created_at ?? null,
@@ -107,7 +109,7 @@ async function fetchPersonaChunks(
   let query = supabase
     .from("philosophy_chunks")
     .select(
-      "id, work, author, tradition, section, virtue, persona_tags, content, embedding, metadata, created_at",
+      "id, work, author, tradition, section, virtue, persona_tags, content, citation, embedding, metadata, created_at",
     )
     .limit(Math.max(limit * 2, limit))
     .order("created_at", { ascending: false });
@@ -116,9 +118,10 @@ async function fetchPersonaChunks(
     query = query.overlaps("persona_tags", persona.knowledgeTags);
   }
 
-  if (searchQuery) {
-    query = query.textSearch("content", searchQuery, { type: "websearch" });
-  }
+  // Temporarily disable text search to test if persona chunks are found
+  // if (searchQuery) {
+  //   query = query.textSearch("content", searchQuery, { type: "websearch" });
+  // }
 
   const { data, error } = await query;
   if (error) {
@@ -138,7 +141,7 @@ async function fetchFallbackChunks(
   let query = supabase
     .from("philosophy_chunks")
     .select(
-      "id, work, author, tradition, section, virtue, persona_tags, content, embedding, metadata, created_at",
+      "id, work, author, tradition, section, virtue, persona_tags, content, citation, embedding, metadata, created_at",
     )
     .limit(Math.max(limit * 2, limit))
     .order("created_at", { ascending: false });
@@ -148,9 +151,10 @@ async function fetchFallbackChunks(
     query = query.not("id", "in", `(${quoted})`);
   }
 
-  if (searchQuery) {
-    query = query.textSearch("content", searchQuery, { type: "websearch" });
-  }
+  // Temporarily disable text search to test if chunks are found
+  // if (searchQuery) {
+  //   query = query.textSearch("content", searchQuery, { type: "websearch" });
+  // }
 
   const { data, error } = await query;
   if (error) {

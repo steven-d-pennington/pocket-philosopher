@@ -27,7 +27,7 @@ const personas: Record<string, PersonaProfile> = {
     virtues: ["wisdom", "temperance", "justice", "courage"],
     signaturePractices: ["evening review", "premeditatio", "journaling"],
     conversationStyle: "Structured reflections followed by practical exercises; frequently references imperial duty and inner citadel metaphors.",
-    knowledgeTags: ["marcus", "stoicism", "meditations"],
+    knowledgeTags: ["marcus", "stoicism"],
     defaultModel: "gpt-4o-mini",
     temperature: 0.6,
     toneChecks: [

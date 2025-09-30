@@ -33,7 +33,8 @@ function buildKnowledgeBlock(chunks: CoachKnowledgeChunk[]): string {
         headerParts.push(`virtue: ${chunk.virtue}`);
       }
       const header = headerParts.join(" · ");
-      return `[[${chunk.id}]] ${header}\n${chunk.content}`;
+      const citation = chunk.citation ? `\nCitation: ${chunk.citation}` : "";
+      return `[[${chunk.id}]] ${header}\n${chunk.content}${citation}`;
     })
     .join("\n\n---\n\n");
 }
@@ -83,6 +84,7 @@ function buildSystemPrompt(persona: PersonaProfile): string {
     "Keep paragraphs under 90 words and avoid filler disclaimers.",
     `Offer two or three concise micro-actions tailored to the user's situation. Examples: ${persona.microActionExamples.join(", ")}.`,
     "When referencing provided knowledge snippets, cite them inline using [[chunk_id]].",
+    "Always include the source citation (e.g., 'Meditations, Book I.1-7 (Gregory Hays translation)') when referencing philosophical concepts from the provided knowledge.",
     "Do not invent citations. If no snippet fits, acknowledge and coach from general principles without a citation.",
     "Do not include a separate citations section; the client will render citations from the inline markers.",
     persona.closingReminder,
