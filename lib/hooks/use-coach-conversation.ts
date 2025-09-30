@@ -141,8 +141,9 @@ export function useCoachConversation() {
                   });
 
                   // Performance monitoring
-                  if (typeof window !== "undefined" && (window as any).posthog) {
-                    (window as any).posthog.capture("coach_response_complete", {
+                  const posthog = (window as Window & { posthog?: { capture: (event: string, data: Record<string, unknown>) => void } }).posthog;
+                  if (typeof window !== "undefined" && posthog) {
+                    posthog.capture("coach_response_complete", {
                       personaId,
                       duration,
                       tokens: data.tokens,
@@ -201,8 +202,9 @@ export function useCoachConversation() {
           console.error("Coach conversation failed", error);
 
           // Performance monitoring for errors
-          if (typeof window !== "undefined" && (window as any).posthog) {
-            (window as any).posthog.capture("coach_response_error", {
+          const posthog = (window as Window & { posthog?: { capture: (event: string, data: Record<string, unknown>) => void } }).posthog;
+          if (typeof window !== "undefined" && posthog) {
+            posthog.capture("coach_response_error", {
               personaId,
               duration,
               error: error instanceof Error ? error.message : "Unknown error",

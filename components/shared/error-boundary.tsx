@@ -32,8 +32,9 @@ export class CoachErrorBoundary extends React.Component<ErrorBoundaryProps, Erro
     });
 
     // Log error to analytics if available
-    if (typeof window !== "undefined" && (window as any).posthog) {
-      (window as any).posthog.capture("error_boundary_caught", {
+    const posthog = (window as Window & { posthog?: { capture: (event: string, data: Record<string, unknown>) => void } }).posthog;
+    if (typeof window !== "undefined" && posthog) {
+      posthog.capture("error_boundary_caught", {
         error: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,
@@ -73,7 +74,7 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
       </div>
       <h3 className="mb-2 text-lg font-semibold text-foreground">Something went wrong</h3>
       <p className="mb-4 max-w-md text-sm text-muted-foreground">
-        We encountered an unexpected error while processing your request. This has been logged and we'll look into it.
+        We encountered an unexpected error while processing your request. This has been logged and we&apos;ll look into it.
       </p>
       {process.env.NODE_ENV === "development" && (
         <details className="mb-4 max-w-md text-left">
