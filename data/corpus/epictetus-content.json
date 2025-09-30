@@ -1,0 +1,52 @@
+{
+  "works": [
+    {
+      "title": "Enchiridion",
+      "author": "Epictetus",
+      "tradition": "stoicism",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "Control and Choice",
+          "content": "Some things are up to us, and some things are not up to us. Our opinions are up to us, and our impulses, desires, aversions—in short, whatever is our own doing. Our bodies are not up to us, nor are our possessions, our reputations, or our public offices, or, in short, whatever is not our own doing. The things that are up to us are by nature free, not subject to hindrance or restraint; but the things that are not up to us are weak, slavish, subject to hindrance, and not our own. Remember, then, that if you think the things that are by nature slavish are free, and the things that are not your own are your own, you will be hindered, you will lament, you will be disturbed, you will blame both gods and men.",
+          "virtue": "discipline",
+          "persona_tags": ["epictetus", "stoicism", "discipline"],
+          "key_concepts": ["dichotomy of control", "freedom", "agency"],
+          "applications": ["stress management", "decision making", "emotional control"]
+        },
+        {
+          "title": "Desire and Aversion",
+          "content": "Don't demand that things happen as you wish, but wish that they happen as they do happen, and you will go on well. Illness is a hindrance to the body, but not to the will, unless the will consents. Lameness is a hindrance to the leg, but not to the will. Say this to yourself at each event that occurs: 'This is what I demanded.' For if you are willing to accept things as they are, you will be happy; but if you are not willing, you will be unhappy and wretched. This is the nature of the good: it is always available to us, if we are willing to see it. The good is not in external things, but in the use we make of them.",
+          "virtue": "resilience",
+          "persona_tags": ["epictetus", "stoicism", "acceptance"],
+          "key_concepts": ["acceptance", "willingness", "inner peace"],
+          "applications": ["coping with change", "finding contentment", "letting go"]
+        },
+        {
+          "title": "Action and Character",
+          "content": "It is not death or pain that is to be feared, but the fear of death or pain. Welcome death, therefore, and you will be free from the fear of it. Welcome pain, and you will be free from the fear of it. The wise person does not sit and whine, nor does he run away from difficulties. He faces them squarely and overcomes them. It is not the event that matters, but our response to it. We cannot control what happens to us, but we can control how we respond. Character is not made in a crisis—it is only exhibited. True character is revealed in the choices we make when no one is watching.",
+          "virtue": "courage",
+          "persona_tags": ["epictetus", "stoicism", "character"],
+          "key_concepts": ["character", "response", "courage"],
+          "applications": ["facing fears", "building character", "crisis response"]
+        },
+        {
+          "title": "Relationships and Society",
+          "content": "If you wish to be a friend to anyone, be a friend to him in the way that is right for you. But don't expect him to be a friend in the way that is right for you. If he does, well and good; if not, he is not your friend. Don't be surprised if you find that some people are ungrateful, or selfish, or dishonest. That is their nature. You cannot change their nature, but you can change your response to it. Treat everyone with kindness, but don't expect anything in return. Your duty is to be virtuous, not to make others virtuous. The good person helps others not because he expects reward, but because it is the right thing to do.",
+          "virtue": "justice",
+          "persona_tags": ["epictetus", "stoicism", "relationships"],
+          "key_concepts": ["relationships", "duty", "kindness"],
+          "applications": ["interpersonal skills", "boundaries", "social responsibility"]
+        },
+        {
+          "title": "Practice and Habit",
+          "content": "Practice, therefore, from the start to say to every harsh appearance: 'You are an appearance, and not at all the thing you appear to be.' Then examine it by the rules you have, first and chiefly by this: whether it concerns the things that are up to us or the things that are not up to us. And if it concerns anything not up to us, be ready to say: 'It is nothing to me.' Remember that the door is open. Don't be more cowardly than children, but just as they say when they don't like the game, 'I won't play anymore,' so you too, when things seem that way to you, say 'I won't play anymore' and depart. But if you stay, don't complain.",
+          "virtue": "discipline",
+          "persona_tags": ["epictetus", "stoicism", "practice"],
+          "key_concepts": ["practice", "perspective", "withdrawal"],
+          "applications": ["mental training", "perspective taking", "knowing when to quit"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,46 +1,110 @@
 {
   "works": [
     {
-      "title": "Meditations",
-      "author": "Marcus Aurelius",
+      "title": "Enchiridion",
+      "author": "Epictetus",
       "tradition": "stoicism",
+      "era": "ancient",
       "sections": [
         {
-          "title": "Book II",
-          "content": "Begin the morning by saying to thyself, I shall meet with the busybody, the ungrateful, arrogant, deceitful, envious, unsocial. All these things happen to them by reason of their ignorance of what is good and evil. But I who have seen the nature of the good that it is beautiful, and of the bad that it is ugly, and the nature of him who does wrong, that it is akin to me, not only of the same blood or seed, but that it participates in the same intelligence and the same portion of the divinity, I can neither be injured by any of them, for no one can fix on me what is ugly, nor can I be angry with my kinsman, nor hate him.",
-          "virtue": "wisdom",
-          "persona_tags": ["marcus", "stoicism"]
+          "title": "Control and Choice",
+          "content": "Some things are up to us, and some things are not up to us. Our opinions are up to us, and our impulses, desires, aversions—in short, whatever is our own doing. Our bodies are not up to us, nor are our possessions, our reputations, or our public offices, or, in short, whatever is not our own doing. The things that are up to us are by nature free, not subject to hindrance or restraint; but the things that are not up to us are weak, slavish, subject to hindrance, and not our own. Remember, then, that if you think the things that are by nature slavish are free, and the things that are not your own are your own, you will be hindered, you will lament, you will be disturbed, you will blame both gods and men.",
+          "virtue": "discipline",
+          "persona_tags": [
+            "epictetus",
+            "stoicism",
+            "discipline"
+          ],
+          "key_concepts": [
+            "dichotomy of control",
+            "freedom",
+            "agency"
+          ],
+          "applications": [
+            "stress management",
+            "decision making",
+            "emotional control"
+          ]
         },
         {
-          "title": "Book IV",
-          "content": "The happiness of your life depends upon the quality of your thoughts. Therefore, guard accordingly, and take care that you entertain no notions unsuitable to virtue and reasonable nature. Men seek retreats for themselves, houses in the country, sea-shores, and mountains; and thou too art wont to desire such things very much. But this is altogether a mark of the most common sort of men, for it is in thy power whenever thou shalt choose to retire into thyself. For nowhere either with more quiet or more freedom from trouble does a man retire than into his own soul.",
-          "virtue": "temperance",
-          "persona_tags": ["marcus", "stoicism"]
+          "title": "Desire and Aversion",
+          "content": "Don't demand that things happen as you wish, but wish that they happen as they do happen, and you will go on well. Illness is a hindrance to the body, but not to the will, unless the will consents. Lameness is a hindrance to the leg, but not to the will. Say this to yourself at each event that occurs: 'This is what I demanded.' For if you are willing to accept things as they are, you will be happy; but if you are not willing, you will be unhappy and wretched. This is the nature of the good: it is always available to us, if we are willing to see it. The good is not in external things, but in the use we make of them.",
+          "virtue": "resilience",
+          "persona_tags": [
+            "epictetus",
+            "stoicism",
+            "acceptance"
+          ],
+          "key_concepts": [
+            "acceptance",
+            "willingness",
+            "inner peace"
+          ],
+          "applications": [
+            "coping with change",
+            "finding contentment",
+            "letting go"
+          ]
         },
         {
-          "title": "Book VII",
-          "content": "How ridiculous and how strange to be surprised at anything which happens in life! If a potter makes a vessel and it breaks in the kiln or oven, is he surprised? No. But if a man breaks, we say, 'Alas, what has happened?' Learn then not to be surprised at the breakage of a vessel, nor at the death of a man. For as the vessel is broken, so must a man die. And what is more, the wife of a potter or the child of a baker must also die.",
+          "title": "Action and Character",
+          "content": "It is not death or pain that is to be feared, but the fear of death or pain. Welcome death, therefore, and you will be free from the fear of it. Welcome pain, and you will be free from the fear of it. The wise person does not sit and whine, nor does he run away from difficulties. He faces them squarely and overcomes them. It is not the event that matters, but our response to it. We cannot control what happens to us, but we can control how we respond. Character is not made in a crisis—it is only exhibited. True character is revealed in the choices we make when no one is watching.",
           "virtue": "courage",
-          "persona_tags": ["marcus", "stoicism"]
-        }
-      ]
-    },
-    {
-      "title": "Tao Te Ching",
-      "author": "Laozi",
-      "tradition": "taoism",
-      "sections": [
-        {
-          "title": "Chapter 8",
-          "content": "The supreme good is like water, which nourishes all things without trying to. It is content with the low places that people disdain. Thus it is like the Tao. In dwelling, live close to the ground. In thinking, keep to the simple. In conflict, be fair and generous. In governing, don't try to control. In work, do what you enjoy. In family life, be completely present. When you are content to be simply yourself and don't compare or compete, everybody will respect you.",
-          "virtue": "balance",
-          "persona_tags": ["tao", "tao te ching", "wu wei"]
+          "persona_tags": [
+            "epictetus",
+            "stoicism",
+            "character"
+          ],
+          "key_concepts": [
+            "character",
+            "response",
+            "courage"
+          ],
+          "applications": [
+            "facing fears",
+            "building character",
+            "crisis response"
+          ]
         },
         {
-          "title": "Chapter 15",
-          "content": "The ancient masters were profound and subtle. Their wisdom was unfathomable. There is no way to describe it; all we can describe is their appearance. They were careful as someone crossing an iced-over stream. Alert as a warrior in enemy territory. Courteous as a guest. Fluid as melting ice. Shapeable as a block of wood. Receptive as a valley. Clear as a glass of water. Do you have the patience to wait till your mud settles and the water is clear? Can you remain unmoving till the right action arises by itself?",
-          "virtue": "humility",
-          "persona_tags": ["tao", "tao te ching", "wu wei"]
+          "title": "Relationships and Society",
+          "content": "If you wish to be a friend to anyone, be a friend to him in the way that is right for you. But don't expect him to be a friend in the way that is right for you. If he does, well and good; if not, he is not your friend. Don't be surprised if you find that some people are ungrateful, or selfish, or dishonest. That is their nature. You cannot change their nature, but you can change your response to it. Treat everyone with kindness, but don't expect anything in return. Your duty is to be virtuous, not to make others virtuous. The good person helps others not because he expects reward, but because it is the right thing to do.",
+          "virtue": "justice",
+          "persona_tags": [
+            "epictetus",
+            "stoicism",
+            "relationships"
+          ],
+          "key_concepts": [
+            "relationships",
+            "duty",
+            "kindness"
+          ],
+          "applications": [
+            "interpersonal skills",
+            "boundaries",
+            "social responsibility"
+          ]
+        },
+        {
+          "title": "Practice and Habit",
+          "content": "Practice, therefore, from the start to say to every harsh appearance: 'You are an appearance, and not at all the thing you appear to be.' Then examine it by the rules you have, first and chiefly by this: whether it concerns the things that are up to us or the things that are not up to us. And if it concerns anything not up to us, be ready to say: 'It is nothing to me.' Remember that the door is open. Don't be more cowardly than children, but just as they say when they don't like the game, 'I won't play anymore,' so you too, when things seem that way to you, say 'I won't play anymore' and depart. But if you stay, don't complain.",
+          "virtue": "discipline",
+          "persona_tags": [
+            "epictetus",
+            "stoicism",
+            "practice"
+          ],
+          "key_concepts": [
+            "practice",
+            "perspective",
+            "withdrawal"
+          ],
+          "applications": [
+            "mental training",
+            "perspective taking",
+            "knowing when to quit"
+          ]
         }
       ]
     },
@@ -53,13 +117,190 @@
           "title": "Bad Faith",
           "content": "Bad faith is a lie to oneself. The one who practices bad faith is hiding a displeasing truth or presenting as truth a pleasing untruth. Bad faith then has in appearance the structure of falsehood. Only what changes is the intention. In the case of bad faith, the intention is to flee from oneself, to flee from what one is in order to establish oneself as what one is not. But this flight from oneself is not a flight toward something else; it is a flight from oneself toward oneself.",
           "virtue": "authenticity",
-          "persona_tags": ["existentialism", "sartre", "ethics"]
+          "persona_tags": [
+            "existentialism",
+            "sartre",
+            "ethics"
+          ]
         },
         {
           "title": "Freedom",
           "content": "Man is condemned to be free; because once thrown into the world, he is responsible for everything he does. It is up to you to give [life] a meaning. Man is nothing else but that which he makes of himself. That is the first principle of existentialism. And this is what people call its 'subjectivity,' using the word as a reproach against us. But what do we mean to say by this, but that man is of a greater dignity than a stone or a table? For we mean to say that man primarily exists - that man is, before he is anything else, something which propels itself towards a future and is aware that it is doing so.",
           "virtue": "freedom",
-          "persona_tags": ["existentialism", "sartre", "ethics"]
+          "persona_tags": [
+            "existentialism",
+            "sartre",
+            "ethics"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Tao Te Ching",
+      "author": "Laozi",
+      "tradition": "taoism",
+      "sections": [
+        {
+          "title": "Chapter 8",
+          "content": "The supreme good is like water, which nourishes all things without trying to. It is content with the low places that people disdain. Thus it is like the Tao. In dwelling, live close to the ground. In thinking, keep to the simple. In conflict, be fair and generous. In governing, don't try to control. In work, do what you enjoy. In family life, be completely present. When you are content to be simply yourself and don't compare or compete, everybody will respect you.",
+          "virtue": "balance",
+          "persona_tags": [
+            "tao",
+            "tao te ching",
+            "wu wei"
+          ]
+        },
+        {
+          "title": "Chapter 15",
+          "content": "The ancient masters were profound and subtle. Their wisdom was unfathomable. There is no way to describe it; all we can describe is their appearance. They were careful as someone crossing an iced-over stream. Alert as a warrior in enemy territory. Courteous as a guest. Fluid as melting ice. Shapeable as a block of wood. Receptive as a valley. Clear as a glass of water. Do you have the patience to wait till your mud settles and the water is clear? Can you remain unmoving till the right action arises by itself?",
+          "virtue": "humility",
+          "persona_tags": [
+            "tao",
+            "tao te ching",
+            "wu wei"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Meditations",
+      "author": "Marcus Aurelius",
+      "tradition": "stoicism",
+      "sections": [
+        {
+          "title": "Book II",
+          "content": "Begin the morning by saying to thyself, I shall meet with the busybody, the ungrateful, arrogant, deceitful, envious, unsocial. All these things happen to them by reason of their ignorance of what is good and evil. But I who have seen the nature of the good that it is beautiful, and of the bad that it is ugly, and the nature of him who does wrong, that it is akin to me, not only of the same blood or seed, but that it participates in the same intelligence and the same portion of the divinity, I can neither be injured by any of them, for no one can fix on me what is ugly, nor can I be angry with my kinsman, nor hate him.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "marcus",
+            "stoicism"
+          ]
+        },
+        {
+          "title": "Book IV",
+          "content": "The happiness of your life depends upon the quality of your thoughts. Therefore, guard accordingly, and take care that you entertain no notions unsuitable to virtue and reasonable nature. Men seek retreats for themselves, houses in the country, sea-shores, and mountains; and thou too art wont to desire such things very much. But this is altogether a mark of the most common sort of men, for it is in thy power whenever thou shalt choose to retire into thyself. For nowhere either with more quiet or more freedom from trouble does a man retire than into his own soul.",
+          "virtue": "temperance",
+          "persona_tags": [
+            "marcus",
+            "stoicism"
+          ]
+        },
+        {
+          "title": "Book VII",
+          "content": "How ridiculous and how strange to be surprised at anything which happens in life! If a potter makes a vessel and it breaks in the kiln or oven, is he surprised? No. But if a man breaks, we say, 'Alas, what has happened?' Learn then not to be surprised at the breakage of a vessel, nor at the death of a man. For as the vessel is broken, so must a man die. And what is more, the wife of a potter or the child of a baker must also die.",
+          "virtue": "courage",
+          "persona_tags": [
+            "marcus",
+            "stoicism"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Second Sex",
+      "author": "Simone de Beauvoir",
+      "tradition": "existentialism",
+      "era": "modern",
+      "sections": [
+        {
+          "title": "Introduction",
+          "content": "One is not born, but rather becomes, a woman. No biological, psychological, or economic fate determines the figure that the human female presents in society; it is civilization as a whole that produces this creature, intermediate between male and female, which is described as feminine. Only the intervention of someone else can establish an individual as an Other. The term 'feminine' is used symmetrically with 'masculine,' but the symmetry is false. The category of the feminine is presented as symmetrical, but in fact it is not.",
+          "virtue": "authenticity",
+          "persona_tags": [
+            "simone",
+            "existentialism",
+            "feminism"
+          ],
+          "key_concepts": [
+            "becoming",
+            "the other",
+            "freedom"
+          ],
+          "applications": [
+            "identity formation",
+            "social roles",
+            "personal agency"
+          ]
+        },
+        {
+          "title": "The Independent Woman",
+          "content": "To emancipate woman is to refuse to confine her to the relations she bears to man, not to deny them to her; let her have her independent existence and she will continue none the less to exist for him also: mutually recognizing each other as subject, each will yet remain for the other an other. The reciprocity of their relations will not do away with the miracles—desire, possession, love, dream, adventure—worked by the division of human beings into two separate categories; and far from being enmired in static materialism, woman will continue to make the part of the sky she inherits shine with stars and planets.",
+          "virtue": "freedom",
+          "persona_tags": [
+            "simone",
+            "existentialism",
+            "feminism"
+          ],
+          "key_concepts": [
+            "independence",
+            "reciprocity",
+            "subjectivity"
+          ],
+          "applications": [
+            "relationships",
+            "career",
+            "self-determination"
+          ]
+        },
+        {
+          "title": "The Ethics of Ambiguity",
+          "content": "To will oneself free is also to will others free. This will is not an abstract formula. It points out to each person concrete action to be achieved here and now. In the light of this idea, the world appears as a field of infinite possibilities, and man must decide for himself what he is going to be. But this decision is not made once and for all; it is made anew at every moment. Freedom is not given to man: he must conquer it. And this conquest is never finished; it is a perpetual struggle against the forces that threaten to engulf him.",
+          "virtue": "responsibility",
+          "persona_tags": [
+            "simone",
+            "existentialism",
+            "ethics"
+          ],
+          "key_concepts": [
+            "freedom",
+            "ambiguity",
+            "ethical action"
+          ],
+          "applications": [
+            "decision making",
+            "moral choices",
+            "social justice"
+          ]
+        },
+        {
+          "title": "The Body",
+          "content": "The body is not a thing, it is a situation: it is our grasp on the world and a sketch of our projects. The body is not perceived as a pure object, but as a situation through which we live the world. The lived body is not the body as seen by the anatomist or the physiologist; it is the body as experienced in its relation to the world. The body is the instrument of our grasp on the world, and this grasp is always situated. The body is not a fortress, but a vehicle; it is not a prison, but a means of communication with the world.",
+          "virtue": "embodiment",
+          "persona_tags": [
+            "simone",
+            "existentialism",
+            "phenomenology"
+          ],
+          "key_concepts": [
+            "lived experience",
+            "situation",
+            "embodiment"
+          ],
+          "applications": [
+            "body positivity",
+            "health",
+            "self-acceptance"
+          ]
+        },
+        {
+          "title": "Authenticity",
+          "content": "To be authentic is to refuse to let oneself be defined by others, to refuse the roles that society assigns to us. Authenticity demands that we assume our freedom, that we take responsibility for our choices. But this authenticity is not a state that we achieve once and for all; it is a perpetual task. We must constantly question the values that are imposed on us, the roles that are assigned to us. We must constantly create ourselves anew. Authenticity is not conformity to a pre-existing model, but the creation of oneself through one's choices.",
+          "virtue": "authenticity",
+          "persona_tags": [
+            "simone",
+            "existentialism",
+            "ethics"
+          ],
+          "key_concepts": [
+            "self-creation",
+            "responsibility",
+            "freedom"
+          ],
+          "applications": [
+            "personal growth",
+            "identity",
+            "values clarification"
+          ]
         }
       ]
     }

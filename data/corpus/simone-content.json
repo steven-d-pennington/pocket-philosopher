@@ -1,0 +1,52 @@
+{
+  "works": [
+    {
+      "title": "The Second Sex",
+      "author": "Simone de Beauvoir",
+      "tradition": "existentialism",
+      "era": "modern",
+      "sections": [
+        {
+          "title": "Introduction",
+          "content": "One is not born, but rather becomes, a woman. No biological, psychological, or economic fate determines the figure that the human female presents in society; it is civilization as a whole that produces this creature, intermediate between male and female, which is described as feminine. Only the intervention of someone else can establish an individual as an Other. The term 'feminine' is used symmetrically with 'masculine,' but the symmetry is false. The category of the feminine is presented as symmetrical, but in fact it is not.",
+          "virtue": "authenticity",
+          "persona_tags": ["simone", "existentialism", "feminism"],
+          "key_concepts": ["becoming", "the other", "freedom"],
+          "applications": ["identity formation", "social roles", "personal agency"]
+        },
+        {
+          "title": "The Independent Woman",
+          "content": "To emancipate woman is to refuse to confine her to the relations she bears to man, not to deny them to her; let her have her independent existence and she will continue none the less to exist for him also: mutually recognizing each other as subject, each will yet remain for the other an other. The reciprocity of their relations will not do away with the miracles—desire, possession, love, dream, adventure—worked by the division of human beings into two separate categories; and far from being enmired in static materialism, woman will continue to make the part of the sky she inherits shine with stars and planets.",
+          "virtue": "freedom",
+          "persona_tags": ["simone", "existentialism", "feminism"],
+          "key_concepts": ["independence", "reciprocity", "subjectivity"],
+          "applications": ["relationships", "career", "self-determination"]
+        },
+        {
+          "title": "The Ethics of Ambiguity",
+          "content": "To will oneself free is also to will others free. This will is not an abstract formula. It points out to each person concrete action to be achieved here and now. In the light of this idea, the world appears as a field of infinite possibilities, and man must decide for himself what he is going to be. But this decision is not made once and for all; it is made anew at every moment. Freedom is not given to man: he must conquer it. And this conquest is never finished; it is a perpetual struggle against the forces that threaten to engulf him.",
+          "virtue": "responsibility",
+          "persona_tags": ["simone", "existentialism", "ethics"],
+          "key_concepts": ["freedom", "ambiguity", "ethical action"],
+          "applications": ["decision making", "moral choices", "social justice"]
+        },
+        {
+          "title": "The Body",
+          "content": "The body is not a thing, it is a situation: it is our grasp on the world and a sketch of our projects. The body is not perceived as a pure object, but as a situation through which we live the world. The lived body is not the body as seen by the anatomist or the physiologist; it is the body as experienced in its relation to the world. The body is the instrument of our grasp on the world, and this grasp is always situated. The body is not a fortress, but a vehicle; it is not a prison, but a means of communication with the world.",
+          "virtue": "embodiment",
+          "persona_tags": ["simone", "existentialism", "phenomenology"],
+          "key_concepts": ["lived experience", "situation", "embodiment"],
+          "applications": ["body positivity", "health", "self-acceptance"]
+        },
+        {
+          "title": "Authenticity",
+          "content": "To be authentic is to refuse to let oneself be defined by others, to refuse the roles that society assigns to us. Authenticity demands that we assume our freedom, that we take responsibility for our choices. But this authenticity is not a state that we achieve once and for all; it is a perpetual task. We must constantly question the values that are imposed on us, the roles that are assigned to us. We must constantly create ourselves anew. Authenticity is not conformity to a pre-existing model, but the creation of oneself through one's choices.",
+          "virtue": "authenticity",
+          "persona_tags": ["simone", "existentialism", "ethics"],
+          "key_concepts": ["self-creation", "responsibility", "freedom"],
+          "applications": ["personal growth", "identity", "values clarification"]
+        }
+      ]
+    }
+  ]
+}
