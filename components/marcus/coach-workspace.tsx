@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Loader2, MessageCircle, RefreshCw } from "lucide-react";
+import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,50 +29,68 @@ function PersonaSidebar() {
   const personas = useCoachStore((state) => state.personas);
   const activePersona = useCoachStore(selectActivePersona);
   const actions = useCoachStore((state) => state.actions);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <aside className="flex flex-col gap-4 rounded-3xl border border-border bg-card/80 p-4" role="complementary" aria-label="Philosophy coach selection">
-      <header className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Personas</p>
-        <h2 className="text-lg font-semibold text-foreground">Choose your guide</h2>
+      <header className="flex items-center justify-between">
+        <div className="space-y-1">
+          <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Personas</p>
+          <h2 className="text-lg font-semibold text-foreground">Choose your guide</h2>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 lg:hidden"
+          aria-label={isCollapsed ? "Expand coach selection" : "Collapse coach selection"}
+        >
+          {isCollapsed ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronUp className="h-4 w-4" />
+          )}
+        </button>
       </header>
-      <div className="space-y-2" role="radiogroup" aria-label="Select philosophy coach">
-        {personas.map((persona) => {
-          const isActive = persona.id === activePersona.id;
-          return (
-            <button
-              key={persona.id}
-              type="button"
-              onClick={() => actions.selectPersona(persona.id)}
-              className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
-                isActive
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
-              }`}
-              role="radio"
-              aria-checked={isActive}
-              aria-label={`Select ${persona.name}, ${persona.title}. ${persona.description}`}
-            >
-              <PersonaBadge persona={persona} />
-              <span>
-                <span className="block text-sm font-semibold text-foreground">{persona.name}</span>
-                <span className="block text-xs text-muted-foreground">{persona.title}</span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <div className="rounded-2xl border border-dashed border-border/80 bg-background/70 p-4 text-xs text-muted-foreground" role="region" aria-label="Current coach information">
-        <p className="font-semibold text-foreground">Persona expertise</p>
-        <p className="mt-2">{activePersona.description}</p>
-        <p className="mt-3 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">Focus areas</p>
-        <ul className="mt-1 flex flex-wrap gap-2" role="list" aria-label="Coach focus areas">
-          {activePersona.expertise.map((topic) => (
-            <li key={topic} className="rounded-full border border-border px-2 py-0.5 text-[11px]" role="listitem">
-              {topic}
-            </li>
-          ))}
-        </ul>
+
+      <div className={`space-y-4 transition-all duration-200 ${isCollapsed ? 'hidden lg:block' : 'block'}`}>
+        <div className="space-y-2" role="radiogroup" aria-label="Select philosophy coach">
+          {personas.map((persona) => {
+            const isActive = persona.id === activePersona.id;
+            return (
+              <button
+                key={persona.id}
+                type="button"
+                onClick={() => actions.selectPersona(persona.id)}
+                className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
+                  isActive
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                }`}
+                role="radio"
+                aria-checked={isActive}
+                aria-label={`Select ${persona.name}, ${persona.title}. ${persona.description}`}
+              >
+                <PersonaBadge persona={persona} />
+                <span>
+                  <span className="block text-sm font-semibold text-foreground">{persona.name}</span>
+                  <span className="block text-xs text-muted-foreground">{persona.title}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="rounded-2xl border border-dashed border-border/80 bg-background/70 p-4 text-xs text-muted-foreground" role="region" aria-label="Current coach information">
+          <p className="font-semibold text-foreground">Persona expertise</p>
+          <p className="mt-2">{activePersona.description}</p>
+          <p className="mt-3 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">Focus areas</p>
+          <ul className="mt-1 flex flex-wrap gap-2" role="list" aria-label="Coach focus areas">
+            {activePersona.expertise.map((topic) => (
+              <li key={topic} className="rounded-full border border-border px-2 py-0.5 text-[11px]" role="listitem">
+                {topic}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </aside>
   );
