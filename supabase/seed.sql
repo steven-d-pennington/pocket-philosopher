@@ -143,4 +143,13 @@ set work = excluded.work,
     embedding = excluded.embedding,
     metadata = excluded.metadata;
 
+-- Seed product catalog for freemium monetization
+insert into public.products (id, name, description, price_cents, product_type, persona_id, is_active, sort_order)
+values
+  ('coach-lao', 'Laozi - Taoist Navigator', 'Unlock the wisdom of the Tao Te Ching with Laozi as your philosophical guide. Learn to flow with change and embrace the natural order.', 399, 'coach', 'lao', true, 1),
+  ('coach-simone', 'Simone de Beauvoir - Existential Companion', 'Explore existential freedom and responsibility with Simone de Beauvoir. Craft meaning through deliberate choice and authentic living.', 399, 'coach', 'simone', true, 2),
+  ('coach-epictetus', 'Epictetus - Discipline Coach', 'Master the art of focusing on what you can control with Epictetus. Build resilience and mental discipline through Stoic practice.', 399, 'coach', 'epictetus', true, 3),
+  ('coach-aristotle', 'Aristotle - Virtue Guide', 'Cultivate eudaimonia through the golden mean with Aristotle. Balance virtue and practical wisdom in your daily life.', 399, 'coach', 'aristotle', true, 4),
+  ('coach-plato', 'Plato - Truth Seeker', 'Discover eternal truths and ideal forms with Plato. Question reality and live in alignment with higher ideals.', 399, 'coach', 'plato', true, 5);
+
 commit;

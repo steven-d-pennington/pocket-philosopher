@@ -148,12 +148,60 @@ create table if not exists public.feedback (
   user_id uuid references auth.users(id) on delete set null,
   type text,
   priority text,
-  page_url text,
-  message text not null,
-  device_info jsonb,
-  status text default 'new',
-  admin_notes text,
-  created_at timestamptz default now() not null
+  title text,
+  description text,
+  metadata jsonb default '{}'::jsonb,
+  status text default 'open',
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+-- Monetization tables
+create table if not exists public.products (
+  id text primary key,
+  name text not null,
+  description text,
+  price_cents integer not null,
+  currency text default 'usd',
+  product_type text not null check (product_type in ('coach', 'subscription', 'bundle')),
+  persona_id text,
+  stripe_price_id text,
+  is_active boolean default true,
+  sort_order integer default 0,
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+create table if not exists public.purchases (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  product_id text not null references public.products(id),
+  stripe_session_id text,
+  stripe_payment_intent_id text,
+  amount_cents integer not null,
+  currency text default 'usd',
+  status text not null check (status in ('pending', 'completed', 'failed', 'refunded')),
+  purchase_date timestamptz default now() not null,
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null,
+  constraint purchases_unique_session unique (stripe_session_id)
+);
+
+create table if not exists public.entitlements (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  product_id text not null references public.products(id),
+  purchase_id uuid references public.purchases(id) on delete set null,
+  entitlement_type text not null check (entitlement_type in ('coach_access', 'subscription', 'lifetime')),
+  is_active boolean default true,
+  granted_at timestamptz default now() not null,
+  expires_at timestamptz,
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null,
+  constraint entitlements_unique_user_product unique (user_id, product_id)
 );
 
 create table if not exists public.philosophy_chunks (
@@ -320,6 +368,22 @@ create policy "Users submit feedback"
   using (user_id = auth.uid() or user_id is null)
   with check (user_id = auth.uid() or user_id is null);
 
+-- Monetization RLS policies
+create policy "Products are viewable by everyone"
+  on public.products
+  for select
+  using (is_active = true);
+
+create policy "Users manage their purchases"
+  on public.purchases
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage their entitlements"
+  on public.entitlements
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 comment on function public.calculate_daily_progress is 'Recalculate Return Score, streaks, and virtue metrics for a given day.';
 -- Helpful indexes
 create index if not exists idx_habits_user_active on public.habits (user_id) where is_active and not is_archived;
@@ -327,3 +391,8 @@ create index if not exists idx_habit_logs_user_date on public.habit_logs (user_i
 create index if not exists idx_reflections_user_date on public.reflections (user_id, date desc);
 create index if not exists idx_daily_progress_user_date on public.daily_progress (user_id, date desc);
 create index if not exists idx_marcus_messages_conversation on public.marcus_messages (conversation_id, created_at);
+
+-- Monetization indexes
+create index if not exists idx_purchases_user_status on public.purchases (user_id, status, purchase_date desc);
+create index if not exists idx_entitlements_user_active on public.entitlements (user_id, is_active) where is_active = true;
+create index if not exists idx_entitlements_user_product on public.entitlements (user_id, product_id);
