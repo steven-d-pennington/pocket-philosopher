@@ -7,7 +7,9 @@ import { Loader2, MessageCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CitationList } from "@/components/shared/citation-list";
 import { CoachErrorBoundary } from "@/components/shared/error-boundary";
+import { StreamingIndicator } from "@/components/shared/streaming-indicator";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { useCoachConversation } from "@/lib/hooks/use-coach-conversation";
 import {
