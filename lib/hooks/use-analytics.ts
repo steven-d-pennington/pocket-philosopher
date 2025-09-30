@@ -11,6 +11,20 @@ export function useAnalytics() {
   const capture = useCallback(
     (event: string, properties?: Record<string, unknown>) => {
       if (!isEnabled) return;
+
+      // Add performance monitoring for response times
+      if (event.includes("response") || event.includes("streaming")) {
+        const duration = properties?.duration as number;
+        if (duration) {
+          // Track performance metrics
+          posthog.capture("performance_metric", {
+            metric: event,
+            duration,
+            timestamp: Date.now(),
+          });
+        }
+      }
+
       posthog.capture(event, properties);
     },
     [],

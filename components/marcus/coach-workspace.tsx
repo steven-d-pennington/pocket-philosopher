@@ -7,8 +7,7 @@ import { Loader2, MessageCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CitationList } from "@/components/shared/citation-list";
-import { StreamingIndicator } from "@/components/shared/streaming-indicator";
+import { CoachErrorBoundary } from "@/components/shared/error-boundary";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { useCoachConversation } from "@/lib/hooks/use-coach-conversation";
 import {
@@ -313,10 +312,12 @@ function ConversationPane() {
 
 export function CoachWorkspace() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]" role="application" aria-label="Philosophy coach workspace">
-      <PersonaSidebar />
-      <ConversationPane />
-    </div>
+    <CoachErrorBoundary>
+      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]" role="application" aria-label="Philosophy coach workspace">
+        <PersonaSidebar />
+        <ConversationPane />
+      </div>
+    </CoachErrorBoundary>
   );
 }
 

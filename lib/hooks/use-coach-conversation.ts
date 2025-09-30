@@ -54,6 +54,7 @@ export function useCoachConversation() {
   const sendMessage = useCallback(
     (input: string) => {
       const content = input.trim();
+      const startTime = Date.now();
 
       if (!content || !persona) return;
 
@@ -131,12 +132,25 @@ export function useCoachConversation() {
                     citations?: unknown[];
                     tokens?: number;
                   };
+                  const duration = Date.now() - startTime;
                   actions.completeStreaming(personaId, assistantMessageId, {
                     citations: Array.isArray(data.citations)
                       ? (data.citations as CoachCitation[])
                       : undefined,
                     tokens: typeof data.tokens === "number" ? data.tokens : undefined,
                   });
+
+                  // Performance monitoring
+                  if (typeof window !== "undefined" && (window as any).posthog) {
+                    (window as any).posthog.capture("coach_response_complete", {
+                      personaId,
+                      duration,
+                      tokens: data.tokens,
+                      hasCitations: Array.isArray(data.citations) && data.citations.length > 0,
+                      timestamp: Date.now(),
+                    });
+                  }
+
                   assistantMessageId = null;
                   break;
                 }
@@ -183,7 +197,19 @@ export function useCoachConversation() {
             actions.completeStreaming(personaId, assistantMessageId);
           }
         } catch (error) {
+          const duration = Date.now() - startTime;
           console.error("Coach conversation failed", error);
+
+          // Performance monitoring for errors
+          if (typeof window !== "undefined" && (window as any).posthog) {
+            (window as any).posthog.capture("coach_response_error", {
+              personaId,
+              duration,
+              error: error instanceof Error ? error.message : "Unknown error",
+              timestamp: Date.now(),
+            });
+          }
+
           if (assistantMessageId) {
             actions.failStreaming(
               personaId,
