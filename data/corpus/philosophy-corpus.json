@@ -1,6 +1,114 @@
 {
   "works": [
     {
+      "title": "Nicomachean Ethics",
+      "author": "Aristotle",
+      "tradition": "aristotelian",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "The Golden Mean",
+          "content": "Virtue, then, is a state of character concerned with choice, lying in a mean, i.e. the mean relative to us, this being determined by a rational principle, and by that principle by which the man of practical wisdom would determine it. Now it is a mean between two vices, that which depends on excess and that which depends on defect; and again it is a mean because the vices respectively fall short of or exceed what is right in both passions and actions, while virtue both finds and chooses that which is intermediate. Hence also it is no easy task to be good. For in everything it is no easy task to find the middle, e.g. to find the middle of a circle is not for everyone but for him who knows; so, too, any one can get angry—that is easy—or give or spend money; but to do this to the right person, to the right extent, at the right time, with the right motive, and in the right way, that is not for everyone, nor is it easy; wherefore goodness is both rare and laudable and noble.",
+          "virtue": "temperance",
+          "persona_tags": [
+            "aristotle",
+            "ethics",
+            "golden_mean"
+          ],
+          "key_concepts": [
+            "virtue ethics",
+            "practical wisdom",
+            "moral character"
+          ],
+          "applications": [
+            "decision making",
+            "emotional regulation",
+            "habit formation"
+          ]
+        },
+        {
+          "title": "Eudaimonia",
+          "content": "If, then, there is some end of the things we do, which we desire for its own sake (everything else being desired for the sake of this), and if we do not choose everything for the sake of something else (for at that rate the process would go on to infinity, so that our desire would be empty and vain), clearly this must be the good and the chief good. Will not the knowledge of it, then, have a great influence on life? Shall we not, like archers who have a mark to aim at, be more likely to hit upon what is right? And if so, we must try, in outline at least, to determine what it is, and of which of the sciences or capacities it is the object. It would seem to belong to the most authoritative art and that which is most truly the master art. And politics appears to be of this nature; for it is this that ordains which of the sciences should be studied in a state, and which each class of citizens should learn and up to what point; indeed, we see even the most highly esteemed of capacities to fall under this, e.g. strategy, economics, rhetoric; now, since politics uses the rest of the sciences, and since, again, it legislates as to what we are to do and what we are to abstain from, the end of this science must include those of the others, so that this end must be the good for man.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "aristotle",
+            "ethics",
+            "eudaimonia"
+          ],
+          "key_concepts": [
+            "human flourishing",
+            "chief good",
+            "ultimate purpose"
+          ],
+          "applications": [
+            "goal setting",
+            "life purpose",
+            "meaning and fulfillment"
+          ]
+        },
+        {
+          "title": "Practical Wisdom",
+          "content": "We think that practical wisdom is concerned with the things human and things about which it is possible to deliberate; for we say that it is above all the work of the man of practical wisdom to deliberate well, and no one deliberates about things that cannot be otherwise, nor about things that are not directed to some end and that is a good attainable by action. But the man who is good at deliberating in general is the one who is capable of aiming in accordance with calculation at the best for man of things attainable by action. Nor is practical wisdom concerned with universals only—it must also recognize the particulars; for it is concerned with action and action is concerned with particulars. Hence some who do not know, and especially those who have experience, are more practical than others who know. For if a man knew that light meats are digestible and wholesome, but did not know which sorts of meat are light, he would not produce health; but the man who knows that chicken is wholesome is more likely to produce health.",
+          "virtue": "practical_wisdom",
+          "persona_tags": [
+            "aristotle",
+            "ethics",
+            "phronesis"
+          ],
+          "key_concepts": [
+            "deliberation",
+            "experience",
+            "particular knowledge"
+          ],
+          "applications": [
+            "problem solving",
+            "decision making",
+            "learning from experience"
+          ]
+        },
+        {
+          "title": "Friendship",
+          "content": "Now those who wish for the good of their friends for the friends' sake are friends most of all; for they have this attitude by reference to the friends themselves, not as a result of something else. Hence their friendship lasts as long as they are good; and goodness is an enduring thing. And each is good both absolutely and for his friend, since the good are both absolutely good and useful to each other. Similarly they are pleasant; for the good are both absolutely pleasant and pleasant to each other, since each takes pleasure in his own actions and actions like his own, and the actions of the good are the same or similar. Such friendship is, as might be expected, permanent, since it possesses all the qualities that friends should have. For all friendship aims at goodness and at pleasure, and these are found most in this kind, since it possesses the greatest goodness and the most lasting pleasure. And it is likely to be felt towards few people; for such men are rare.",
+          "virtue": "justice",
+          "persona_tags": [
+            "aristotle",
+            "ethics",
+            "friendship"
+          ],
+          "key_concepts": [
+            "virtuous friendship",
+            "mutual benefit",
+            "character-based relationships"
+          ],
+          "applications": [
+            "building relationships",
+            "community",
+            "social connections"
+          ]
+        },
+        {
+          "title": "Contemplation",
+          "content": "If happiness is activity in accordance with virtue, it is reasonable that it should be in accordance with the highest virtue; and this will be that of the best thing in us. Whether it be intellect or something else that is this element which is thought to be our natural ruler and guide and to take thought of things noble and divine, whether it be itself also divine or only the most divine element in us, the activity of this in accordance with its proper virtue will be perfect happiness. That this activity is contemplative we have already said. Now this would seem to be in agreement both with what we said before and with the truth. For this activity is the highest (since the intellect is the highest thing in us, and the objects of intellect are the highest things that can be known); and also it is the most continuous, since we can contemplate truth more continuously than we can do anything else. And we think that happiness has pleasure mingled with it, but the activity of philosophic wisdom is admittedly the pleasantest of virtuous activities; at any rate the pursuit of it is thought to offer pleasures wonderful for their purity and their enduringness, and it is reasonable to suppose that those who know will pass their time more pleasantly than those who inquire.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "aristotle",
+            "ethics",
+            "contemplation"
+          ],
+          "key_concepts": [
+            "intellectual activity",
+            "philosophic wisdom",
+            "perfect happiness"
+          ],
+          "applications": [
+            "learning",
+            "reflection",
+            "intellectual pursuits"
+          ]
+        }
+      ]
+    },
+    {
       "title": "Enchiridion",
       "author": "Epictetus",
       "tradition": "stoicism",

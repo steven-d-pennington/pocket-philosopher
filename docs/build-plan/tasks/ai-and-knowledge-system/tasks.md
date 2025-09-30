@@ -1,4 +1,9 @@
-# AI & Knowledge System — Task Plan
+# AI & Knowledge Syste## Phase 6: AI Coach Quality Enhancement 🚀 IN PROGRESS
+1. ✅ **Refine System Prompts**: Analyzed and improved prompt structure for better coaching quality, response consistency, and philosophical depth.
+2. 🔄 **Expand Persona Roster**: Created Aristotle persona with virtue ethics focus and merged content into corpus.
+3. 🔄 **Fine-tune Response Parameters**: Optimize temperature, context window, and retrieval parameters for each persona.
+4. 🔄 **Improve Citation Integration**: Enhanced citation formatting, added source links, and improved citation relevance scoring.
+5. 🔄 **Add Response Quality Metrics**: Implement automated evaluation of response quality, citation accuracy, and coaching effectiveness.sk Plan
 
 ## Phase 1: Provider Abstraction Layer ✅ COMPLETE
 1. ✅ Design the unified AI service interface covering completion, streaming, embedding, and health checks with TypeScript contracts.
@@ -20,8 +25,10 @@
 2. ✅ Persist conversations, messages, citations, and provider metadata in Supabase, ensuring ordering and retention policies. [P]
 3. ✅ Emit telemetry events capturing latency, tokens, retrieval counts, and provider usage for observability dashboards. [P]
 
-## Phase 5: Corpus Management Toolkit ✅ COMPLETE
-1. ✅ Build ingestion scripts to normalize philosophy texts, chunk content, and generate embeddings for storage.
-2. ✅ Implement administrative endpoints for ingestion status, forcing re-ingestion, and monitoring corpus health.
-3. ✅ Document operations playbooks for maintaining and expanding the philosophy corpus across traditions.
+## Phase 6: AI Coach Quality Enhancement 🚀 IN PROGRESS
+1. 🔄 **Refine System Prompts**: Analyze current prompt effectiveness and optimize for better coaching quality, response consistency, and philosophical depth.
+2. 🔄 **Expand Persona Roster**: Create additional AI coaches (Aristotle, Plato, Confucius) with distinct voices, virtues, and knowledge bases.
+3. 🔄 **Fine-tune Response Parameters**: Optimize temperature, context window, and retrieval parameters for each persona.
+4. 🔄 **Improve Citation Integration**: Enhance citation formatting, add source links, and improve citation relevance scoring.
+5. 🔄 **Add Response Quality Metrics**: Implement automated evaluation of response quality, citation accuracy, and coaching effectiveness.
 
