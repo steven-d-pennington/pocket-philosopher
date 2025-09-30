@@ -37,10 +37,10 @@ This runbook outlines the end-to-end process for promoting Pocket Philosopher to
    npm run test -- __tests__/retrieval.test.ts
    ```
 2. Manually load <https://app.pocketphilosopher.com> and:
-   - Authenticate and load the dashboard.
-   - Initiate a coach session, confirming streaming content, inline citations, and offline fallback messaging.
-   - Execute `PLAYWRIGHT_BASE_URL=https://app.pocketphilosopher.com npx playwright test e2e/specs/pwa-offline.spec.ts` to sanity-
-     check the service worker, cached fonts, and offline route.
+   - Authenticate and load the dashboard with PWA install banner
+   - Initiate a coach session, confirming streaming content, inline citations, and offline fallback messaging
+   - Test PWA installation and offline functionality
+   - Execute `PLAYWRIGHT_BASE_URL=https://app.pocketphilosopher.com npx playwright test e2e/specs/pwa-offline.spec.ts` to sanity-check the service worker, cached fonts, and offline route
 3. Query `/api/health` and ensure all providers report `healthy` or `degraded` (no `unavailable`).
 4. Inspect Redis monitoring to verify connection counts and memory usage.
 5. Check PostHog for real-time `i_request_failed` anomalies.

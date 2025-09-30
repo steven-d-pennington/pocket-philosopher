@@ -17,9 +17,9 @@
 4. [Complete] Assemble (dashboard)/coaches (/marcus) streaming chat with persona switcher, citation list, and typing indicators (workspace UI, live `/api/marcus` streaming orchestration powered by OpenAI + Supabase RAG context, persistence, and inline citation surfacing in place).
 5. [Complete] Complete supporting routes (onboarding, profile, settings, help) with consistent layout components and responsive design. [P]
 
-## Phase 4: UI Components, Styling, and PWA Enhancements
-1. [Started] Curate shadcn/ui component library extensions, Tailwind theme tokens, and design documentation.
-2. [Not Started] Add Framer Motion animations and focus-visible states to critical interactions while preserving performance budgets. [P]
-3. [Not Started] Configure Workbox service worker, install prompts, and offline synchronization flows; validate behavior on desktop and mobile.
+## Phase 4: UI Components, Styling, and PWA Enhancements ✅ COMPLETE
+1. ✅ [Complete] Curate shadcn/ui component library extensions, Tailwind theme tokens, and design documentation.
+2. ✅ [Complete] Add Framer Motion animations and focus-visible states to critical interactions while preserving performance budgets. [P]
+3. ✅ [Complete] Configure Workbox service worker, install prompts, and offline synchronization flows; validate behavior on desktop and mobile.
 
 

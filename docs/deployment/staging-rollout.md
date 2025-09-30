@@ -1,6 +1,10 @@
 # Staging Rollout Guide
 
-This guide documents the steps to promote Pocket Philosopher changes into the staging environment with confidence and explicit rollback plans.
+This guid2. **Run targeted smoke tests**:
+   - Load the staging URL and ensure the dashboard renders with PWA install prompts
+   - Trigger an AI coach session and confirm streaming output with citations
+   - Test offline functionality: go offline, create content, come back online to verify sync
+   - Run `npx playwright test e2e/specs/pwa-offline.spec.ts` against the staging URL to confirm service worker install prompts, cached fonts, and offline routing.uments the steps to promote Pocket Philosopher changes into the staging environment with confidence and explicit rollback plans.
 
 ## Prerequisites
 

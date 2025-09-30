@@ -11,6 +11,17 @@ Pocket Philosopher is a daily practice hub that blends intention-setting, virtue
 - Supabase-backed data: tables for practices, reflections, profiles, and coach conversations.
 - Developer tools: Supabase Studio, Mailpit (local email), Jest + Playwright test hooks.
 
+## Status
+
+✅ **Production Ready** - All Q4 workstreams complete and documented.
+
+- **AI & Knowledge System**: All 5 phases complete (provider abstraction, RAG pipeline, persona prompts, conversation workflows, corpus management)
+- **Analytics/Observability**: Phase 1 complete (telemetry framework with PostHog, AI metrics, structured logging)
+- **Frontend Architecture**: Phase 4 complete (PWA enhancements, Workbox service worker, install prompts, offline sync)
+- **Deployment & Operations**: Phases 1-2 complete (Docker tooling, rollout guides, runbooks, release checklists)
+
+See `docs/build-plan/tasks/` for detailed completion status and `docs/build-plan/` for full specifications.
+
 ## Stack
 
 - Next.js 15 (App Router), React 19, Tailwind, shadcn/ui
