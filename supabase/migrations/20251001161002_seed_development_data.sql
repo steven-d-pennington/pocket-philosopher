@@ -1,0 +1,4 @@
+-- Development seed data for testing
+-- This creates rich test data for development users
+-- Note: Users and profiles are created separately via admin API to ensure proper authentication
+-- All user-dependent data (habits, reflections, progress) will be created by the admin script

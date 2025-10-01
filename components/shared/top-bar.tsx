@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
-import { BookOpenCheck, Menu } from "lucide-react";
+import { BookOpenCheck, LogOut, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConnectivityIndicator } from "@/components/shared/connectivity-banner";
@@ -14,7 +16,30 @@ interface TopBarProps {
 }
 
 export function TopBar({ userEmail }: TopBarProps) {
+  const router = useRouter();
   const actions = useUIStore(selectUIActions);
+  const [isLoggingOut, startLogoutTransition] = useTransition();
+
+  const handleLogout = () => {
+    startLogoutTransition(async () => {
+      try {
+        const response = await fetch("/api/auth", {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Logout failed");
+        }
+
+        // Redirect to login page
+        router.replace("/login");
+      } catch (error) {
+        console.error("Logout error:", error);
+        // Even if the API call fails, redirect to login
+        router.replace("/login");
+      }
+    });
+  };
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/70 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/50">
@@ -41,6 +66,16 @@ export function TopBar({ userEmail }: TopBarProps) {
             <BookOpenCheck className="size-4" aria-hidden />
             Build plan
           </Link>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="gap-2"
+        >
+          <LogOut className="size-4" aria-hidden />
+          {isLoggingOut ? "Signing out..." : "Sign out"}
         </Button>
         <ThemeSwitcher />
       </div>
