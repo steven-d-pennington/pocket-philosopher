@@ -93,54 +93,13 @@ set value = excluded.value,
     is_public = excluded.is_public,
     updated_at = now();
 
-insert into public.philosophy_chunks (id, work, author, tradition, section, virtue, persona_tags, content, embedding, metadata)
+-- Seed product catalog for freemium monetization
+insert into public.products (id, name, description, price_cents, product_type, persona_id, is_active, sort_order)
 values
-  (
-    '11111111-1111-1111-1111-111111111111',
-    'Meditations',
-    'Marcus Aurelius',
-    'Stoic',
-    'Book II, 5',
-    'wisdom',
-    '{marcus}',
-    'When you wake each morning remind yourself you will meet interference, ingratitude, and selfishness; meet them with understanding that they arise from ignorance of the good.',
-    null,
-    jsonb_build_object('language', 'en', 'source', 'Public Domain')
-  ),
-  (
-    '22222222-2222-2222-2222-222222222222',
-    'Zhuangzi',
-    'Zhuang Zhou',
-    'Taoist',
-    'The Butterfly Dream',
-    'equanimity',
-    '{zhuangzi}',
-    'Once Zhuang Zhou dreamt he was a butterfly... upon waking he wondered if he was Zhou dreaming of the butterfly or the butterfly dreaming of Zhou.',
-    null,
-    jsonb_build_object('language', 'en', 'source', 'Brook Ziporyn translation excerpt')
-  ),
-  (
-    '33333333-3333-3333-3333-333333333333',
-    'Being and Nothingness',
-    'Jean-Paul Sartre',
-    'Existentialist',
-    'Part 4, Chapter 1',
-    'authenticity',
-    '{sartre}',
-    'Freedom is what you do with what has been done to you; every situation presents a chance to author your response.',
-    null,
-    jsonb_build_object('language', 'en', 'source', 'Philosophical paraphrase for educational use')
-  )
-on conflict (id)
-do update
-set work = excluded.work,
-    author = excluded.author,
-    tradition = excluded.tradition,
-    section = excluded.section,
-    virtue = excluded.virtue,
-    persona_tags = excluded.persona_tags,
-    content = excluded.content,
-    embedding = excluded.embedding,
-    metadata = excluded.metadata;
+  ('coach-lao', 'Laozi - Taoist Navigator', 'Unlock the wisdom of the Tao Te Ching with Laozi as your philosophical guide. Learn to flow with change and embrace the natural order.', 399, 'coach', 'lao', true, 1),
+  ('coach-simone', 'Simone de Beauvoir - Existential Companion', 'Explore existential freedom and responsibility with Simone de Beauvoir. Craft meaning through deliberate choice and authentic living.', 399, 'coach', 'simone', true, 2),
+  ('coach-epictetus', 'Epictetus - Discipline Coach', 'Master the art of focusing on what you can control with Epictetus. Build resilience and mental discipline through Stoic practice.', 399, 'coach', 'epictetus', true, 3),
+  ('coach-aristotle', 'Aristotle - Virtue Guide', 'Cultivate eudaimonia through the golden mean with Aristotle. Balance virtue and practical wisdom in your daily life.', 399, 'coach', 'aristotle', true, 4),
+  ('coach-plato', 'Plato - Truth Seeker', 'Discover eternal truths and ideal forms with Plato. Question reality and live in alignment with higher ideals.', 399, 'coach', 'plato', true, 5);
 
 commit;

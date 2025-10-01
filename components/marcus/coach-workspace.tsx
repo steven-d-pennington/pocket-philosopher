@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { CoachErrorBoundary } from "@/components/shared/error-boundary";
 import { StreamingIndicator } from "@/components/shared/streaming-indicator";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { useCoachConversation } from "@/lib/hooks/use-coach-conversation";
+import { useEntitlements } from "@/lib/hooks/use-entitlements";
 import {
   selectActivePersona,
   useCoachStore,
@@ -30,6 +31,64 @@ function PersonaSidebar() {
   const activePersona = useCoachStore(selectActivePersona);
   const actions = useCoachStore((state) => state.actions);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const { hasEntitlement, loading: entitlementsLoading, refreshEntitlements } = useEntitlements();
+  const { capture: track } = useAnalytics();
+
+  const handlePurchase = async (personaId: string) => {
+    try {
+      track("purchase_started", { personaId, productId: `coach-${personaId}` });
+
+      const response = await fetch("/api/purchases/create-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: `coach-${personaId}`,
+          successUrl: `${window.location.origin}/dashboard?persona=${personaId}`,
+          cancelUrl: window.location.href,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error("Purchase error:", error);
+      track("purchase_error", { personaId, error: error instanceof Error ? error.message : "Unknown error" });
+      // TODO: Show error toast
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    try {
+      track("restore_purchases_started");
+      await refreshEntitlements();
+      track("restore_purchases_completed");
+      // TODO: Show success toast
+    } catch (error) {
+      console.error("Restore purchases error:", error);
+      track("restore_purchases_error", { error: error instanceof Error ? error.message : "Unknown error" });
+      // TODO: Show error toast
+    }
+  };
+
+  const handlePersonaSelect = (personaId: string) => {
+    // Check if persona requires purchase
+    const productId = `coach-${personaId}`;
+    const requiresPurchase = personaId !== "marcus" && !hasEntitlement(productId);
+
+    if (requiresPurchase) {
+      handlePurchase(personaId);
+      return;
+    }
+
+    actions.selectPersona(personaId);
+    track("coach_persona_changed", { personaId });
+  };
 
   return (
     <aside className="flex flex-col gap-4 rounded-3xl border border-border bg-card/80 p-4" role="complementary" aria-label="Philosophy coach selection">
@@ -56,29 +115,73 @@ function PersonaSidebar() {
         <div className="space-y-2" role="radiogroup" aria-label="Select philosophy coach">
           {personas.map((persona) => {
             const isActive = persona.id === activePersona.id;
+            const productId = `coach-${persona.id}`;
+            const isLocked = persona.id !== "marcus" && !hasEntitlement(productId) && !entitlementsLoading;
+            const isFree = persona.id === "marcus";
+
             return (
               <button
                 key={persona.id}
                 type="button"
-                onClick={() => actions.selectPersona(persona.id)}
+                onClick={() => handlePersonaSelect(persona.id)}
+                disabled={isLocked}
                 className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
                   isActive
                     ? "border-primary bg-primary/10 text-foreground"
+                    : isLocked
+                    ? "border-muted bg-muted/50 text-muted-foreground cursor-not-allowed opacity-60"
                     : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
                 }`}
                 role="radio"
                 aria-checked={isActive}
-                aria-label={`Select ${persona.name}, ${persona.title}. ${persona.description}`}
+                aria-label={`Select ${persona.name}, ${persona.title}. ${persona.description}${isLocked ? " - Premium coach, requires purchase" : ""}`}
               >
                 <PersonaBadge persona={persona} />
-                <span>
-                  <span className="block text-sm font-semibold text-foreground">{persona.name}</span>
+                {isLocked && <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="block text-sm font-semibold text-foreground truncate">{persona.name}</span>
+                    {isFree && (
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+                        Free
+                      </span>
+                    )}
+                    {isLocked && (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-300">
+                        $3.99
+                      </span>
+                    )}
+                  </div>
                   <span className="block text-xs text-muted-foreground">{persona.title}</span>
-                </span>
+                  {isLocked && (
+                    <span className="block text-xs text-amber-600 dark:text-amber-400 mt-1">
+                      Tap to purchase
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRestorePurchases}
+          disabled={entitlementsLoading}
+          className="w-full text-xs"
+        >
+          {entitlementsLoading ? (
+            <>
+              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+              Restoring...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-3 w-3" />
+              Restore Purchases
+            </>
+          )}
+        </Button>
         <div className="rounded-2xl border border-dashed border-border/80 bg-background/70 p-4 text-xs text-muted-foreground" role="region" aria-label="Current coach information">
           <p className="font-semibold text-foreground">Persona expertise</p>
           <p className="mt-2">{activePersona.description}</p>
@@ -94,9 +197,7 @@ function PersonaSidebar() {
       </div>
     </aside>
   );
-}
-
-function ConversationHeader({ persona }: { persona: CoachPersona }) {
+}function ConversationHeader({ persona }: { persona: CoachPersona }) {
   return (
     <header className="flex flex-col gap-1 rounded-3xl border border-border bg-card/80 p-4">
       <div className="flex items-center gap-3">
@@ -207,7 +308,7 @@ function ConversationMessages({ messages, isStreaming }: { messages: CoachMessag
         <EmptyConversationState />
       ) : (
         <div className="space-y-6">
-          {messages.map((message, index) => (
+          {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
         </div>

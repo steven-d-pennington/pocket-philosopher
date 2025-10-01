@@ -11,5 +11,7 @@ This directory contains the comprehensive build plan derived from the requiremen
 - [Analytics, Observability & Security](analytics-observability-and-security.md)
 - [Testing & Quality Assurance](testing-and-quality-assurance.md)
 - [Deployment & Operations](deployment-and-operations.md)
+- [Freemium Monetization Feature](freemium-monetization-feature.md)
+- [Admin Dashboard Feature](admin-dashboard-feature.md)
 
 Each document provides detailed tasks and instructions to guide implementation for its respective area.

@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   experimental: {
-    typedRoutes: true,
+    // typedRoutes: true,
   },
   outputFileTracingRoot: __dirname,
   async rewrites() {

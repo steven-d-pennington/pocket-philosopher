@@ -25,7 +25,7 @@ services:
       - app
 
   supabase-db:
-    image: supabase/postgres:15.1.2.43
+    image: postgres:15
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: supabase
@@ -43,7 +43,7 @@ services:
       retries: 10
 
   supabase-rest:
-    image: supabase/postgrest:v12.0.2
+    image: postgrest/postgrest:v12.0.2
     restart: unless-stopped
     depends_on:
       supabase-db:
@@ -110,7 +110,7 @@ services:
       - "5000:5000"
 
   supabase-studio:
-    image: supabase/studio:20241216-0d6e66f
+    image: supabase/studio:latest
     restart: unless-stopped
     depends_on:
       - supabase-rest

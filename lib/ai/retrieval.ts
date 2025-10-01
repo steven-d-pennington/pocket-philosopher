@@ -9,8 +9,6 @@ import {
 import type { CoachKnowledgeChunk } from "@/lib/ai/types";
 import type { Database } from "@/lib/supabase/types";
 
-type PhilosophyChunkRow = Database["public"]["Tables"]["philosophy_chunks"]["Row"];
-
 type SupabaseClientType = SupabaseClient<Database>;
 
 type CachedRetrieval = {
