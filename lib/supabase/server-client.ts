@@ -27,3 +27,29 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient<Datab
     },
   );
 }
+
+export async function createSupabaseServiceClient(): Promise<SupabaseClient<Database>> {
+  const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required for admin operations');
+  }
+
+  // Service role client that bypasses RLS
+  return createServerClient<Database>(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    serviceRoleKey,
+    {
+      cookies: {
+        get() {
+          return undefined;
+        },
+        set() {
+          // No-op
+        },
+        remove() {
+          // No-op
+        },
+      },
+    },
+  );
+}

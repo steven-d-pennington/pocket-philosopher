@@ -9,14 +9,13 @@ import { Search, User, Mail, Calendar, Crown } from "lucide-react";
 
 interface User {
   user_id: string;
-  email: string;
-  preferred_persona: string;
-  experience_level: string;
+  preferred_virtue: string | null;
+  preferred_persona: string | null;
+  experience_level: string | null;
   is_admin: boolean;
   created_at: string;
-  last_sign_in_at: string;
-  purchases_count: number;
-  total_spent: number;
+  updated_at: string;
+  last_active_at: string | null;
 }
 
 export default function AdminUsers() {
@@ -120,7 +119,7 @@ export default function AdminUsers() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-medium text-gray-900">
-                          {user.preferred_persona || "Anonymous"}
+                          User {user.user_id.slice(0, 8)}...
                         </h3>
                         {user.is_admin && (
                           <Crown className="h-4 w-4 text-yellow-500" />
@@ -128,8 +127,8 @@ export default function AdminUsers() {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          {user.email}
+                          <User className="h-3 w-3" />
+                          {user.preferred_persona || "No persona"}
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -137,9 +136,10 @@ export default function AdminUsers() {
                         </div>
                       </div>
                       <div className="text-sm text-gray-500">
-                        Level: {user.experience_level || "Beginner"} •
-                        Purchases: {user.purchases_count} •
-                        Total Spent: ${user.total_spent}
+                        Level: {user.experience_level || "Beginner"}
+                        {user.last_active_at && (
+                          <> • Last active: {new Date(user.last_active_at).toLocaleDateString()}</>
+                        )}
                       </div>
                     </div>
                   </div>
