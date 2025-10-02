@@ -6,6 +6,7 @@ import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Lock } from 
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { CitationList } from "@/components/shared/citation-list";
 import { CoachErrorBoundary } from "@/components/shared/error-boundary";
@@ -198,13 +199,43 @@ function PersonaSidebar() {
     </aside>
   );
 }function ConversationHeader({ persona }: { persona: CoachPersona }) {
+  const conversationMode = useCoachStore((state) => state.conversationMode);
+  const actions = useCoachStore((state) => state.actions);
+  const { capture: track } = useAnalytics();
+
+  const handleModeToggle = () => {
+    const newMode = conversationMode === "buddy" ? "coaching" : "buddy";
+    actions.toggleMode();
+    track("coach_mode_changed", {
+      personaId: persona.id,
+      previousMode: conversationMode,
+      newMode,
+    });
+  };
+
   return (
-    <header className="flex flex-col gap-1 rounded-3xl border border-border bg-card/80 p-4">
-      <div className="flex items-center gap-3">
-        <PersonaBadge persona={persona} />
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">{persona.name}</h2>
-          <p className="text-sm text-muted-foreground">{persona.title}</p>
+    <header className="flex flex-col gap-3 rounded-3xl border border-border bg-card/80 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <PersonaBadge persona={persona} />
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-foreground truncate">{persona.name}</h2>
+            <p className="text-sm text-muted-foreground truncate">{persona.title}</p>
+          </div>
+        </div>
+
+        {/* Mode Toggle */}
+        <div className="flex items-center gap-2 shrink-0" role="group" aria-label="Conversation mode toggle">
+          <span className="text-xs text-muted-foreground hidden sm:inline">💬 Buddy</span>
+          <span className="text-xs text-muted-foreground sm:hidden">💬</span>
+          <Switch
+            checked={conversationMode === "coaching"}
+            onCheckedChange={handleModeToggle}
+            className="touch-manipulation"
+            aria-label={`Switch to ${conversationMode === "buddy" ? "coaching" : "buddy"} mode`}
+          />
+          <span className="text-xs text-muted-foreground hidden sm:inline">Coach 🎓</span>
+          <span className="text-xs text-muted-foreground sm:hidden">🎓</span>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">{persona.description}</p>

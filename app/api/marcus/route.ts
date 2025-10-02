@@ -17,6 +17,7 @@ const chatSchema = z.object({
   conversation_id: z.string().uuid().optional(),
   message: z.string().min(1),
   persona: z.string().default("marcus"),
+  mode: z.enum(["buddy", "coaching"]).default("buddy"),
 });
 
 export async function GET(request: Request) {
@@ -66,7 +67,27 @@ export async function POST(request: Request) {
     });
   }
 
-  const { conversation_id, message, persona } = parseResult.data;
+  const { conversation_id, message, persona, mode } = parseResult.data;
+
+  // Check entitlement for premium personas
+  if (persona !== "marcus") {
+    const productId = `coach-${persona}`;
+    const { data: entitlement } = await supabase
+      .from("entitlements")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("product_id", productId)
+      .eq("is_active", true)
+      .single();
+
+    if (!entitlement) {
+      logger.warn("Unauthorized access to premium persona", { persona, productId });
+      return respondWithError(logger, `Access to ${persona} requires purchase`, {
+        status: 403,
+        details: { persona, productId, message: "This coach requires a purchase" },
+      });
+    }
+  }
 
   let activeConversationId = conversation_id ?? null;
 
@@ -145,6 +166,7 @@ export async function POST(request: Request) {
           personaId: persona,
           message,
           history,
+          mode,
         });
 
         for await (const chunk of coachStream.stream) {

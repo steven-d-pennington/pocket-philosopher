@@ -5,6 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import type { CoachCitation } from "@/lib/ai/types";
 
 export type CoachRole = "user" | "coach" | "system";
+export type ConversationMode = "buddy" | "coaching";
 
 export interface CoachMessage {
   id: string;
@@ -36,9 +37,11 @@ interface ConversationState {
 interface CoachState {
   personas: CoachPersona[];
   activePersonaId: string;
+  conversationMode: ConversationMode;
   conversations: Record<string, ConversationState>;
   actions: {
     selectPersona: (personaId: string) => void;
+    toggleMode: () => void;
     sendUserMessage: (personaId: string, content: string) => CoachMessage;
     startStreaming: (personaId: string, messageId: string) => void;
     appendStreamingChunk: (personaId: string, messageId: string, chunk: string, tokens: number) => void;
@@ -105,6 +108,7 @@ const initialConversations = defaultPersonas.reduce<Record<string, ConversationS
 const initialState: Omit<CoachState, "actions"> = {
   personas: defaultPersonas,
   activePersonaId: defaultPersonas[0]?.id ?? "marcus",
+  conversationMode: "buddy", // Default to buddy mode for approachability
   conversations: initialConversations,
 };
 
@@ -133,7 +137,12 @@ export const useCoachStore = create<CoachState>()(
             state.activePersonaId = personaId;
           });
         },
-      sendUserMessage: (personaId, content) => {
+        toggleMode: () => {
+          set((state) => {
+            state.conversationMode = state.conversationMode === "buddy" ? "coaching" : "buddy";
+          });
+        },
+        sendUserMessage: (personaId, content) => {
         const message: CoachMessage = {
           id: createId(),
           personaId,
@@ -231,6 +240,7 @@ export const useCoachStore = create<CoachState>()(
       name: "coach-store",
       partialize: (state) => ({
         activePersonaId: state.activePersonaId,
+        conversationMode: state.conversationMode,
       }),
     },
   ),

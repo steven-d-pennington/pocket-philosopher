@@ -197,6 +197,7 @@ create table if not exists public.entitlements (
   purchase_id uuid references public.purchases(id) on delete set null,
   entitlement_type text not null check (entitlement_type in ('coach_access', 'subscription', 'lifetime')),
   is_active boolean default true,
+  source text default 'stripe' check (source in ('stripe', 'manual_grant', 'promo', 'beta')),
   granted_at timestamptz default now() not null,
   expires_at timestamptz,
   metadata jsonb default '{}'::jsonb,
