@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { DailyInsight } from "@/components/dashboard/daily-insight";
 import { DailyQuote } from "@/components/dashboard/daily-quote";
 import { MorningIntentionForm } from "@/components/dashboard/morning-intention-form";
 import { PersonaSuggestedPractice } from "@/components/dashboard/persona-suggested-practice";
@@ -74,6 +75,7 @@ export function TodayPageClient() {
         <div className="grid gap-4">
           <ReturnScoreTiles />
           <DailyQuote />
+          <DailyInsight />
           <CoachPreview />
         </div>
       </div>

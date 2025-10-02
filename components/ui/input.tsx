@@ -11,10 +11,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         type={type}
         className={cn(
-          "flex h-11 w-full rounded-lg border border-input bg-background px-4 py-2 text-sm ring-offset-background",
+          "flex h-11 w-full rounded-lg border border-input bg-background px-4 py-2 text-base md:text-sm ring-offset-background",
           "placeholder:text-muted-foreground/60 placeholder:italic focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "transition-all duration-200 hover:border-primary/20",
+          "touch-manipulation", // Improve touch interaction
           className,
         )}
         {...props}

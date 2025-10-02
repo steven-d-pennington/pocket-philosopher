@@ -18,10 +18,18 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient<Datab
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch {
+            // Silently fail when called from Server Components (cookies can only be modified in Server Actions/Route Handlers)
+          }
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.delete({ name, ...options });
+          try {
+            cookieStore.delete({ name, ...options });
+          } catch {
+            // Silently fail when called from Server Components (cookies can only be modified in Server Actions/Route Handlers)
+          }
         },
       },
     },

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { ConnectivityBannerWrapper } from "@/components/shared/connectivity-banner-wrapper";
+import { MobileDrawer } from "@/components/shared/mobile-drawer";
 import { TopBar } from "@/components/shared/top-bar";
 import { PracticeModals } from "@/components/practices/practice-modals";
 import { PersonaThemeWrapper } from "@/components/shared/persona-theme-wrapper";
@@ -24,12 +25,13 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   return (
     <PersonaThemeWrapper>
-      <div className="min-h-screen bg-background text-foreground parchment-texture">
-        <div className="flex min-h-screen">
+      <div className="min-h-screen bg-background text-foreground parchment-texture max-w-screen overflow-x-hidden">
+        <div className="flex min-h-screen max-w-full">
           <AppSidebar userEmail={user.email} />
-          <div className="flex min-h-screen flex-1 flex-col">
+          <MobileDrawer />
+          <div className="flex min-h-screen flex-1 flex-col min-w-0">
             <TopBar userEmail={user.email} />
-            <main className="flex-1 bg-gradient-philosophy px-4 py-6 md:px-8 md:py-8">{children}</main>
+            <main className="flex-1 bg-gradient-philosophy px-4 py-6 md:px-8 md:py-8 max-w-full">{children}</main>
             <PracticeModals />
           </div>
         </div>

@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+// Bundle analyzer (run with ANALYZE=true npm run build)
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -25,6 +30,9 @@ const nextConfig: NextConfig = {
     ];
   },
   skipTrailingSlashRedirect: true,
+  // Performance optimizations
+  compress: true, // Enable gzip compression
+  poweredByHeader: false, // Remove X-Powered-By header for security
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

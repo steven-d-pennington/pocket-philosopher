@@ -323,6 +323,27 @@ function MessageComposer({ onSend, disabled }: { onSend: (value: string) => void
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Scroll input into view when focused (for mobile keyboard)
+  useEffect(() => {
+    const handleFocus = () => {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, 300); // Delay to allow keyboard to appear
+    };
+
+    const currentTextarea = textareaRef.current;
+    const currentInput = inputRef.current;
+
+    currentTextarea?.addEventListener("focus", handleFocus);
+    currentInput?.addEventListener("focus", handleFocus);
+
+    return () => {
+      currentTextarea?.removeEventListener("focus", handleFocus);
+      currentInput?.removeEventListener("focus", handleFocus);
+    };
+  }, [mode]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -342,6 +363,7 @@ function MessageComposer({ onSend, disabled }: { onSend: (value: string) => void
 
   return (
     <form
+      ref={formRef}
       className="flex flex-col gap-3"
       onSubmit={handleSubmit}
       role="form"
@@ -398,10 +420,10 @@ function ConversationPane() {
   const messages = useMemo(() => conversation.messages, [conversation.messages]);
 
   return (
-    <section className="flex min-h-[70vh] flex-col gap-4 rounded-3xl border border-border bg-card/70 p-4" role="main" aria-label="Philosophy coaching conversation">
+    <section className="flex min-h-[70vh] flex-col gap-4 rounded-3xl border border-border bg-card/70 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]" role="main" aria-label="Philosophy coaching conversation">
       <ConversationHeader persona={persona} />
       <ConversationMessages messages={messages} isStreaming={conversation.isStreaming} />
-      <footer className="space-y-3" role="contentinfo">
+      <footer className="space-y-3 mb-safe" role="contentinfo">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <StreamingIndicator isStreaming={conversation.isStreaming} tokens={conversation.tokens} />
           <Button

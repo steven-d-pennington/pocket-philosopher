@@ -49,8 +49,9 @@ export function TopBar({ userEmail }: TopBarProps) {
           type="button"
           variant="ghost"
           size="icon"
-          className="size-9 md:hidden"
+          className="size-11 md:hidden touch-manipulation"
           onClick={() => actions.toggleSidebar()}
+          aria-label="Toggle navigation"
         >
           <Menu className="size-5" aria-hidden />
           <span className="sr-only">Toggle navigation</span>
