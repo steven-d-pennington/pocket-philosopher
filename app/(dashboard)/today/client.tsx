@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { DailyQuote } from "@/components/dashboard/daily-quote";
 import { MorningIntentionForm } from "@/components/dashboard/morning-intention-form";
+import { PersonaSuggestedPractice } from "@/components/dashboard/persona-suggested-practice";
 import { ReturnScoreTiles } from "@/components/dashboard/return-score-tiles";
 import { TodayOverview } from "@/components/dashboard/today-overview";
 import { CoachPreview } from "@/components/marcus/coach-preview";
@@ -57,26 +58,32 @@ export function TodayPageClient() {
   }, [searchParams, refreshEntitlements, actions, track]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <DashboardPageHeader
         eyebrow="Today"
         title="Daily focus"
         description="Set your intention, track practice momentum, and jump into your coach workspace—all synced with Supabase telemetry."
       />
-      <div className="grid gap-6 xl:grid-cols-[2fr,1fr]">
-        <div className="grid gap-6">
+      <div className="grid gap-5 xl:grid-cols-[2fr,1fr]">
+        <div className="grid gap-4">
           <MorningIntentionForm />
           <PracticeQuickActions />
           <TodayOverview />
           <ReflectionsStatus />
         </div>
-        <div className="grid gap-6">
+        <div className="grid gap-4">
           <ReturnScoreTiles />
           <DailyQuote />
           <CoachPreview />
         </div>
       </div>
-      <PracticesOverview />
+      <div className="philosophy-divider">
+        <span className="philosophy-divider-ornament text-xl">✦</span>
+      </div>
+      <div className="grid gap-5 xl:grid-cols-[1fr,1fr]">
+        <PersonaSuggestedPractice />
+        <PracticesOverview />
+      </div>
     </div>
   );
 }

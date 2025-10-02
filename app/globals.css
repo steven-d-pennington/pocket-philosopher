@@ -1,68 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500;600;700&family=Cormorant:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Philosophy-inspired warm parchment background */
+    --background: 42 45% 97%;
+    --foreground: 28 25% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Warm card with subtle texture */
+    --card: 40 40% 99%;
+    --card-foreground: 28 25% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 40% 99%;
+    --popover-foreground: 28 25% 15%;
 
-    --primary: 230 62% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Deep philosophical blue-grey - inspired by ancient Greek pottery */
+    --primary: 215 28% 45%;
+    --primary-foreground: 40 40% 99%;
 
-    --secondary: 215 25% 26%;
-    --secondary-foreground: 210 40% 98%;
+    /* Warm secondary - terracotta inspiration */
+    --secondary: 20 45% 88%;
+    --secondary-foreground: 28 35% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Subtle parchment muted tones */
+    --muted: 40 30% 94%;
+    --muted-foreground: 28 15% 45%;
 
-    --accent: 43 96% 56%;
-    --accent-foreground: 215 27% 19%;
+    /* Ochre accent - classical manuscript gold */
+    --accent: 38 75% 58%;
+    --accent-foreground: 28 35% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 40% 99%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 230 62% 55%;
+    /* Softer borders inspired by manuscript margins */
+    --border: 40 25% 88%;
+    --input: 40 25% 90%;
+    --ring: 215 28% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
+
+    /* Philosophy-specific custom properties */
+    --philosophy-gold: 38 75% 58%;
+    --philosophy-olive: 85 25% 45%;
+    --philosophy-marble: 40 15% 96%;
+    --philosophy-ink: 28 35% 18%;
+    --philosophy-scroll: 40 35% 92%;
+
+    /* Persona-specific theme variables (overridden dynamically) */
+    --persona-primary: var(--primary);
+    --persona-primary-light: 215 28% 65%;
+    --persona-primary-dark: 215 35% 25%;
+    --persona-accent: var(--accent);
+    --persona-accent-light: 38 75% 78%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Deep midnight background - contemplative darkness */
+    --background: 220 25% 8%;
+    --foreground: 40 30% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    /* Subtle depth for cards */
+    --card: 220 22% 11%;
+    --card-foreground: 40 30% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 22% 11%;
+    --popover-foreground: 40 30% 92%;
 
-    --primary: 214 100% 78%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Luminous blue - starlight on marble */
+    --primary: 210 85% 68%;
+    --primary-foreground: 220 25% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 96.1%;
+    /* Dark terracotta */
+    --secondary: 20 35% 22%;
+    --secondary-foreground: 40 30% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 210 40% 78.1%;
+    --muted: 220 20% 18%;
+    --muted-foreground: 40 20% 65%;
 
-    --accent: 43 92% 56%;
-    --accent-foreground: 215 27% 19%;
+    /* Golden accent maintains warmth in darkness */
+    --accent: 38 85% 62%;
+    --accent-foreground: 220 25% 8%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 40 30% 92%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 214 95% 65.3%;
+    --border: 220 20% 20%;
+    --input: 220 20% 18%;
+    --ring: 210 85% 68%;
+
+    /* Dark mode philosophy colors */
+    --philosophy-gold: 38 85% 65%;
+    --philosophy-olive: 85 30% 55%;
+    --philosophy-marble: 220 15% 15%;
+    --philosophy-ink: 40 30% 92%;
+    --philosophy-scroll: 220 18% 16%;
+
+    /* Persona-specific theme variables (overridden dynamically) */
+    --persona-primary: var(--primary);
+    --persona-primary-light: 210 85% 78%;
+    --persona-primary-dark: 210 85% 58%;
+    --persona-accent: var(--accent);
+    --persona-accent-light: 38 85% 75%;
   }
 
   * {
@@ -71,5 +113,169 @@
 
   body {
     @apply bg-background text-foreground antialiased min-h-screen;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Philosophy-inspired typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .philosophy-serif {
+    font-family: 'Cormorant', Georgia, serif;
+  }
+}
+
+@layer components {
+  /* Decorative philosophical elements */
+  .philosophy-divider {
+    @apply relative flex items-center justify-center py-4;
+  }
+  
+  .philosophy-divider::before,
+  .philosophy-divider::after {
+    content: '';
+    @apply flex-1 border-t border-border;
+  }
+  
+  .philosophy-divider-ornament {
+    @apply mx-4 text-muted-foreground opacity-40;
+  }
+
+  /* Marble texture overlay */
+  .marble-texture {
+    background-image: 
+      radial-gradient(circle at 20% 50%, hsl(var(--muted)) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(var(--muted)) 0%, transparent 50%);
+  }
+
+  /* Subtle parchment texture */
+  .parchment-texture {
+    background-image: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        hsl(var(--muted) / 0.03) 2px,
+        hsl(var(--muted) / 0.03) 4px
+      );
+  }
+
+  /* Elegant card with depth */
+  .philosophy-card {
+    @apply rounded-2xl border border-border/60 bg-card shadow-sm;
+    @apply transition-all duration-300 hover:shadow-md hover:border-primary/20;
+    background-image: 
+      radial-gradient(circle at 100% 0%, hsl(var(--primary) / 0.03) 0%, transparent 50%);
+  }
+
+  /* Virtue badge styling */
+  .virtue-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-medium;
+    @apply transition-colors hover:bg-muted/60;
+  }
+
+  /* Quote styling with classical feel */
+  .philosophy-quote {
+    @apply relative italic text-lg leading-relaxed;
+    font-family: 'Cormorant', Georgia, serif;
+  }
+
+  .philosophy-quote::before {
+    content: '"';
+    @apply absolute -left-2 -top-1 text-4xl text-primary/20 font-serif;
+  }
+
+  /* Persona-specific card styles */
+  .persona-card {
+    @apply philosophy-card transition-all;
+    border-color: hsl(var(--persona-primary) / 0.2);
+  }
+
+  .persona-card:hover {
+    border-color: hsl(var(--persona-primary) / 0.3);
+    box-shadow: 0 8px 32px hsl(var(--persona-primary) / 0.12);
+  }
+
+  .persona-accent {
+    color: hsl(var(--persona-accent));
+  }
+
+  .persona-accent-bg {
+    background-color: hsl(var(--persona-accent) / 0.1);
+  }
+
+  .persona-border {
+    border-color: hsl(var(--persona-primary) / 0.2);
+  }
+
+  .persona-gradient-bg {
+    background: linear-gradient(135deg, 
+      hsl(var(--persona-primary) / 0.08) 0%, 
+      hsl(var(--persona-accent) / 0.04) 100%);
+  }
+}
+
+@layer utilities {
+  /* Text gradients for special emphasis */
+  .text-gradient-philosophy {
+    @apply bg-gradient-to-br from-primary via-accent to-primary bg-clip-text text-transparent;
+  }
+
+  .text-gradient-persona {
+    background: linear-gradient(135deg, 
+      hsl(var(--persona-primary)) 0%, 
+      hsl(var(--persona-accent)) 50%, 
+      hsl(var(--persona-primary)) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Glow effects for interactive elements */
+  .glow-subtle {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 30px hsl(var(--accent) / 0.15);
+  }
+
+  /* Elegant animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -100% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--accent) / 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
   }
 }

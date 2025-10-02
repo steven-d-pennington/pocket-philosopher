@@ -10,6 +10,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import {
   SortableContext,
   arrayMove,
@@ -65,6 +66,7 @@ export function PracticeList() {
   const filter = usePracticesStore(selectPracticesFilter);
   const actions = usePracticesStore(selectPracticesActions);
   const modalActions = usePracticeModalStore((state) => state.actions);
+  const { theme } = usePersonaTheme();
 
   const updateMutation = useUpdatePracticeMutation();
   const reorderMutation = useReorderPracticesMutation();
@@ -144,7 +146,10 @@ export function PracticeList() {
     <section className="space-y-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold">Practice roster</h2>
+          <h2 className="text-lg font-semibold font-serif flex items-center gap-2">
+            <span className="persona-accent text-base">{theme.decorative.divider}</span>
+            Practice roster
+          </h2>
           <p className="text-sm text-muted-foreground">
             Filter by virtue or status, then edit cadence, reminders, or archive routines.
           </p>
@@ -153,7 +158,7 @@ export function PracticeList() {
           New practice
         </Button>
       </header>
-      <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card/60 p-4 text-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-3xl border persona-card bg-card/60 p-4 text-sm">
         <label className="flex items-center gap-2">
           <span className="text-muted-foreground">Status</span>
           <select
@@ -186,17 +191,17 @@ export function PracticeList() {
           </select>
         </label>
       </div>
-      <div className="overflow-hidden rounded-3xl border border-border bg-card">
+      <div className="overflow-hidden rounded-3xl border persona-card bg-card shadow-philosophy">
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <table className="w-full text-sm">
             <thead className="bg-muted/60 text-left text-xs uppercase tracking-[0.26em] text-muted-foreground">
               <tr>
                 <th className="w-12 px-4 py-4"></th>
-                <th className="px-5 py-4 font-medium">Practice</th>
-                <th className="px-5 py-4 font-medium">Cadence</th>
-                <th className="px-5 py-4 font-medium">Reminder</th>
-                <th className="px-5 py-4 font-medium">Status</th>
-                <th className="px-5 py-4 font-medium text-right">Actions</th>
+                <th className="px-5 py-4 font-medium font-serif">Practice</th>
+                <th className="px-5 py-4 font-medium font-serif">Cadence</th>
+                <th className="px-5 py-4 font-medium font-serif">Reminder</th>
+                <th className="px-5 py-4 font-medium font-serif">Status</th>
+                <th className="px-5 py-4 font-medium font-serif text-right">Actions</th>
               </tr>
             </thead>
             <SortableContext
@@ -282,11 +287,11 @@ function PracticeRow({
       </td>
       <td className="px-5 py-4">
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-semibold text-foreground">{practice.name}</span>
+          <span className="text-sm font-semibold font-serif text-foreground">{practice.name}</span>
           {practice.description ? (
             <span className="text-xs text-muted-foreground">{practice.description}</span>
           ) : null}
-          <span className="text-xs uppercase tracking-[0.28em] text-muted-foreground">{practice.virtue}</span>
+          <span className="text-xs uppercase tracking-[0.28em] persona-accent">{practice.virtue}</span>
         </div>
       </td>
       <td className="px-5 py-4 text-sm text-muted-foreground">

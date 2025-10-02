@@ -3,48 +3,37 @@
 import { useMemo } from "react";
 
 import { Quote } from "lucide-react";
-
-const quotes = [
-  {
-    text: "Waste no more time arguing about what a good person should be. Be one.",
-    author: "Marcus Aurelius",
-    tradition: "Stoicism",
-  },
-  {
-    text: "When I let go of what I am, I become what I might be.",
-    author: "Laozi",
-    tradition: "Taoism",
-  },
-  {
-    text: "One is not born, but rather becomes, a woman.",
-    author: "Simone de Beauvoir",
-    tradition: "Existentialism",
-  },
-  {
-    text: "First say to yourself what you would be; and then do what you have to do.",
-    author: "Epictetus",
-    tradition: "Stoicism",
-  },
-];
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
+import { useCoachStore } from "@/lib/stores/coach-store";
+import { getDailyQuote } from "@/lib/constants/persona-quotes";
 
 export function DailyQuote() {
-  const index = useMemo(() => {
-    const today = new Date();
-    const seed = today.getFullYear() * 1000 + today.getMonth() * 50 + today.getDate();
-    return seed % quotes.length;
-  }, []);
-
-  const quote = quotes[index];
+  const { theme, personaId } = usePersonaTheme();
+  const activePersonaId = useCoachStore((state) => state.activePersonaId);
+  
+  const quote = useMemo(() => {
+    return getDailyQuote(activePersonaId || personaId);
+  }, [activePersonaId, personaId]);
 
   return (
-    <section className="rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-background p-6 shadow-sm">
-      <div className="flex items-start gap-3">
-        <Quote className="size-6 text-primary" aria-hidden />
-        <div className="space-y-3 text-sm">
-          <p className="text-lg font-medium text-foreground">“{quote.text}”</p>
-          <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-            {quote.author} • {quote.tradition}
+    <section className="rounded-2xl border-persona persona-gradient-bg p-6 shadow-philosophy animate-fade-in-up parchment-texture">
+      <div className="flex items-start gap-4">
+        <Quote className="size-8 persona-accent flex-shrink-0 mt-1" aria-hidden />
+        <div className="space-y-4 flex-1">
+          <p className="philosophy-quote text-xl text-foreground leading-relaxed pl-3">
+            {quote.text}
           </p>
+          <div className="flex items-center gap-2 text-xs">
+            <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+            <p className="uppercase tracking-[0.32em] text-muted-foreground font-medium">
+              {quote.author}
+            </p>
+            <span className="persona-accent text-lg">{theme.decorative.accentSymbol}</span>
+            <p className="uppercase tracking-[0.32em] text-muted-foreground font-medium">
+              {quote.tradition}
+            </p>
+            <div className="h-px flex-1 bg-gradient-to-l from-border to-transparent" />
+          </div>
         </div>
       </div>
     </section>

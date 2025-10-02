@@ -32,15 +32,15 @@ export function MorningIntentionForm() {
   const isSaving = mutation.isPending;
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-      <header className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">
+    <section className="philosophy-card p-6 parchment-texture animate-fade-in-up">
+      <header className="space-y-2">
+        <p className="text-2xs uppercase tracking-[0.35em] text-muted-foreground font-medium">
           Morning intention
         </p>
-        <h2 className="text-2xl font-semibold">Set the tone for the day</h2>
+        <h2 className="text-3xl font-serif font-semibold text-gradient-philosophy">Set the tone for the day</h2>
       </header>
       <form
-        className="mt-6 flex flex-col gap-3 text-sm"
+        className="mt-5 flex flex-col gap-3 text-sm"
         onSubmit={(event) => {
           event.preventDefault();
           const nextIntention = draft.value.trim();
@@ -74,9 +74,15 @@ export function MorningIntentionForm() {
           }}
           placeholder={isLoading ? "Loading intention…" : "Name the focus for your day"}
           disabled={isSaving || isLoading}
+          className="border-philosophy-scroll bg-philosophy-marble/50 focus:border-primary/50 transition-all"
         />
         <div className="flex items-center justify-end">
-          <Button type="submit" size="sm" disabled={isSaving || isLoading || !hasChanges}>
+          <Button 
+            type="submit" 
+            size="sm" 
+            disabled={isSaving || isLoading || !hasChanges}
+            className="shadow-philosophy transition-all hover:shadow-philosophy-lg"
+          >
             {isSaving ? "Saving…" : hasChanges ? "Save intention" : "Saved"}
           </Button>
         </div>

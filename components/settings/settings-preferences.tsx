@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import { useProfile, useUpdateProfileMutation } from "@/lib/hooks/use-profile";
 
 interface SettingsFormValues {
@@ -25,6 +26,7 @@ const privacyOptions = [
 export function SettingsPreferences() {
   const { data: profile, isLoading } = useProfile();
   const mutation = useUpdateProfileMutation();
+  const { theme } = usePersonaTheme();
 
   const form = useForm<SettingsFormValues>({
     defaultValues: {
@@ -51,10 +53,13 @@ export function SettingsPreferences() {
   });
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+    <section className="persona-card p-6 shadow-philosophy">
       <header className="space-y-1">
         <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Preferences</p>
-        <h2 className="text-2xl font-semibold">Notifications & privacy</h2>
+        <h2 className="text-2xl font-semibold font-serif flex items-center gap-2">
+          <span className="persona-accent text-lg">{theme.decorative.divider}</span>
+          Notifications & privacy
+        </h2>
       </header>
       <form className="mt-6 space-y-5" onSubmit={onSubmit}>
         <div className="space-y-2">
@@ -84,16 +89,16 @@ export function SettingsPreferences() {
             ))}
           </select>
         </div>
-        <div className="flex items-center gap-3 rounded-3xl border border-border/60 bg-muted/20 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-3xl border persona-card bg-muted/20 px-4 py-3">
           <input
             id="notifications_enabled"
             type="checkbox"
-            className="size-4"
+            className="size-4 accent-persona"
             disabled={isLoading || mutation.isPending}
             {...form.register("notifications_enabled")}
           />
           <div>
-            <Label htmlFor="notifications_enabled">Enable email reminders</Label>
+            <Label htmlFor="notifications_enabled" className="font-serif">Enable email reminders</Label>
             <p className="text-xs text-muted-foreground">
               Toggle global reminders. Specific practice reminders can be controlled per habit.
             </p>

@@ -47,24 +47,24 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden min-h-screen border-r border-border bg-card/80 backdrop-blur md:flex md:flex-col",
-        collapsed ? "md:w-[92px]" : "md:w-[240px]",
+        "hidden min-h-screen border-r border-border bg-card/95 backdrop-blur-xl md:flex md:flex-col shadow-philosophy",
+        collapsed ? "md:w-[92px]" : "md:w-[260px]",
       )}
     >
-      <div className="flex items-center justify-between px-5 py-4">
+      <div className="flex items-center justify-between px-5 py-5 border-b border-border/40">
         <Link
           href="/today"
-          className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em]"
+          className="flex items-center gap-2.5 text-xs font-serif font-semibold uppercase tracking-[0.25em]"
         >
-          <span className="inline-flex size-2 rounded-full bg-primary" aria-hidden />
-          {!collapsed && <span>Pocket Philosopher</span>}
+          <span className="inline-flex size-2.5 rounded-full bg-philosophy-gold animate-glow" aria-hidden />
+          {!collapsed && <span className="text-gradient-philosophy">Pocket Philosopher</span>}
         </Link>
         <Button variant="ghost" size="icon" className="size-8" onClick={toggleSidebar}>
           <ToggleIcon className="size-4" aria-hidden />
           <span className="sr-only">Toggle sidebar</span>
         </Button>
       </div>
-      <nav className="flex-1 space-y-1 px-2">
+      <nav className="flex-1 space-y-1 px-2 py-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname?.startsWith(item.href);
@@ -73,21 +73,21 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition",
+                "group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "bg-primary text-primary-foreground shadow-philosophy"
+                  : "text-muted-foreground hover:bg-philosophy-scroll/50 hover:text-foreground hover:border-primary/20",
               )}
             >
-              <Icon className="size-4" aria-hidden />
+              <Icon className="size-4 flex-shrink-0" aria-hidden />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
-      <div className="px-5 pb-6 text-xs text-muted-foreground">
-        <p className="truncate">{userEmail ?? "workspace"}</p>
-        <p className="text-[10px] uppercase tracking-[0.32em]">Build Alpha</p>
+      <div className="px-5 pb-6 pt-4 border-t border-border/40">
+        <p className="truncate text-xs text-muted-foreground">{userEmail ?? "workspace"}</p>
+        <p className="text-2xs uppercase tracking-[0.35em] text-philosophy-gold/60 font-medium mt-1">Build Alpha</p>
       </div>
     </aside>
   );

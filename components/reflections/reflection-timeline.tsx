@@ -5,6 +5,7 @@ import type { MouseEventHandler } from "react";
 import { BookOpen, CalendarClock } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import type { Reflection } from "@/lib/hooks/use-reflections";
 
 interface ReflectionTimelineProps {
@@ -13,10 +14,15 @@ interface ReflectionTimelineProps {
 }
 
 export function ReflectionTimeline({ reflections, onSelect }: ReflectionTimelineProps) {
+  const { theme } = usePersonaTheme();
+
   if (!reflections.length) {
     return (
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-sm text-sm text-muted-foreground">
-        <p className="text-sm font-semibold text-foreground">Reflection timeline</p>
+      <section className="persona-card p-6 shadow-philosophy text-sm text-muted-foreground">
+        <p className="text-sm font-semibold font-serif text-foreground flex items-center gap-2">
+          <span className="persona-accent">{theme.decorative.divider}</span>
+          Reflection timeline
+        </p>
         <p className="mt-2">Entries will appear here once you start journaling.</p>
       </section>
     );
@@ -32,23 +38,26 @@ export function ReflectionTimeline({ reflections, onSelect }: ReflectionTimeline
   );
 
   return (
-    <section className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow-sm">
+    <section className="space-y-4 persona-card p-6 shadow-philosophy">
       <header className="flex items-center gap-2">
-        <BookOpen className="size-5 text-primary" aria-hidden />
+        <BookOpen className="size-5 persona-accent" aria-hidden />
         <div>
           <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Timeline</p>
-          <h2 className="text-xl font-semibold">Recent reflections</h2>
+          <h2 className="text-xl font-semibold font-serif flex items-center gap-2">
+            <span className="persona-accent text-base">{theme.decorative.divider}</span>
+            Recent reflections
+          </h2>
         </div>
       </header>
       <ol className="space-y-4 text-sm">
         {sorted.map((reflection) => {
           const timestamp = parseISO(reflection.updatedAt);
           return (
-            <li key={reflection.id} className="rounded-2xl border border-border/60 bg-muted/10 p-4">
+            <li key={reflection.id} className="rounded-2xl border border-persona/40 bg-muted/10 p-4 hover:border-persona/70 transition-colors">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                  <span>{reflection.type}</span>
-                  <span>•</span>
+                  <span className="persona-accent">{reflection.type}</span>
+                  <span className="persona-accent">{theme.decorative.bullet}</span>
                   <span>{reflection.virtueFocus ?? "No virtue"}</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -77,7 +86,7 @@ export function ReflectionTimeline({ reflections, onSelect }: ReflectionTimeline
               {onSelect ? (
                 <button
                   type="button"
-                  className="mt-3 text-xs font-medium text-primary underline underline-offset-4"
+                  className="mt-3 text-xs font-medium persona-accent underline underline-offset-4 hover:opacity-70 transition-opacity"
                   onClick={handleSelect(reflection)}
                 >
                   Load into composer

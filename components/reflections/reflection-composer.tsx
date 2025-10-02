@@ -16,6 +16,8 @@ import {
   type ReflectionType,
 } from "@/lib/hooks/use-reflections";
 import { getPersonaProfile, DEFAULT_PERSONA_ID } from "@/lib/ai/personas";
+import { getSuggestedPrompt } from "@/lib/constants/persona-prompts";
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import { useAuthStore, selectAuthProfile } from "@/lib/stores/auth-store";
 
 interface ReflectionComposerProps {
@@ -73,6 +75,7 @@ export function ReflectionComposer({
   const defaultPersonaId = profile?.preferred_persona ?? DEFAULT_PERSONA_ID;
   const [personaId, setPersonaId] = useState(defaultPersonaId);
   const persona = useMemo(() => getPersonaProfile(personaId), [personaId]);
+  const { theme } = usePersonaTheme();
 
   const saveReflection = useSaveReflectionMutation(targetDate);
 
@@ -153,24 +156,27 @@ export function ReflectionComposer({
   });
 
   return (
-    <section className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
+    <section className="space-y-6 persona-card p-6 shadow-philosophy">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Guided journaling</p>
-          <h2 className="text-2xl font-semibold">{reflectionPrompts[selectedType].title}</h2>
+          <h2 className="text-2xl font-semibold font-serif flex items-center gap-2">
+            <span className="persona-accent text-lg">{theme.decorative.divider}</span>
+            {reflectionPrompts[selectedType].title}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {reflectionPrompts[selectedType].cue} Capture detail now; analytics will synthesize your {"Return Score"}
             insights overnight.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex rounded-2xl border border-border/60 bg-muted/30 p-1 text-xs uppercase tracking-[0.18em]">
+          <div className="flex rounded-2xl border persona-card bg-muted/30 p-1 text-xs uppercase tracking-[0.18em]">
             {(Object.keys(reflectionPrompts) as ReflectionType[]).map((type) => (
               <button
                 key={type}
                 type="button"
                 className={`rounded-2xl px-3 py-1 font-medium transition ${
-                  type === selectedType ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  type === selectedType ? "persona-accent-bg text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
                 onClick={() => onTypeChange(type)}
               >
@@ -293,23 +299,37 @@ export function ReflectionComposer({
           </div>
         </form>
 
-        <aside className="space-y-4 rounded-3xl border border-border/60 bg-muted/20 p-5 text-sm">
+        <aside className="space-y-4 persona-card bg-muted/20 p-5 text-sm">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Persona cue</p>
-            <p className="text-lg font-semibold text-foreground">{persona.name}</p>
-            <p className="text-sm text-muted-foreground">{persona.voice}</p>
+            <p className="text-lg font-semibold font-serif text-foreground flex items-center gap-2">
+              <span className="persona-accent text-base">{theme.decorative.accentSymbol}</span>
+              {persona.name}
+            </p>
+            <p className="text-sm text-muted-foreground italic">{persona.voice}</p>
           </div>
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Signature prompts</p>
-            <ul className="list-disc space-y-1 pl-5 text-foreground">
+            <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Reflection prompt</p>
+            <div className="rounded-2xl border border-persona/40 bg-background/60 p-3">
+              <p className="text-sm text-foreground leading-relaxed italic">
+                "{getSuggestedPrompt(personaId, selectedType).question}"
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Signature practices</p>
+            <ul className="space-y-1 text-foreground">
               {persona.signaturePractices.slice(0, 3).map((practice) => (
-                <li key={practice}>{practice}</li>
+                <li key={practice} className="flex items-start gap-2 text-sm">
+                  <span className="persona-accent mt-0.5">{theme.decorative.bullet}</span>
+                  <span>{practice}</span>
+                </li>
               ))}
             </ul>
           </div>
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Focus</p>
-            <p className="text-foreground">{persona.focus}</p>
+            <p className="text-sm text-foreground">{persona.focus}</p>
           </div>
         </aside>
       </div>

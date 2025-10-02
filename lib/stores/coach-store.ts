@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import type { CoachCitation } from "@/lib/ai/types";
@@ -122,15 +123,16 @@ const ensureConversation = (state: CoachState, personaId: string) => {
 };
 
 export const useCoachStore = create<CoachState>()(
-  immer((set) => ({
-    ...initialState,
-    actions: {
-      selectPersona: (personaId) => {
-        set((state) => {
-          ensureConversation(state, personaId);
-          state.activePersonaId = personaId;
-        });
-      },
+  persist(
+    immer((set) => ({
+      ...initialState,
+      actions: {
+        selectPersona: (personaId) => {
+          set((state) => {
+            ensureConversation(state, personaId);
+            state.activePersonaId = personaId;
+          });
+        },
       sendUserMessage: (personaId, content) => {
         const message: CoachMessage = {
           id: createId(),
@@ -225,6 +227,13 @@ export const useCoachStore = create<CoachState>()(
       },
     },
   })),
+    {
+      name: "coach-store",
+      partialize: (state) => ({
+        activePersonaId: state.activePersonaId,
+      }),
+    },
+  ),
 );
 
 export const selectActivePersona = (state: CoachState) =>
