@@ -444,8 +444,115 @@ function MessageComposer({ onSend, disabled }: { onSend: (value: string) => void
   );
 }
 
+interface ConversationHistoryListProps {
+  history: {
+    id: string;
+    title: string;
+    updatedAt: string;
+    activePersona: string | null;
+  }[];
+  activeConversationId?: string;
+  loading: boolean;
+  loadingConversationId: string | null;
+  error: string | null;
+  onSelect: (conversationId: string) => void;
+}
+
+function ConversationHistoryList({
+  history,
+  activeConversationId,
+  loading,
+  loadingConversationId,
+  error,
+  onSelect,
+}: ConversationHistoryListProps) {
+  const formatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    [],
+  );
+
+  const showEmptyState = !loading && history.length === 0 && !error;
+
+  return (
+    <section
+      className="rounded-3xl border border-border bg-background/40 p-4"
+      role="region"
+      aria-label="Previous conversations"
+    >
+      <header className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">History</p>
+          <h3 className="text-sm font-semibold text-foreground">Resume a conversation</h3>
+        </div>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-label="Loading conversations" /> : null}
+      </header>
+      {error ? (
+        <p className="mt-3 text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {showEmptyState ? (
+        <p className="mt-3 text-xs text-muted-foreground">No saved conversations yet. Send a message to start one.</p>
+      ) : null}
+      {history.length > 0 ? (
+        <ul className="mt-3 flex gap-2 overflow-x-auto" role="list">
+          {history.map((item) => {
+            const isActive = item.id === activeConversationId;
+            const isLoading = loadingConversationId === item.id;
+            const updatedLabel = formatter.format(new Date(item.updatedAt));
+
+            return (
+              <li key={item.id} className="flex-shrink-0" role="listitem">
+                <button
+                  type="button"
+                  onClick={() => onSelect(item.id)}
+                  disabled={isLoading}
+                  className={`flex h-full min-w-[180px] flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 ${
+                    isActive
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-card/80 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  <span className="line-clamp-2 text-sm font-semibold text-foreground">
+                    {item.title}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    Updated {updatedLabel}
+                  </span>
+                  {isLoading ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-primary" aria-live="polite">
+                      <Loader2 className="h-3 w-3 animate-spin" /> Loading…
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
 function ConversationPane() {
-  const { persona, conversation, sendMessage, resetConversation } = useCoachConversation();
+  const {
+    persona,
+    conversation,
+    sendMessage,
+    resetConversation,
+    conversationHistory,
+    historyLoading,
+    historyError,
+    loadConversation,
+    loadingConversationId,
+  } = useCoachConversation();
   const { capture: track } = useAnalytics();
 
   const messages = useMemo(() => conversation.messages, [conversation.messages]);
@@ -453,6 +560,20 @@ function ConversationPane() {
   return (
     <section className="flex min-h-[70vh] flex-col gap-4 rounded-3xl border border-border bg-card/70 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]" role="main" aria-label="Philosophy coaching conversation">
       <ConversationHeader persona={persona} />
+      <ConversationHistoryList
+        history={conversationHistory}
+        activeConversationId={conversation.conversationId}
+        loading={historyLoading}
+        error={historyError}
+        loadingConversationId={loadingConversationId}
+        onSelect={(conversationId) => {
+          loadConversation(conversationId);
+          track("coach_conversation_resumed", {
+            conversationId,
+            personaId: persona.id,
+          });
+        }}
+      />
       <ConversationMessages messages={messages} isStreaming={conversation.isStreaming} />
       <footer className="space-y-3 mb-safe" role="contentinfo">
         <div className="flex items-center justify-between text-xs text-muted-foreground">

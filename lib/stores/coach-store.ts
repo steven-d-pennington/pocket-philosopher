@@ -54,6 +54,11 @@ interface CoachState {
     setTyping: (personaId: string, value: boolean) => void;
     resetConversation: (personaId: string) => void;
     setConversationId: (personaId: string, conversationId: string) => void;
+    hydrateConversation: (
+      personaId: string,
+      conversationId: string,
+      messages: CoachMessage[],
+    ) => void;
   };
 }
 
@@ -248,6 +253,15 @@ export const useCoachStore = create<CoachState>()(
         set((state) => {
           const conversation = ensureConversation(state, personaId);
           conversation.conversationId = conversationId;
+        });
+      },
+      hydrateConversation: (personaId, conversationId, messages) => {
+        set((state) => {
+          const conversation = ensureConversation(state, personaId);
+          conversation.messages = messages;
+          conversation.conversationId = conversationId;
+          conversation.isStreaming = false;
+          conversation.typing = false;
         });
       },
     },
