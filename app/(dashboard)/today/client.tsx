@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { Eye, LayoutGrid } from "lucide-react";
+import { Eye, LayoutGrid, Move } from "lucide-react";
 
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { DailyInsight } from "@/components/dashboard/daily-insight";
@@ -11,6 +11,7 @@ import { DailyQuote } from "@/components/dashboard/daily-quote";
 import { MorningIntentionForm } from "@/components/dashboard/morning-intention-form";
 import { PersonaSuggestedPractice } from "@/components/dashboard/persona-suggested-practice";
 import { ReturnScoreTiles } from "@/components/dashboard/return-score-tiles";
+import { SortableWidgetColumn } from "@/components/dashboard/sortable-widget-column";
 import { TodayOverview } from "@/components/dashboard/today-overview";
 import { WidgetWrapper } from "@/components/dashboard/widget-wrapper";
 import { CoachPreview } from "@/components/marcus/coach-preview";
@@ -25,6 +26,9 @@ import {
   useDashboardPreferences,
   selectDashboardActions,
   selectWidgetVisibility,
+  selectWidgetLayout,
+  type WidgetKey,
+  type WidgetColumn,
 } from "@/lib/stores/dashboard-preferences-store";
 
 export function TodayPageClient() {
@@ -34,9 +38,47 @@ export function TodayPageClient() {
   const { capture: track } = useAnalytics();
   const dashboardActions = useDashboardPreferences(selectDashboardActions);
   const widgetVisibility = useDashboardPreferences(selectWidgetVisibility);
+  const widgetLayout = useDashboardPreferences(selectWidgetLayout);
   const [showWidgetPanel, setShowWidgetPanel] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const hiddenCount = Object.values(widgetVisibility).filter((v) => !v).length;
+
+  // Widget component map
+  const widgetComponents: Record<WidgetKey, React.ReactNode> = {
+    morningIntention: <MorningIntentionForm />,
+    practiceQuickActions: <PracticeQuickActions />,
+    todayOverview: <TodayOverview />,
+    reflectionsStatus: <ReflectionsStatus />,
+    returnScoreTiles: <ReturnScoreTiles />,
+    dailyQuote: <DailyQuote />,
+    dailyInsight: <DailyInsight />,
+    coachPreview: <CoachPreview />,
+    personaSuggestedPractice: <PersonaSuggestedPractice />,
+    practicesOverview: <PracticesOverview />,
+  };
+
+  // Filter out hidden widgets from each column
+  const visibleLayout = {
+    left: widgetLayout.left.filter((key) => widgetVisibility[key]),
+    right: widgetLayout.right.filter((key) => widgetVisibility[key]),
+    bottom: widgetLayout.bottom.filter((key) => widgetVisibility[key]),
+  };
+
+  const renderWidget = (widgetKey: WidgetKey) => {
+    return (
+      <WidgetWrapper widgetKey={widgetKey} isEditMode={isEditMode}>
+        {widgetComponents[widgetKey]}
+      </WidgetWrapper>
+    );
+  };
+
+  const handleReorder = (columnId: WidgetColumn, newOrder: WidgetKey[]) => {
+    dashboardActions.setWidgetLayout({
+      ...widgetLayout,
+      [columnId]: newOrder,
+    });
+  };
 
   useEffect(() => {
     const handlePurchaseSuccess = async () => {
@@ -80,20 +122,31 @@ export function TodayPageClient() {
           title="Daily focus"
           description="Set your intention, track practice momentum, and jump into your coach workspace—all synced with Supabase telemetry."
         />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowWidgetPanel(!showWidgetPanel)}
-          className="gap-2 mt-1"
-        >
-          <LayoutGrid className="size-4" />
-          Customize
-          {hiddenCount > 0 && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
-              {hiddenCount} hidden
-            </span>
-          )}
-        </Button>
+        <div className="flex gap-2 mt-1">
+          <Button
+            variant={isEditMode ? "default" : "outline"}
+            size="sm"
+            onClick={() => setIsEditMode(!isEditMode)}
+            className="gap-2"
+          >
+            <Move className="size-4" />
+            {isEditMode ? "Done editing" : "Reorder"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowWidgetPanel(!showWidgetPanel)}
+            className="gap-2"
+          >
+            <LayoutGrid className="size-4" />
+            Customize
+            {hiddenCount > 0 && (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+                {hiddenCount} hidden
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
 
       {showWidgetPanel && (
@@ -137,47 +190,44 @@ export function TodayPageClient() {
         </div>
       )}
 
+      {isEditMode && (
+        <div className="philosophy-card p-4 bg-persona/5 border-2 border-persona/30 animate-fade-in-up">
+          <p className="text-sm text-center text-muted-foreground">
+            <strong className="text-persona font-semibold">Edit Mode:</strong> Drag the grip icons to
+            reorder widgets within each column
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-5 xl:grid-cols-[2fr,1fr]">
-        <div className="grid gap-4">
-          <WidgetWrapper widgetKey="morningIntention">
-            <MorningIntentionForm />
-          </WidgetWrapper>
-          <WidgetWrapper widgetKey="practiceQuickActions">
-            <PracticeQuickActions />
-          </WidgetWrapper>
-          <WidgetWrapper widgetKey="todayOverview">
-            <TodayOverview />
-          </WidgetWrapper>
-          <WidgetWrapper widgetKey="reflectionsStatus">
-            <ReflectionsStatus />
-          </WidgetWrapper>
-        </div>
-        <div className="grid gap-4">
-          <WidgetWrapper widgetKey="returnScoreTiles">
-            <ReturnScoreTiles />
-          </WidgetWrapper>
-          <WidgetWrapper widgetKey="dailyQuote">
-            <DailyQuote />
-          </WidgetWrapper>
-          <WidgetWrapper widgetKey="dailyInsight">
-            <DailyInsight />
-          </WidgetWrapper>
-          <WidgetWrapper widgetKey="coachPreview">
-            <CoachPreview />
-          </WidgetWrapper>
-        </div>
+        <SortableWidgetColumn
+          columnId="left"
+          widgets={isEditMode ? widgetLayout.left : visibleLayout.left}
+          isEditMode={isEditMode}
+          onReorder={handleReorder}
+          renderWidget={renderWidget}
+          className="grid gap-4"
+        />
+        <SortableWidgetColumn
+          columnId="right"
+          widgets={isEditMode ? widgetLayout.right : visibleLayout.right}
+          isEditMode={isEditMode}
+          onReorder={handleReorder}
+          renderWidget={renderWidget}
+          className="grid gap-4"
+        />
       </div>
       <div className="philosophy-divider">
         <span className="philosophy-divider-ornament text-xl">✦</span>
       </div>
-      <div className="grid gap-5 xl:grid-cols-[1fr,1fr]">
-        <WidgetWrapper widgetKey="personaSuggestedPractice">
-          <PersonaSuggestedPractice />
-        </WidgetWrapper>
-        <WidgetWrapper widgetKey="practicesOverview">
-          <PracticesOverview />
-        </WidgetWrapper>
-      </div>
+      <SortableWidgetColumn
+        columnId="bottom"
+        widgets={isEditMode ? widgetLayout.bottom : visibleLayout.bottom}
+        isEditMode={isEditMode}
+        onReorder={handleReorder}
+        renderWidget={renderWidget}
+        className="grid gap-5 xl:grid-cols-[1fr,1fr]"
+      />
     </div>
   );
 }
