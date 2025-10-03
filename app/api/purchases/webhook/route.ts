@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import Stripe from "stripe";
-import { headers } from "next/headers";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil",
-});
-
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const stripeApiVersion: Stripe.StripeConfig["apiVersion"] = "2025-08-27.basil";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,9 +14,22 @@ export async function POST(request: NextRequest) {
     if (!sig) {
       return NextResponse.json(
         { error: "No signature provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!secretKey || !endpointSecret) {
+      console.error("Stripe webhook environment variables are not configured");
+      return NextResponse.json(
+        { error: "Stripe webhook is not configured" },
+        { status: 500 },
+      );
+    }
+
+    const stripe = new Stripe(secretKey, { apiVersion: stripeApiVersion });
 
     let event: Stripe.Event;
 
@@ -32,7 +40,7 @@ export async function POST(request: NextRequest) {
       console.error("Webhook signature verification failed:", errorMessage);
       return NextResponse.json(
         { error: "Webhook signature verification failed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -46,7 +54,7 @@ export async function POST(request: NextRequest) {
             return cookieStore.get(name)?.value;
           },
         },
-      }
+      },
     );
 
     switch (event.type) {
@@ -61,7 +69,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true });
         }
 
-        // Check if purchase already exists
         const { data: existingPurchase } = await supabase
           .from("purchases")
           .select("id")
@@ -73,7 +80,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true });
         }
 
-        // Get product details
         const { data: product } = await supabase
           .from("products")
           .select("price_cents, currency")
@@ -85,7 +91,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true });
         }
 
-        // Create purchase record
         const { data: purchase, error: purchaseError } = await supabase
           .from("purchases")
           .insert({
@@ -105,7 +110,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true });
         }
 
-        // Create entitlement
         const { error: entitlementError } = await supabase
           .from("entitlements")
           .insert({
@@ -118,7 +122,6 @@ export async function POST(request: NextRequest) {
 
         if (entitlementError) {
           console.error("Error creating entitlement:", entitlementError);
-          // Don't return error here as purchase was successful
         }
 
         console.log("Purchase processed successfully:", {
@@ -144,7 +147,7 @@ export async function POST(request: NextRequest) {
     console.error("Webhook error:", error);
     return NextResponse.json(
       { error: "Webhook handler failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

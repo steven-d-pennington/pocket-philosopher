@@ -6,15 +6,14 @@
  */
 
 import dynamic from "next/dynamic";
+import React from "react";
 
 // Coach/AI Components (heavy due to streaming logic)
 export const CoachConversation = dynamic(
-  () => import("@/components/marcus/coach-conversation").then((mod) => ({ default: mod.CoachConversation })),
+  () => import("@/components/marcus/coach-workspace").then((mod) => ({ default: mod.CoachWorkspace })),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-pulse text-muted-foreground">Loading coach...</div>
-      </div>
+    loading: () => React.createElement("div", { className: "flex items-center justify-center py-12" },
+      React.createElement("div", { className: "animate-pulse text-muted-foreground" }, "Loading coach...")
     ),
     ssr: false, // Disable SSR for interactive streaming components
   },
@@ -24,10 +23,8 @@ export const CoachConversation = dynamic(
 export const ReturnScoreTiles = dynamic(
   () => import("@/components/dashboard/return-score-tiles").then((mod) => ({ default: mod.ReturnScoreTiles })),
   {
-    loading: () => (
-      <div className="philosophy-card animate-pulse">
-        <div className="h-24 bg-muted/20 rounded"></div>
-      </div>
+    loading: () => React.createElement("div", { className: "philosophy-card animate-pulse" },
+      React.createElement("div", { className: "h-24 bg-muted/20 rounded" })
     ),
   },
 );
@@ -36,10 +33,8 @@ export const ReturnScoreTiles = dynamic(
 export const ReflectionComposer = dynamic(
   () => import("@/components/reflections/reflection-composer").then((mod) => ({ default: mod.ReflectionComposer })),
   {
-    loading: () => (
-      <div className="philosophy-card animate-pulse">
-        <div className="h-64 bg-muted/20 rounded"></div>
-      </div>
+    loading: () => React.createElement("div", { className: "philosophy-card animate-pulse" },
+      React.createElement("div", { className: "h-64 bg-muted/20 rounded" })
     ),
   },
 );

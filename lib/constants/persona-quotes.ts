@@ -522,7 +522,157 @@ export const epictetusQuotes: Quote[] = [
 
 /**
  * Get quotes for a specific persona
- */
+ */export const aristotleQuotes: Quote[] = [
+  {
+    text: "We are what we repeatedly do. Excellence, then, is not an act but a habit.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "habits",
+  },
+  {
+    text: "Knowing yourself is the beginning of all wisdom.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "self-knowledge",
+  },
+  {
+    text: "It is the mark of an educated mind to be able to entertain a thought without accepting it.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "reason",
+  },
+  {
+    text: "The whole is greater than the sum of its parts.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "systems",
+  },
+  {
+    text: "Pleasure in the job puts perfection in the work.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "craft",
+  },
+  {
+    text: "The aim of the wise is not to secure pleasure, but to avoid pain.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "temperance",
+  },
+  {
+    text: "Courage is the first of human qualities because it is the quality which guarantees the others.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "courage",
+  },
+  {
+    text: "Educating the mind without educating the heart is no education at all.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "education",
+  },
+  {
+    text: "Quality is not an act, it is a habit.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "quality",
+  },
+  {
+    text: "Happiness depends upon ourselves.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "eudaimonia",
+  },
+  {
+    text: "Hope is a waking dream.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "hope",
+  },
+  {
+    text: "The energy of the mind is the essence of life.",
+    author: "Aristotle",
+    tradition: "Aristotelian",
+    theme: "mind",
+  },
+];
+
+export const platoQuotes: Quote[] = [
+  {
+    text: "The first and greatest victory is to conquer yourself.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "self-mastery",
+  },
+  {
+    text: "The measure of a man is what he does with power.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "justice",
+  },
+  {
+    text: "Wise men speak because they have something to say; fools because they have to say something.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "speech",
+  },
+  {
+    text: "The beginning is the most important part of the work.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "initiative",
+  },
+  {
+    text: "Opinion is the medium between knowledge and ignorance.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "epistemology",
+  },
+  {
+    text: "Music gives a soul to the universe, wings to the mind, flight to the imagination, and life to everything.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "inspiration",
+  },
+  {
+    text: "Courage is knowing what not to fear.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "courage",
+  },
+  {
+    text: "Human behavior flows from three main sources: desire, emotion, and knowledge.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "psychology",
+  },
+  {
+    text: "An empty vessel makes the loudest sound, so they that have the least wit are the greatest babblers.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "humility",
+  },
+  {
+    text: "The greatest wealth is to live content with little.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "simplicity",
+  },
+  {
+    text: "Necessity is the mother of invention.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "innovation",
+  },
+  {
+    text: "Justice means minding your own business and not meddling with other men's concerns.",
+    author: "Plato",
+    tradition: "Platonism",
+    theme: "justice",
+  },
+];
+
+
 export function getQuotesForPersona(personaId: string): Quote[] {
   switch (personaId) {
     case "marcus":
@@ -533,6 +683,10 @@ export function getQuotesForPersona(personaId: string): Quote[] {
       return simoneQuotes;
     case "epictetus":
       return epictetusQuotes;
+    case "aristotle":
+      return aristotleQuotes;
+    case "plato":
+      return platoQuotes;
     default:
       return marcusQuotes;
   }

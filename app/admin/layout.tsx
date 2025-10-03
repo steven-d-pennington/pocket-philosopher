@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase/server-client";
+import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 
 interface AdminLayoutProps {
   children: ReactNode;

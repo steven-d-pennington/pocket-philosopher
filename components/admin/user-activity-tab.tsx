@@ -91,6 +91,9 @@ export function UserActivityTab({ userId, stats }: Props) {
               Future updates will include conversation history, habit completion logs, and
               engagement metrics
             </p>
+            <p className="text-xs text-gray-400 mt-2">
+              Tracking activity for user {userId.slice(0, 8)}...
+            </p>
           </div>
         </CardContent>
       </Card>

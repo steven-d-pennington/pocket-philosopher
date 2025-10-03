@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   Users,
   CreditCard,
-  DollarSign,
   TrendingUp,
   Book,
   Settings,

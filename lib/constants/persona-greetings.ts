@@ -141,7 +141,63 @@ export const epictetusGreetings: PersonaGreeting[] = [
 
 /**
  * Get greetings for a specific persona
- */
+ */export const aristotleGreetings: PersonaGreeting[] = [
+  {
+    opening: "Welcome, seeker of balance.",
+    context: "We gather to examine how reason and habit shape your character. No moment is too small for training in virtue.",
+    invitation: "Which situation would you like to study? Together we will look for the golden mean it invites.",
+  },
+  {
+    opening: "Good day, fellow student.",
+    context: "Every action leaves an imprint on your soul. Practice today will either stabilize your virtues or let them drift toward excess or deficiency.",
+    invitation: "Tell me what choice stands before you. We will reason through the balanced response.",
+  },
+  {
+    opening: "Back to the Lyceum, I see.",
+    context: "Consistent inquiry is what turns knowledge into practical wisdom. Your presence signals a desire to live thoughtfully, not by accident.",
+    invitation: "What event deserves examination? Let us consider it in terms of purpose, means, and habit.",
+  },
+  {
+    opening: "Welcome to our deliberation.",
+    context: "A flourishing life arises when reason directs desire. We will weigh your aims, feel your impulses, and teach them to cooperate.",
+    invitation: "Where do you sense you are pulled too far in one direction? Present it, and we will re-center it.",
+  },
+  {
+    opening: "Your pursuit of eudaimonia continues.",
+    context: "Habits are formed through repeated choices. Today offers another chance to choose the balanced action that builds excellence.",
+    invitation: "What habit are you refining? Describe it, and we will plan the next right adjustment.",
+  },
+];
+
+export const platoGreetings: PersonaGreeting[] = [
+  {
+    opening: "Greetings, companion in inquiry.",
+    context: "We meet once more to test appearances and seek what is truly good. Questioning together is the path out of the cave.",
+    invitation: "What idea or dilemma would you like to examine under the light of reason today?",
+  },
+  {
+    opening: "Welcome back to the dialogue.",
+    context: "Every conversation is an ascent. Step by step we move from opinion toward knowledge, from shadows toward what is enduring.",
+    invitation: "What belief deserves to be questioned? Let us test it through careful dialectic.",
+  },
+  {
+    opening: "I am glad you returned ready to contemplate.",
+    context: "Justice, courage, and temperance gain clarity when we relate them to their ideal forms. Today we can align your actions with those higher patterns.",
+    invitation: "Which situation would you like to lift into the realm of ideas so it becomes clearer?",
+  },
+  {
+    opening: "Another seeker arrives at the Academy.",
+    context: "Let us share speech that tends toward truth. Through thoughtful questioning we discover what your soul already senses.",
+    invitation: "Share the question on your mind. We will explore it carefully, one definition at a time.",
+  },
+  {
+    opening: "You have chosen dialogue over silence.",
+    context: "That decision already sets you on the philosopher's path. Together we will distinguish seeming from being and discover the just course.",
+    invitation: "Where do you suspect illusion or confusion? Let us clear it so you can act with confidence.",
+  },
+];
+
+
 export function getGreetingsForPersona(personaId: string): PersonaGreeting[] {
   switch (personaId) {
     case "marcus":
@@ -152,6 +208,10 @@ export function getGreetingsForPersona(personaId: string): PersonaGreeting[] {
       return simoneGreetings;
     case "epictetus":
       return epictetusGreetings;
+    case "aristotle":
+      return aristotleGreetings;
+    case "plato":
+      return platoGreetings;
     default:
       return marcusGreetings;
   }

@@ -12,7 +12,7 @@ interface PersonaThemeWrapperProps {
  * Automatically updates when the user switches personas
  */
 export function PersonaThemeWrapper({ children }: PersonaThemeWrapperProps) {
-  const { cssVars, personaId, theme } = usePersonaTheme();
+  const { cssVars, personaId } = usePersonaTheme();
   
   return (
     <div 

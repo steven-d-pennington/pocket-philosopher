@@ -98,6 +98,22 @@ const defaultPersonas: CoachPersona[] = [
     expertise: ["Discipline", "Resilience", "Practicality"],
     accentColor: "bg-amber-500",
   },
+  {
+    id: "aristotle",
+    name: "Aristotle",
+    title: "Virtue Guide",
+    description: "Balance reason and habit to pursue eudaimonia through the golden mean.",
+    expertise: ["Virtue ethics", "Practical wisdom", "Habits"],
+    accentColor: "bg-amber-600",
+  },
+  {
+    id: "plato",
+    name: "Plato",
+    title: "Truth Seeker",
+    description: "Use dialectic inquiry to uncover higher ideals and act with justice.",
+    expertise: ["Dialectic", "Justice", "Metaphysics"],
+    accentColor: "bg-indigo-600",
+  },
 ];
 
 const initialConversations = defaultPersonas.reduce<Record<string, ConversationState>>((acc, persona) => {

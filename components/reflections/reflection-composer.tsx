@@ -312,7 +312,7 @@ export function ReflectionComposer({
             <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Reflection prompt</p>
             <div className="rounded-2xl border border-persona/40 bg-background/60 p-3">
               <p className="text-sm text-foreground leading-relaxed italic">
-                "{getSuggestedPrompt(personaId, selectedType).question}"
+                &ldquo;{getSuggestedPrompt(personaId, selectedType).question}&rdquo;
               </p>
             </div>
           </div>
@@ -321,7 +321,7 @@ export function ReflectionComposer({
             <ul className="space-y-1 text-foreground">
               {persona.signaturePractices.slice(0, 3).map((practice) => (
                 <li key={practice} className="flex items-start gap-2 text-sm">
-                  <span className="persona-accent mt-0.5">{theme.decorative.bullet}</span>
+                  <span className="persona-accent mt-0.5">{theme.decorative.bulletPoint}</span>
                   <span>{practice}</span>
                 </li>
               ))}

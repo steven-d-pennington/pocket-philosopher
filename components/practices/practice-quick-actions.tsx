@@ -6,6 +6,7 @@ import { CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useDailyProgress, usePracticeCompletionMutation } from "@/lib/hooks/use-daily-progress";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { usePractices } from "@/lib/hooks/use-practices";
@@ -29,12 +30,12 @@ export function PracticeQuickActions() {
         <p className="text-2xs uppercase tracking-[0.35em] text-muted-foreground font-medium">Quick log</p>
         <h2 className="text-3xl font-serif font-semibold">Tap practices as you complete them</h2>
       </header>
-      <div className="mt-5 grid gap-2.5">
+      <div className="mt-6 flex flex-col gap-3.5 px-2">
         {(practicesLoading || progressLoading) && (
-          <p className="text-sm text-muted-foreground">Loading practices…</p>
+          <p className="text-xs text-muted-foreground">Loading practices…</p>
         )}
         {!practicesLoading && visiblePractices.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             No practices yet. Create one to start logging progress.
           </p>
         ) : null}
@@ -46,8 +47,13 @@ export function PracticeQuickActions() {
             <Button
               key={practice.id}
               type="button"
-              variant={isCompleted ? "secondary" : "outline"}
-              className="flex items-center justify-between rounded-xl border px-4 py-3.5 text-left text-sm transition-all hover:shadow-philosophy hover:border-primary/30"
+              variant="ghost"
+              className={cn(
+                "group relative flex w-full items-center justify-between rounded-xl border px-6 py-3.5 text-left text-sm transition-all",
+                isCompleted
+                  ? "border-primary/30 bg-primary/10 shadow-sm"
+                  : "border-border/70 bg-card/70 hover:border-primary/30 hover:bg-card"
+              )}
               disabled={mutation.isPending}
               onClick={() =>
                 mutation.mutate(
@@ -68,13 +74,13 @@ export function PracticeQuickActions() {
                 )
               }
             >
-              <span className="flex flex-col text-left gap-1">
-                <span className="font-semibold text-foreground">{practice.name}</span>
+              <span className="flex flex-col gap-0.5 text-left">
+                <span className={cn("font-semibold", isCompleted ? "text-primary" : "text-foreground")}>{practice.name}</span>
                 {practice.description ? (
                   <span className="text-xs text-muted-foreground leading-relaxed">{practice.description}</span>
                 ) : null}
               </span>
-              <Icon className="size-5 text-primary flex-shrink-0" aria-hidden />
+              <Icon className={cn("size-5 flex-shrink-0 transition-colors", isCompleted ? "text-primary" : "text-muted-foreground")} aria-hidden />
             </Button>
           );
         })}

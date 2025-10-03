@@ -154,7 +154,7 @@ export function PracticeList() {
             Filter by virtue or status, then edit cadence, reminders, or archive routines.
           </p>
         </div>
-        <Button type="button" className="gap-2" onClick={modalActions.openCreate}>
+        <Button type="button" className="gap-2" onClick={() => modalActions.openCreate()}>
           New practice
         </Button>
       </header>

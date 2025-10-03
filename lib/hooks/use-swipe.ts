@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export interface SwipeInput {
   deltaX: number;
@@ -23,7 +23,6 @@ interface SwipeOptions extends SwipeHandlers {
   preventScrollOnSwipe?: boolean;
   trackTouch?: boolean;
   trackMouse?: boolean;
-  rotationAngle?: number;
 }
 
 interface TouchData {
@@ -37,7 +36,6 @@ const defaultOptions: Required<Omit<SwipeOptions, keyof SwipeHandlers>> = {
   preventScrollOnSwipe: false,
   trackTouch: true,
   trackMouse: false,
-  rotationAngle: 0,
 };
 
 /**
@@ -55,7 +53,7 @@ const defaultOptions: Required<Omit<SwipeOptions, keyof SwipeHandlers>> = {
  * ```
  */
 export function useSwipe(options: SwipeOptions = {}) {
-  const { delta, preventScrollOnSwipe, trackTouch, trackMouse, rotationAngle } = {
+  const { delta, preventScrollOnSwipe, trackTouch, trackMouse } = {
     ...defaultOptions,
     ...options,
   };
@@ -140,7 +138,7 @@ export function useSwipe(options: SwipeOptions = {}) {
     }
   };
 
-  const handleTouchEnd = (event: React.TouchEvent | React.MouseEvent) => {
+  const handleTouchEnd = () => {
     if (!touchStart.current || !touchEnd.current) {
       touchStart.current = null;
       touchEnd.current = null;

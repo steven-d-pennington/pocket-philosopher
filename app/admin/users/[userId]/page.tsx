@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminLayout } from "@/components/admin/admin-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +13,6 @@ import {
   Calendar,
   Crown,
   ArrowLeft,
-  Shield,
-  ShieldOff,
-  KeyRound,
-  Edit,
   CheckCircle,
   XCircle
 } from "lucide-react";
@@ -83,16 +79,23 @@ interface UserDetailData {
   stats: UserStats;
 }
 
-export default function UserDetailPage({ params }: { params: { userId: string } }) {
+export default function UserDetailPage({ params }: { params: Promise<{ userId: string }> }) {
   const router = useRouter();
   const [data, setData] = useState<UserDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const fetchUserDetail = async () => {
+  useEffect(() => {
+    params.then(p => setUserId(p.userId));
+  }, [params]);
+
+  const fetchUserDetail = useCallback(async () => {
+    if (!userId) return;
+
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/users/${params.userId}`);
+      const response = await fetch(`/api/admin/users/${userId}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch user details");
@@ -105,11 +108,11 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchUserDetail();
-  }, [params.userId]);
+  }, [fetchUserDetail]);
 
   if (loading) {
     return (

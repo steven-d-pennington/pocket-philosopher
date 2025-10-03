@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,14 +24,13 @@ export default function AdminContent() {
   const [content, setContent] = useState<PhilosophyChunk[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermInput, setSearchTermInput] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchContent();
-  }, [page, searchTerm]);
+  const fetchContent = useCallback(async () => {
+    setLoading(true);
 
-  const fetchContent = async () => {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -50,12 +49,16 @@ export default function AdminContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm]);
+
+  useEffect(() => {
+    fetchContent();
+  }, [fetchContent]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchContent();
+    setSearchTerm(searchTermInput);
   };
 
   if (loading) {
@@ -135,8 +138,8 @@ export default function AdminContent() {
                 <Input
                   type="text"
                   placeholder="Search by work, author, virtue, or content..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchTermInput}
+                  onChange={(e) => setSearchTermInput(e.target.value)}
                   className="w-full"
                 />
               </div>
