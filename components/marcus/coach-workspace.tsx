@@ -6,6 +6,7 @@ import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Lock } from 
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { CitationList } from "@/components/shared/citation-list";
 import { CoachErrorBoundary } from "@/components/shared/error-boundary";
@@ -198,13 +199,43 @@ function PersonaSidebar() {
     </aside>
   );
 }function ConversationHeader({ persona }: { persona: CoachPersona }) {
+  const conversationMode = useCoachStore((state) => state.conversationMode);
+  const actions = useCoachStore((state) => state.actions);
+  const { capture: track } = useAnalytics();
+
+  const handleModeToggle = () => {
+    const newMode = conversationMode === "buddy" ? "coaching" : "buddy";
+    actions.toggleMode();
+    track("coach_mode_changed", {
+      personaId: persona.id,
+      previousMode: conversationMode,
+      newMode,
+    });
+  };
+
   return (
-    <header className="flex flex-col gap-1 rounded-3xl border border-border bg-card/80 p-4">
-      <div className="flex items-center gap-3">
-        <PersonaBadge persona={persona} />
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">{persona.name}</h2>
-          <p className="text-sm text-muted-foreground">{persona.title}</p>
+    <header className="flex flex-col gap-3 rounded-3xl border border-border bg-card/80 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <PersonaBadge persona={persona} />
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-foreground truncate">{persona.name}</h2>
+            <p className="text-sm text-muted-foreground truncate">{persona.title}</p>
+          </div>
+        </div>
+
+        {/* Mode Toggle */}
+        <div className="flex items-center gap-2 shrink-0" role="group" aria-label="Conversation mode toggle">
+          <span className="text-xs text-muted-foreground hidden sm:inline">💬 Buddy</span>
+          <span className="text-xs text-muted-foreground sm:hidden">💬</span>
+          <Switch
+            checked={conversationMode === "coaching"}
+            onCheckedChange={handleModeToggle}
+            className="touch-manipulation"
+            aria-label={`Switch to ${conversationMode === "buddy" ? "coaching" : "buddy"} mode`}
+          />
+          <span className="text-xs text-muted-foreground hidden sm:inline">Coach 🎓</span>
+          <span className="text-xs text-muted-foreground sm:hidden">🎓</span>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">{persona.description}</p>
@@ -323,6 +354,27 @@ function MessageComposer({ onSend, disabled }: { onSend: (value: string) => void
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Scroll input into view when focused (for mobile keyboard)
+  useEffect(() => {
+    const handleFocus = () => {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, 300); // Delay to allow keyboard to appear
+    };
+
+    const currentTextarea = textareaRef.current;
+    const currentInput = inputRef.current;
+
+    currentTextarea?.addEventListener("focus", handleFocus);
+    currentInput?.addEventListener("focus", handleFocus);
+
+    return () => {
+      currentTextarea?.removeEventListener("focus", handleFocus);
+      currentInput?.removeEventListener("focus", handleFocus);
+    };
+  }, [mode]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -342,6 +394,7 @@ function MessageComposer({ onSend, disabled }: { onSend: (value: string) => void
 
   return (
     <form
+      ref={formRef}
       className="flex flex-col gap-3"
       onSubmit={handleSubmit}
       role="form"
@@ -398,10 +451,10 @@ function ConversationPane() {
   const messages = useMemo(() => conversation.messages, [conversation.messages]);
 
   return (
-    <section className="flex min-h-[70vh] flex-col gap-4 rounded-3xl border border-border bg-card/70 p-4" role="main" aria-label="Philosophy coaching conversation">
+    <section className="flex min-h-[70vh] flex-col gap-4 rounded-3xl border border-border bg-card/70 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]" role="main" aria-label="Philosophy coaching conversation">
       <ConversationHeader persona={persona} />
       <ConversationMessages messages={messages} isStreaming={conversation.isStreaming} />
-      <footer className="space-y-3" role="contentinfo">
+      <footer className="space-y-3 mb-safe" role="contentinfo">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <StreamingIndicator isStreaming={conversation.isStreaming} tokens={conversation.tokens} />
           <Button

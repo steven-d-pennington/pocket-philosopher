@@ -21,8 +21,8 @@ This guide outlines a recommended execution sequence for the task plans derived 
 6. **Frontend Architecture & User Experience (Phases 3-4)**  
    - **Status:** Complete (core routes scaffolded; practices CRUD flows and coaches workspace with persona switching + streaming stub live, while drag ordering, citation surfacing, and PWA work remain outstanding).  
    - Build core dashboard flows, component libraries, and PWA enhancements as backend and AI endpoints stabilize.
-7. **AI & Knowledge System (Phases 3-5)**  
-   - **Status:** Complete (persona prompts, conversation workflows, corpus ingestion, and telemetry all implemented and working).  
+7. **AI & Knowledge System (Phases 3-6)**
+   - **Status:** Complete (All 6 personas implemented including Aristotle & Plato; persona prompts, conversation workflows, corpus ingestion, and telemetry all working; Phase 6 quality enhancements partially complete with response quality metrics deferred).
    - Finalize persona prompts, conversation workflows, corpus ingestion, and telemetry once foundational services are ready.
 8. **Analytics, Observability & Security**  
    - **Status:** Complete (Phase 1 telemetry framework fully implemented with PostHog events, AI metrics, and health diagnostics).  
@@ -30,11 +30,23 @@ This guide outlines a recommended execution sequence for the task plans derived 
 9. **Deployment & Operations**  
    - **Status:** Complete (Docker tooling, rollout guides, runbooks, and release checklists all implemented).  
    - Prepare Docker tooling, rollout guides, runbooks, and post-launch governance.
-10. **Testing & Quality Assurance**  
-    - **Status:** Started (Jest unit tests and Playwright e2e tests implemented; CI/CD workflows need integration).  
-    - Implement automated testing, AI evaluation harness, and CI/CD workflows as described in the task plan and integrate with deployment processes.
-11. **Final Verification**  
-    - **Status:** Complete (all component tasks complete, documentation updated, staging/production environments documented).  
+10. **Testing & Quality Assurance**
+    - **Status:** Partially Complete (Phase 1 complete - Jest unit tests and all 4 Playwright e2e test suites fully implemented; Phase 3 not started - CI/CD workflows need creation, .github/workflows/ directory does not exist).
+    - Implement AI evaluation harness and CI/CD workflows as described in the task plan and integrate with deployment processes.
+11. **Chat Buddy Mode Feature** (New Feature - 2025-10-02)
+    - **Status:** Complete (All 5 phases complete - state management, prompt engineering, UI toggle, data flow integration, and analytics all implemented and functional).
+    - Toggle between casual "buddy" mode and formal "coaching" mode for all 6 AI personas with persistence and analytics tracking.
+
+12. **Freemium Monetization** (New Feature - 2025-10-02)
+    - **Status:** ✅ 100% Complete (All 3 phases complete - database schema, Stripe integration, payment webhooks, frontend UI with lock states, purchase flow, restore purchases, and server-side entitlement enforcement all working).
+    - Marcus coach is free; all other personas ($3.99 each) require purchase via Stripe checkout with full entitlement system.
+
+13. **Admin Dashboard** (New Feature - 2025-10-02)
+    - **Status:** 60% Complete (Phase 1 complete - admin auth, basic dashboard, user listing with search/pagination; Phase 2 partial - audit log database ready but not wired, account management UI missing).
+    - Admin portal with user management, system metrics; needs bulk operations, audit logging integration, and GDPR tools.
+
+14. **Final Verification**
+    - **Status:** Complete (all core component tasks complete, documentation updated, staging/production environments documented).
     - Ensure all component tasks (including parallel [P] items) are complete, documentation is updated, and staging/production environments are in sync before declaring the rebuild feature-complete.
 
 ## Parallelization Tips

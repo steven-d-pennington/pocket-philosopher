@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { Search, User, Mail, Calendar, Crown } from "lucide-react";
 
 interface User {
   user_id: string;
+  email: string | null;
+  email_confirmed_at: string | null;
   preferred_virtue: string | null;
   preferred_persona: string | null;
   experience_level: string | null;
@@ -19,6 +22,7 @@ interface User {
 }
 
 export default function AdminUsers() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,7 +123,7 @@ export default function AdminUsers() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-medium text-gray-900">
-                          User {user.user_id.slice(0, 8)}...
+                          {user.email || `User ${user.user_id.slice(0, 8)}...`}
                         </h3>
                         {user.is_admin && (
                           <Crown className="h-4 w-4 text-yellow-500" />
@@ -144,11 +148,12 @@ export default function AdminUsers() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/admin/users/${user.user_id}`)}
+                    >
                       View Details
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Edit
                     </Button>
                   </div>
                 </div>

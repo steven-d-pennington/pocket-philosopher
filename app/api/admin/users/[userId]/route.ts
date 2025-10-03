@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { adminAuthMiddleware } from "@/lib/middleware/admin-auth";
+import { createAdminClient } from "@/lib/admin/supabase-admin";
 
 export async function GET(
   request: NextRequest,
@@ -12,20 +13,22 @@ export async function GET(
   if (authResult) return authResult;
 
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
+    // Service role client for admin operations
+    const supabase = createAdminClient();
+    const { userId } = await params;
+
+    // Get user from auth (to get email)
+    const { data: authData, error: authError } = await supabase.auth.admin.getUserById(
+      userId
     );
 
-    const { userId } = await params;
+    if (authError || !authData.user) {
+      console.error("Error fetching auth user:", authError);
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
 
     // Get user profile
     const { data: profile, error: profileError } = await supabase
@@ -75,7 +78,10 @@ export async function GET(
       .eq("user_id", userId);
 
     return NextResponse.json({
-      profile,
+      profile: {
+        ...profile,
+        email: authData.user.email,
+      },
       purchases: purchases || [],
       entitlements: entitlements || [],
       stats: {
@@ -101,19 +107,8 @@ export async function PATCH(
   if (authResult) return authResult;
 
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
-
+    // Service role client for admin operations
+    const supabase = createAdminClient();
     const { userId } = await params;
     const updates = await request.json();
 

@@ -6,6 +6,7 @@ import { PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { usePractices } from "@/lib/hooks/use-practices";
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import { selectPracticeModalActions, usePracticeModalStore } from "@/lib/stores/practice-modal-store";
 
 import { dayOptions } from "./practice-form-constants";
@@ -13,13 +14,17 @@ import { dayOptions } from "./practice-form-constants";
 export function PracticesOverview() {
   const { data, isLoading, error } = usePractices();
   const modalActions = usePracticeModalStore(selectPracticeModalActions);
+  const { theme } = usePersonaTheme();
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+    <section className="persona-card p-6 shadow-philosophy">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Virtue practices</p>
-          <h2 className="text-2xl font-semibold">Active routines</h2>
+          <h2 className="text-2xl font-semibold font-serif flex items-center gap-2">
+            <span className="persona-accent text-lg">{theme.decorative.divider}</span>
+            Active routines
+          </h2>
         </div>
         <div className="flex gap-2">
           <Button
@@ -53,11 +58,11 @@ export function PracticesOverview() {
               return (
               <li
                 key={practice.id}
-                className="rounded-2xl border border-dashed border-border/70 px-4 py-3 text-foreground"
+                className="rounded-2xl border border-dashed border-persona/40 px-4 py-3 text-foreground hover:border-persona/70 transition-colors"
               >
                 <div className="flex items-center justify-between text-sm font-medium">
-                  <span>{practice.name}</span>
-                  <span className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                  <span className="font-serif">{practice.name}</span>
+                  <span className="text-xs uppercase tracking-[0.28em] persona-accent">
                     {practice.virtue}
                   </span>
                 </div>

@@ -1,16 +1,43 @@
 {
   "name": "Pocket Philosopher",
   "short_name": "Philosopher",
-  "start_url": "/",
+  "start_url": "/today?source=pwa",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "description": "Daily Stoic and philosophical coaching with offline-first resilience.",
+  "description": "Daily Stoic, Taoist, and Existentialist wisdom with practices, reflections, and AI mentors.",
+  "categories": ["lifestyle", "education", "productivity"],
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "description": "View today's practices and reflections",
+      "url": "/today?source=shortcut",
+      "icons": [{ "src": "/icon.svg", "sizes": "96x96", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "New Reflection",
+      "short_name": "Reflect",
+      "description": "Write a new reflection",
+      "url": "/reflections/new?source=shortcut",
+      "icons": [{ "src": "/icon.svg", "sizes": "96x96", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Coach",
+      "short_name": "Coach",
+      "description": "Talk to your philosophical coach",
+      "url": "/marcus?source=shortcut",
+      "icons": [{ "src": "/icon.svg", "sizes": "96x96", "type": "image/svg+xml" }]
+    }
+  ],
+  "prefer_related_applications": false
 }

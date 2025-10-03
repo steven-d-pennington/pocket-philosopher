@@ -49,6 +49,7 @@ function parseSSEEvents(buffer: string): ParsedEvent[] {
 export function useCoachConversation() {
   const persona = useCoachStore(selectActivePersona);
   const conversation = useCoachStore(selectActiveConversation);
+  const conversationMode = useCoachStore((state) => state.conversationMode);
   const actions = useCoachStore((state) => state.actions);
 
   const sendMessage = useCallback(
@@ -74,6 +75,7 @@ export function useCoachConversation() {
               conversation_id: existingConversationId,
               message: content,
               persona: personaId,
+              mode: conversationMode,
             }),
           });
 
@@ -226,7 +228,7 @@ export function useCoachConversation() {
 
       return userMessage.id;
     },
-    [actions, persona, conversation.conversationId],
+    [actions, persona, conversation.conversationId, conversationMode],
   );
 
   const resetConversation = useCallback(() => {

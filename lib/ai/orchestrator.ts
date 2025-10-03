@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { buildCoachMessages } from "@/lib/ai/prompts/coach";
 import { getPersonaProfile } from "@/lib/ai/personas";
+import type { ConversationMode } from "@/lib/stores/coach-store";
 import {
   getActiveChatProvider,
   recordProviderFailure,
@@ -27,6 +28,7 @@ interface CoachStreamOptions {
   personaId: string;
   message: string;
   history: ConversationTurn[];
+  mode?: ConversationMode;
   signal?: AbortSignal;
   logger?: RequestLogger;
 }
@@ -241,6 +243,7 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
     history: options.history,
     userContext,
     knowledge,
+    mode: options.mode,
   });
 
   const requestStartedAt = Date.now();

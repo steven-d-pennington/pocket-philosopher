@@ -5,33 +5,38 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import { selectActiveConversation, selectActivePersona, useCoachStore } from "@/lib/stores/coach-store";
 
 export function CoachPreview() {
   const persona = useCoachStore(selectActivePersona);
   const conversation = useCoachStore(selectActiveConversation);
+  const { theme } = usePersonaTheme();
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+    <section className="persona-card p-6 animate-fade-in-up shadow-philosophy">
       <header className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">
+        <div className="space-y-2">
+          <p className="text-2xs uppercase tracking-[0.35em] text-muted-foreground font-medium">
             Pocket Coaches
           </p>
-          <h2 className="text-2xl font-semibold">Marcus and friends</h2>
+          <h2 className="text-2xl font-serif font-semibold flex items-center gap-2">
+            <span className="persona-accent text-lg">{theme.decorative.divider}</span>
+            Marcus and friends
+          </h2>
         </div>
-        <Button asChild variant="ghost" size="sm" className="gap-2">
+        <Button asChild variant="ghost" size="sm" className="gap-2 hover:bg-philosophy-scroll/50">
           <Link href="/marcus">
             Open coach
             <MessageCircle className="size-4" aria-hidden />
           </Link>
         </Button>
       </header>
-      <div className="mt-6 rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-        <p className="font-semibold text-foreground">Current persona</p>
-        <p className="text-sm">{persona.name}</p>
-        <p className="mt-2 text-xs text-muted-foreground">{persona.description}</p>
-        <div className="mt-4 rounded-2xl border border-border/70 bg-background/60 p-3 text-xs">
+      <div className="mt-5 rounded-xl border border-persona/40 bg-philosophy-scroll/30 p-4 text-sm text-muted-foreground">
+        <p className="font-semibold text-foreground font-serif persona-accent">{theme.decorative.accentSymbol} Current persona</p>
+        <p className="text-sm font-medium font-serif">{persona.name}</p>
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{persona.description}</p>
+        <div className="mt-4 rounded-xl border border-persona/60 bg-background/60 p-3 text-xs">
           <p className="font-semibold text-foreground">Latest exchange</p>
           {conversation.messages.length === 0 ? (
             <p className="text-muted-foreground">No messages yet. Open the workspace to start chatting.</p>

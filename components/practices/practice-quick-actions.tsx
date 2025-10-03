@@ -24,12 +24,12 @@ export function PracticeQuickActions() {
   const visiblePractices = practicesData?.slice(0, 6) ?? [];
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-      <header className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Quick log</p>
-        <h2 className="text-2xl font-semibold">Tap practices as you complete them</h2>
+    <section className="philosophy-card p-6 animate-fade-in-up">
+      <header className="space-y-2">
+        <p className="text-2xs uppercase tracking-[0.35em] text-muted-foreground font-medium">Quick log</p>
+        <h2 className="text-3xl font-serif font-semibold">Tap practices as you complete them</h2>
       </header>
-      <div className="mt-5 grid gap-3">
+      <div className="mt-5 grid gap-2.5">
         {(practicesLoading || progressLoading) && (
           <p className="text-sm text-muted-foreground">Loading practices…</p>
         )}
@@ -47,7 +47,7 @@ export function PracticeQuickActions() {
               key={practice.id}
               type="button"
               variant={isCompleted ? "secondary" : "outline"}
-              className="flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm"
+              className="flex items-center justify-between rounded-xl border px-4 py-3.5 text-left text-sm transition-all hover:shadow-philosophy hover:border-primary/30"
               disabled={mutation.isPending}
               onClick={() =>
                 mutation.mutate(
@@ -68,13 +68,13 @@ export function PracticeQuickActions() {
                 )
               }
             >
-              <span className="flex flex-col text-left">
+              <span className="flex flex-col text-left gap-1">
                 <span className="font-semibold text-foreground">{practice.name}</span>
                 {practice.description ? (
-                  <span className="text-xs text-muted-foreground">{practice.description}</span>
+                  <span className="text-xs text-muted-foreground leading-relaxed">{practice.description}</span>
                 ) : null}
               </span>
-              <Icon className="size-5 text-primary" aria-hidden />
+              <Icon className="size-5 text-primary flex-shrink-0" aria-hidden />
             </Button>
           );
         })}
