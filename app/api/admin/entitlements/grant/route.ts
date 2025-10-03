@@ -101,6 +101,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id,
         product_id,
+        entitlement_type: "coach_access", // All coach personas use this type
         is_active: true,
         source: "manual_grant",
         expires_at: expires_at || null,
