@@ -3,7 +3,14 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
-      "Bash(cat database/migrations/add_source_to_entitlements.sql)"
+      "Bash(cat database/migrations/add_source_to_entitlements.sql)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run build:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next build:*)"
     ],
     "deny": [],
     "ask": []

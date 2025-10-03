@@ -6,7 +6,7 @@ import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Mail, Calendar, Crown } from "lucide-react";
+import { Search, User, Calendar, Crown } from "lucide-react";
 
 interface User {
   user_id: string;

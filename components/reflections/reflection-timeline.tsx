@@ -57,7 +57,7 @@ export function ReflectionTimeline({ reflections, onSelect }: ReflectionTimeline
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-muted-foreground">
                   <span className="persona-accent">{reflection.type}</span>
-                  <span className="persona-accent">{theme.decorative.bullet}</span>
+                  <span className="persona-accent">{theme.decorative.bulletPoint}</span>
                   <span>{reflection.virtueFocus ?? "No virtue"}</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">

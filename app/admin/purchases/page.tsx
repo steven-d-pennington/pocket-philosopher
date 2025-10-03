@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,15 +24,14 @@ export default function AdminPurchases() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermInput, setSearchTermInput] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRevenue, setTotalRevenue] = useState(0);
 
-  useEffect(() => {
-    fetchPurchases();
-  }, [page, searchTerm]);
+  const fetchPurchases = useCallback(async () => {
+    setLoading(true);
 
-  const fetchPurchases = async () => {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -52,12 +51,16 @@ export default function AdminPurchases() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm]);
+
+  useEffect(() => {
+    fetchPurchases();
+  }, [fetchPurchases]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchPurchases();
+    setSearchTerm(searchTermInput);
   };
 
   const formatCurrency = (cents: number, currency: string = "usd") => {
@@ -151,8 +154,8 @@ export default function AdminPurchases() {
                 <Input
                   type="text"
                   placeholder="Search by email, product, or transaction ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchTermInput}
+                  onChange={(e) => setSearchTermInput(e.target.value)}
                   className="w-full"
                 />
               </div>

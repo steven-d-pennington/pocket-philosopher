@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export async function adminAuthMiddleware(_request: NextRequest) {
+export async function adminAuthMiddleware(request: NextRequest) {
   // Check if admin dashboard is enabled
   if (process.env.ADMIN_DASHBOARD !== "true") {
     return NextResponse.json(
@@ -36,7 +36,7 @@ export async function adminAuthMiddleware(_request: NextRequest) {
 
     // TEMP: Skip admin check for testing - allow all authenticated users
     // TODO: Re-enable proper admin checking once service role client is working
-    console.log("Admin API access granted for user:", user.id);
+    console.log(`Admin API access granted: ${request.method} ${request.nextUrl.pathname} for user ${user.id}`);
 
     // User is authenticated
     return null; // Continue to the route

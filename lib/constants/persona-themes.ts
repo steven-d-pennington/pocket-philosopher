@@ -210,6 +210,84 @@ export const personaThemes: Record<string, PersonaTheme> = {
       bulletPoint: "▸",          // Arrow
     },
   },
+  aristotle: {
+    id: "aristotle",
+    name: "Aristotle",
+
+    colors: {
+      primary: "38 70% 48%",            // Golden balance
+      primaryLight: "38 70% 68%",
+      primaryDark: "38 75% 30%",
+      accent: "210 40% 48%",            // Academy blue
+      accentLight: "210 40% 68%",
+      gradient: "linear-gradient(135deg, hsl(38 70% 48% / 0.12) 0%, hsl(210 40% 48% / 0.06) 100%)",
+    },
+
+    typography: {
+      headingFont: "'Crimson Pro', Georgia, serif",
+      bodyFont: "'Inter', sans-serif",
+      quoteFont: "'Cormorant', Georgia, serif",
+    },
+
+    visual: {
+      cardStyle: "rounded-xl border-primary/25 shadow-md",
+      borderStyle: "border",
+      shadowStyle: "shadow-[0_6px_24px_rgb(0,0,0,0.1)]",
+      textureOverlay: "parchment",
+      iconStyle: "classic",
+    },
+
+    personality: {
+      tone: "Scholarly and balanced",
+      emphasis: "Habit and practical wisdom",
+      pace: "steady",
+    },
+
+    decorative: {
+      divider: "||",             // Golden mean marker
+      accentSymbol: "*",          // Guiding star
+      bulletPoint: "-",          // Balanced marker
+    },
+  },
+  plato: {
+    id: "plato",
+    name: "Plato",
+
+    colors: {
+      primary: "250 60% 52%",          // Academy violet
+      primaryLight: "250 60% 72%",
+      primaryDark: "250 65% 32%",
+      accent: "200 55% 52%",           // Aegean blue
+      accentLight: "200 55% 72%",
+      gradient: "linear-gradient(135deg, hsl(250 60% 52% / 0.12) 0%, hsl(200 55% 52% / 0.06) 100%)",
+    },
+
+    typography: {
+      headingFont: "'Crimson Pro', Georgia, serif",
+      bodyFont: "'Inter', sans-serif",
+      quoteFont: "'Cormorant', Georgia, serif",
+    },
+
+    visual: {
+      cardStyle: "rounded-3xl border-primary/20 shadow-lg",
+      borderStyle: "border",
+      shadowStyle: "shadow-[0_8px_28px_rgb(0,0,0,0.12)]",
+      textureOverlay: "starlight",
+      iconStyle: "geometric",
+    },
+
+    personality: {
+      tone: "Curious and dialectical",
+      emphasis: "Truth and ideal forms",
+      pace: "contemplative",
+    },
+
+    decorative: {
+      divider: "::",             // Dialogic pause
+      accentSymbol: "^",          // Rising insight
+      bulletPoint: ">",          // Pointer toward ideals
+    },
+  },
 };
 
 /**
@@ -262,6 +340,18 @@ export const personaUIPatterns = {
     headingStyle: "font-bold tracking-wide uppercase",
     quoteStyle: "border-l-2 border-l-primary/50 pl-4 font-medium",
   },
+  aristotle: {
+    cardClass: "border border-primary/30",
+    buttonStyle: "font-semibold tracking-wide",
+    headingStyle: "font-serif font-semibold tracking-tight",
+    quoteStyle: "border-l-4 border-l-primary/40 pl-4 italic font-serif",
+  },
+  plato: {
+    cardClass: "border border-primary/25",
+    buttonStyle: "font-medium uppercase tracking-wide",
+    headingStyle: "font-serif font-semibold tracking-tight",
+    quoteStyle: "border-l-4 border-l-primary/35 pl-4 italic font-serif",
+  },
 };
 
 /**
@@ -272,4 +362,6 @@ export const personaAnimationDurations = {
   lao: 400,         // Flowing/slower
   simone: 300,      // Deliberate
   epictetus: 150,   // Purposeful/quick
+  aristotle: 240,   // Balanced cadence
+  plato: 260,       // Reflective tempo
 };

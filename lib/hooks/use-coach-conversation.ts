@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { CoachCitation } from "@/lib/ai/types";
+import type { CoachMessage } from "@/lib/stores/coach-store";
 import {
   selectActiveConversation,
   selectActivePersona,
@@ -15,6 +16,22 @@ interface ParsedEvent<T = unknown> {
 }
 
 const decoder = new TextDecoder();
+
+interface CoachConversationSummary {
+  id: string;
+  title: string;
+  activePersona: string | null;
+  updatedAt: string;
+}
+
+interface ConversationMessageRow {
+  id?: string;
+  role?: string;
+  content?: string;
+  created_at?: string;
+  persona_id?: string | null;
+  citations?: unknown;
+}
 
 function parseSSEEvents(buffer: string): ParsedEvent[] {
   const events: ParsedEvent[] = [];
@@ -51,6 +68,127 @@ export function useCoachConversation() {
   const conversation = useCoachStore(selectActiveConversation);
   const conversationMode = useCoachStore((state) => state.conversationMode);
   const actions = useCoachStore((state) => state.actions);
+
+  const [history, setHistory] = useState<CoachConversationSummary[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [loadingConversationId, setLoadingConversationId] = useState<string | null>(null);
+  const lastHydratedConversationId = useRef<string | undefined>(conversation.conversationId);
+
+  const refreshHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    setHistoryError(null);
+    try {
+      const response = await fetch("/api/marcus", { method: "GET" });
+      if (!response.ok) {
+        throw new Error(`Failed to load conversations (${response.status})`);
+      }
+
+      const payload = await response.json();
+      const summaries: CoachConversationSummary[] = Array.isArray(payload?.conversations)
+        ? payload.conversations.map((item: Record<string, unknown>) => ({
+            id: String(item.id ?? ""),
+            title: typeof item.title === "string" && item.title.trim()
+              ? item.title.trim()
+              : "Untitled conversation",
+            activePersona: typeof item.active_persona === "string" ? item.active_persona : null,
+            updatedAt: typeof item.updated_at === "string" ? item.updated_at : new Date().toISOString(),
+          }))
+        : [];
+
+      setHistory(summaries.filter((summary) => Boolean(summary.id)));
+    } catch (error) {
+      console.error("Failed to load coach conversation history", error);
+      setHistoryError(error instanceof Error ? error.message : "Unknown error");
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  const loadConversation = useCallback(
+    async (conversationId: string) => {
+      if (!conversationId) return;
+      setLoadingConversationId(conversationId);
+
+      try {
+        const response = await fetch(`/api/marcus?conversation_id=${conversationId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to load conversation (${response.status})`);
+        }
+
+        const payload = await response.json();
+        const conversationPersona =
+          typeof payload?.conversation?.active_persona === "string"
+            ? payload.conversation.active_persona
+            : persona?.id;
+
+        if (!conversationPersona) {
+          throw new Error("Conversation does not include a persona id");
+        }
+
+        const toCoachMessage = (row: ConversationMessageRow): CoachMessage | null => {
+          const id = typeof row.id === "string" && row.id ? row.id : crypto.randomUUID();
+          const role = row.role === "assistant" ? "coach" : row.role === "system" ? "system" : "user";
+          if (typeof row.content !== "string") {
+            return null;
+          }
+
+          let citations: CoachCitation[] | undefined;
+          if (Array.isArray(row.citations)) {
+            citations = row.citations as CoachCitation[];
+          }
+
+          return {
+            id,
+            personaId: typeof row.persona_id === "string" && row.persona_id ? row.persona_id : conversationPersona,
+            role,
+            content: row.content,
+            createdAt:
+              typeof row.created_at === "string" && row.created_at
+                ? row.created_at
+                : new Date().toISOString(),
+            citations,
+          };
+        };
+
+        const mappedMessages = Array.isArray(payload?.messages)
+          ? payload.messages
+              .map((row: ConversationMessageRow) => toCoachMessage(row))
+              .filter((message): message is CoachMessage => Boolean(message))
+          : [];
+
+        actions.hydrateConversation(conversationPersona, conversationId, mappedMessages);
+        actions.selectPersona(conversationPersona);
+        lastHydratedConversationId.current = conversationId;
+
+        // Ensure updated list so ordering reflects latest selection
+        void refreshHistory();
+      } catch (error) {
+        console.error("Failed to load conversation", error);
+        setHistoryError(error instanceof Error ? error.message : "Unknown error");
+      } finally {
+        setLoadingConversationId(null);
+      }
+    },
+    [actions, persona?.id, refreshHistory],
+  );
+
+  useEffect(() => {
+    void refreshHistory();
+  }, [refreshHistory]);
+
+  useEffect(() => {
+    const activeId = conversation.conversationId;
+    if (activeId && lastHydratedConversationId.current !== activeId) {
+      lastHydratedConversationId.current = activeId;
+      void refreshHistory();
+    }
+  }, [conversation.conversationId, refreshHistory]);
+
+  const historyForPersona = useMemo(() => {
+    if (!persona) return history;
+    return history.filter((item) => !item.activePersona || item.activePersona === persona.id);
+  }, [history, persona]);
 
   const sendMessage = useCallback(
     (input: string) => {
@@ -141,6 +279,7 @@ export function useCoachConversation() {
                       : undefined,
                     tokens: typeof data.tokens === "number" ? data.tokens : undefined,
                   });
+                  void refreshHistory();
 
                   // Performance monitoring
                   const posthog = (window as Window & { posthog?: { capture: (event: string, data: Record<string, unknown>) => void } }).posthog;
@@ -228,7 +367,7 @@ export function useCoachConversation() {
 
       return userMessage.id;
     },
-    [actions, persona, conversation.conversationId, conversationMode],
+    [actions, persona, conversation.conversationId, conversationMode, refreshHistory],
   );
 
   const resetConversation = useCallback(() => {
@@ -241,5 +380,11 @@ export function useCoachConversation() {
     conversation,
     sendMessage,
     resetConversation,
+    conversationHistory: historyForPersona,
+    historyLoading,
+    historyError,
+    loadConversation,
+    loadingConversationId,
+    refreshHistory,
   };
 }

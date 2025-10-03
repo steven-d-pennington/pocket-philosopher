@@ -8,6 +8,12 @@ import { useCoachStore } from "@/lib/stores/coach-store";
 import { getSuggestedPractice } from "@/lib/constants/persona-practices";
 import { usePracticeModalStore } from "@/lib/stores/practice-modal-store";
 
+const suggestionDifficultyMap = {
+  beginner: "easy",
+  intermediate: "medium",
+  advanced: "hard",
+} as const;
+
 export function PersonaSuggestedPractice() {
   const { theme, personaId } = usePersonaTheme();
   const activePersonaId = useCoachStore((state) => state.activePersonaId);
@@ -24,6 +30,7 @@ export function PersonaSuggestedPractice() {
       description: suggestion.description,
       virtue: suggestion.virtue,
       frequency: suggestion.frequency,
+      difficulty: suggestionDifficultyMap[suggestion.difficulty],
     });
   };
 
@@ -34,7 +41,7 @@ export function PersonaSuggestedPractice() {
           <Lightbulb className="size-6 persona-accent flex-shrink-0 mt-1" aria-hidden />
           <div className="space-y-1">
             <p className="text-2xs uppercase tracking-[0.35em] text-muted-foreground font-medium">
-              {persona?.name}'s recommendation
+              {persona?.name}&apos;s recommendation
             </p>
             <h2 className="text-xl font-serif font-semibold flex items-center gap-2">
               <span className="persona-accent text-base">{theme.decorative.divider}</span>
@@ -69,7 +76,7 @@ export function PersonaSuggestedPractice() {
             </span>
           </div>
           <p className="text-sm text-foreground italic leading-relaxed">
-            "{suggestion.rationale}"
+            &ldquo;{suggestion.rationale}&rdquo;
           </p>
         </div>
 
@@ -80,7 +87,7 @@ export function PersonaSuggestedPractice() {
               {suggestion.virtue}
             </span>
           </div>
-          <span className="text-muted-foreground">{theme.decorative.bullet}</span>
+          <span className="text-muted-foreground">{theme.decorative.bulletPoint}</span>
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Frequency:</span>
             <span className="capitalize text-foreground font-medium">

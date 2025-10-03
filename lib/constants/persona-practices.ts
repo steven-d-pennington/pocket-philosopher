@@ -236,7 +236,109 @@ export const epictetusPractices: PracticeRecommendation[] = [
 
 /**
  * Get practice recommendations for a specific persona
- */
+ */export const aristotlePractices: PracticeRecommendation[] = [
+  {
+    name: "Golden Mean Audit",
+    description: "Review a recent decision and identify where excess or deficiency showed up. Sketch a balanced alternative.",
+    virtue: "Wisdom",
+    frequency: "daily",
+    rationale: "Aristotle taught that virtue is found between extremes. Conscious review trains the mind to seek balance.",
+    difficulty: "intermediate",
+  },
+  {
+    name: "Virtue Journaling",
+    description: "Write three lines on how you expressed a chosen virtue today and where you could adjust tomorrow.",
+    virtue: "Practical wisdom",
+    frequency: "daily",
+    rationale: "Reflection converts knowledge into habit by reinforcing which actions align with excellence.",
+    difficulty: "beginner",
+  },
+  {
+    name: "Deliberative Walk",
+    description: "Take a short walk while reasoning through an upcoming decision: end, means, and impact on character.",
+    virtue: "Practical wisdom",
+    frequency: "weekly",
+    rationale: "Movement paired with reason clarifies intention and prevents rushed judgments.",
+    difficulty: "intermediate",
+  },
+  {
+    name: "Friendship of Excellence",
+    description: "Schedule time with someone who challenges you toward the good. Discuss a virtue you both want to strengthen.",
+    virtue: "Justice",
+    frequency: "weekly",
+    rationale: "Noble friendships, according to Aristotle, mirror virtues back to us and accelerate growth.",
+    difficulty: "beginner",
+  },
+  {
+    name: "Habit Calibration",
+    description: "Choose one habit and adjust it slightly toward moderation-either by reducing excess or adding needed effort.",
+    virtue: "Temperance",
+    frequency: "weekly",
+    rationale: "Small adjustments keep habits anchored in the golden mean rather than drifting toward extremes.",
+    difficulty: "intermediate",
+  },
+  {
+    name: "Eudaimonia Planning",
+    description: "Outline a project that expresses your highest purpose, then identify the virtues required to complete it.",
+    virtue: "Wisdom",
+    frequency: "custom",
+    rationale: "Flourishing arises when long-term aims and daily actions reinforce each other. Planning links the two.",
+    difficulty: "advanced",
+  },
+];
+
+export const platoPractices: PracticeRecommendation[] = [
+  {
+    name: "Socratic Self-Dialogue",
+    description: "Pose a challenging question to yourself, answer it, and then challenge that answer with a deeper why. Repeat three times.",
+    virtue: "Wisdom",
+    frequency: "daily",
+    rationale: "Plato advanced knowledge through dialectic. Questioning peels away assumptions and reveals clearer insight.",
+    difficulty: "intermediate",
+  },
+  {
+    name: "Allegory of the Cave Check",
+    description: "Identify one area where you might be mistaking shadows for truth. List evidence that could reveal a deeper reality.",
+    virtue: "Truth",
+    frequency: "weekly",
+    rationale: "Regularly testing appearances keeps you aligned with the pursuit of genuine understanding.",
+    difficulty: "intermediate",
+  },
+  {
+    name: "Harmonize the Soul",
+    description: "Rate the state of appetite, spirit, and reason on a scale of calm to unruly. Choose one action to restore harmony.",
+    virtue: "Temperance",
+    frequency: "daily",
+    rationale: "Plato held that a just life balances the parts of the soul. Awareness is the first step toward balance.",
+    difficulty: "beginner",
+  },
+  {
+    name: "Forms Reflection",
+    description: "Spend five minutes contemplating the ideal form of a virtue you need today. Visualize how it would guide your next decision.",
+    virtue: "Justice",
+    frequency: "daily",
+    rationale: "Aligning with higher ideals gives concrete choices a stable reference point.",
+    difficulty: "beginner",
+  },
+  {
+    name: "Dialogic Walk",
+    description: "Invite a partner for a walking conversation where each person explores a question with open curiosity.",
+    virtue: "Wisdom",
+    frequency: "weekly",
+    rationale: "Shared inquiry was central to Plato's Academy and keeps thinking agile.",
+    difficulty: "intermediate",
+  },
+  {
+    name: "Ideal State Sketch",
+    description: "Outline what a just outcome would look like in a current challenge. Work backward to identify the practical steps to approach it.",
+    virtue: "Justice",
+    frequency: "custom",
+    rationale: "Imagining the ideal clarifies how present actions can move closer to it.",
+    difficulty: "advanced",
+  },
+];
+
+
 export function getPracticeRecommendations(personaId: string): PracticeRecommendation[] {
   switch (personaId) {
     case "marcus":
@@ -247,6 +349,10 @@ export function getPracticeRecommendations(personaId: string): PracticeRecommend
       return simonePractices;
     case "epictetus":
       return epictetusPractices;
+    case "aristotle":
+      return aristotlePractices;
+    case "plato":
+      return platoPractices;
     default:
       return marcusPractices;
   }

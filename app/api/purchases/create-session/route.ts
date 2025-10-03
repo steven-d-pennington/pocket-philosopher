@@ -3,9 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil",
-});
+const stripeApiVersion: Stripe.StripeConfig["apiVersion"] = "2025-08-27.basil";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,15 +17,18 @@ export async function POST(request: NextRequest) {
             return cookieStore.get(name)?.value;
           },
         },
-      }
+      },
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -36,11 +37,10 @@ export async function POST(request: NextRequest) {
     if (!productId) {
       return NextResponse.json(
         { error: "Product ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Check if user already owns this product
     const { data: existingEntitlement } = await supabase
       .from("entitlements")
       .select("id")
@@ -52,11 +52,10 @@ export async function POST(request: NextRequest) {
     if (existingEntitlement) {
       return NextResponse.json(
         { error: "You already own this product" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Get product details
     const { data: product, error: productError } = await supabase
       .from("products")
       .select("*")
@@ -67,11 +66,23 @@ export async function POST(request: NextRequest) {
     if (productError || !product) {
       return NextResponse.json(
         { error: "Product not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Create Stripe checkout session
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    if (!secretKey || !appUrl) {
+      console.error("Stripe checkout environment variables are not configured");
+      return NextResponse.json(
+        { error: "Checkout is temporarily unavailable" },
+        { status: 500 },
+      );
+    }
+
+    const stripe = new Stripe(secretKey, { apiVersion: stripeApiVersion });
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -88,13 +99,13 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?canceled=true`,
+      success_url: `${appUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/dashboard?canceled=true`,
       metadata: {
         user_id: user.id,
         product_id: productId,
       },
-      customer_email: user.email,
+      customer_email: user.email ?? undefined,
     });
 
     return NextResponse.json({
@@ -105,7 +116,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(
       { error: "Failed to create checkout session" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

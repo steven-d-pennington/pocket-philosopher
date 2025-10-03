@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,22 +24,28 @@ import {
 
 export function CreatePracticeModal() {
   const mode = usePracticeModalStore((state) => state.mode);
+  const draft = usePracticeModalStore((state) => state.draft);
   const { close } = usePracticeModalStore((state) => state.actions);
   const mutation = useCreatePracticeMutation();
   const { capture: track } = useAnalytics();
 
+  const defaultValues = useMemo<PracticeFormValues>(() => ({
+    name: draft?.name ?? "",
+    description: draft?.description ? draft.description : "",
+    virtue: draft?.virtue ?? virtueOptions[0],
+    frequency: draft?.frequency ?? "daily",
+    difficulty: draft?.difficulty ?? "medium",
+    reminderTime: draft?.reminderTime ?? "",
+    tags: Array.isArray(draft?.tags) ? draft?.tags?.join(", ") ?? "" : "",
+    activeDays:
+      draft?.activeDays && draft.activeDays.length > 0
+        ? [...draft.activeDays]
+        : [1, 2, 3, 4, 5, 6, 7],
+  }), [draft]);
+
   const form = useForm<PracticeFormValues>({
     resolver: zodResolver(practiceFormSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      virtue: virtueOptions[0],
-      frequency: "daily",
-      difficulty: "medium",
-      reminderTime: "",
-      tags: "",
-      activeDays: [1, 2, 3, 4, 5, 6, 7],
-    },
+    defaultValues,
   });
 
   const { watch, setValue, reset, formState, handleSubmit, register } = form;
@@ -48,10 +54,14 @@ export function CreatePracticeModal() {
   const open = mode === "create";
 
   useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  useEffect(() => {
     if (!open) {
-      reset();
+      reset(defaultValues);
     }
-  }, [open, reset]);
+  }, [open, defaultValues, reset]);
 
   const toggleDay = (day: number) => {
     if (activeDays.includes(day)) {

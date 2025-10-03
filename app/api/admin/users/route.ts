@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { adminAuthMiddleware } from "@/lib/middleware/admin-auth";
 import { createAdminClient } from "@/lib/admin/supabase-admin";
 
@@ -10,21 +8,6 @@ export async function GET(request: NextRequest) {
   if (authResult) return authResult;
 
   try {
-    const cookieStore = await cookies();
-
-    // Create two clients: one with anon key for auth check, one with service role for admin operations
-    const anonSupabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
-
     // Service role client for admin operations
     const supabase = createAdminClient();
 
@@ -32,7 +15,6 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const search = searchParams.get("search") || "";
-    const offset = (page - 1) * limit;
 
     // First, get all users from auth with pagination
     const { data: authData, error: authError } = await supabase.auth.admin.listUsers({

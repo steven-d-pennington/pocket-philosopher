@@ -47,6 +47,7 @@ export function AccountActionsPanel({ userId, onActionComplete }: Props) {
         throw new Error("Failed to disable account");
       }
     } catch (error) {
+      console.error("Failed to disable account:", error);
       toast({
         title: "Error",
         description: "Failed to disable account. Please try again.",
@@ -77,6 +78,7 @@ export function AccountActionsPanel({ userId, onActionComplete }: Props) {
         throw new Error("Failed to enable account");
       }
     } catch (error) {
+      console.error("Failed to enable account:", error);
       toast({
         title: "Error",
         description: "Failed to enable account. Please try again.",
@@ -104,6 +106,7 @@ export function AccountActionsPanel({ userId, onActionComplete }: Props) {
         throw new Error("Failed to send reset email");
       }
     } catch (error) {
+      console.error("Failed to send password reset email:", error);
       toast({
         title: "Error",
         description: "Failed to send password reset email. Please try again.",
@@ -191,7 +194,7 @@ export function AccountActionsPanel({ userId, onActionComplete }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Enable User Account</AlertDialogTitle>
             <AlertDialogDescription>
-              This will restore the user's ability to log in and access their account.
+              This will restore the user&apos;s ability to log in and access their account.
               Are you sure you want to continue?
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -214,7 +217,7 @@ export function AccountActionsPanel({ userId, onActionComplete }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Send Password Reset Email</AlertDialogTitle>
             <AlertDialogDescription>
-              This will send a password reset email to the user's registered email
+              This will send a password reset email to the user&apos;s registered email
               address. They will be able to set a new password using the link in the
               email.
             </AlertDialogDescription>

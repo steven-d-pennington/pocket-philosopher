@@ -7,7 +7,6 @@ import {
   generatePersonaThemeVars,
   personaUIPatterns,
   personaAnimationDurations,
-  type PersonaTheme 
 } from "@/lib/constants/persona-themes";
 
 /**
@@ -35,7 +34,7 @@ export function usePersonaTheme() {
  * Hook to get persona-specific class names
  */
 export function usePersonaClasses() {
-  const { theme, uiPatterns } = usePersonaTheme();
+  const { uiPatterns } = usePersonaTheme();
   
   return {
     // Card variants

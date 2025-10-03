@@ -80,6 +80,7 @@ export function UserEntitlementsTab({ userId, entitlements, purchases, onUpdate 
         throw new Error("Failed to revoke entitlement");
       }
     } catch (error) {
+      console.error("Failed to revoke entitlement:", error);
       toast({
         title: "Error",
         description: "Failed to revoke entitlement. Please try again.",
@@ -264,7 +265,7 @@ export function UserEntitlementsTab({ userId, entitlements, purchases, onUpdate 
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke Entitlement</AlertDialogTitle>
             <AlertDialogDescription>
-              This will immediately remove the user's access to this premium persona.
+              This will immediately remove the user&apos;s access to this premium persona.
               Are you sure you want to continue?
             </AlertDialogDescription>
           </AlertDialogHeader>

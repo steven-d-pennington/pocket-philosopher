@@ -330,7 +330,133 @@ export const epictetusInsights: PersonaInsight[] = [
 
 /**
  * Get insights for a specific persona
- */
+ */export const aristotleInsights: PersonaInsight[] = [
+  {
+    title: "Practice the golden mean",
+    content: "Notice where your reactions lean toward excess or deficiency. Adjust one choice today toward the balanced middle that expresses virtue.",
+    category: "wisdom",
+    timeframe: "anytime",
+  },
+  {
+    title: "Align habits with purpose",
+    content: "Begin the day by naming the purpose behind your most important task. When purpose guides action, habit becomes a path to excellence.",
+    category: "practice",
+    timeframe: "morning",
+  },
+  {
+    title: "Treat feelings as signals",
+    content: "Emotions reveal beliefs. Pause to ask what each feeling is pointing to. Respond with reason rather than suppression or indulgence.",
+    category: "mindset",
+    timeframe: "anytime",
+  },
+  {
+    title: "Deliberate, then decide",
+    content: "List the likely outcomes of your options. Consider what is noble, useful, and pleasant. Choose the action that harmonizes all three.",
+    category: "action",
+    timeframe: "anytime",
+  },
+  {
+    title: "Journal for practical wisdom",
+    content: "Answer three questions: What happened? Which virtue was at stake? How will I aim closer to the mean next time?",
+    category: "reflection",
+    timeframe: "evening",
+  },
+  {
+    title: "Invest in noble friendships",
+    content: "Reach out to someone who inspires your better self. Shared pursuit of virtue multiplies progress.",
+    category: "mindset",
+    timeframe: "anytime",
+  },
+  {
+    title: "Examine ends and means",
+    content: "Before acting, ask: Does this goal serve flourishing? Does the means respect virtue? If either answer is no, redesign the plan.",
+    category: "wisdom",
+    timeframe: "anytime",
+  },
+  {
+    title: "Turn learning into action",
+    content: "Choose one insight from recent study and convert it into a repeatable behavior. Knowledge ripens through practice.",
+    category: "practice",
+    timeframe: "morning",
+  },
+  {
+    title: "Name today's guiding virtue",
+    content: "Select a virtue to emphasize for the next few hours. Let it guide your tone, decisions, and responses.",
+    category: "action",
+    timeframe: "morning",
+  },
+  {
+    title: "Close with gratitude for progress",
+    content: "End the day by noting where you acted with balance. Recognize the improvement so your mind learns to repeat it.",
+    category: "reflection",
+    timeframe: "evening",
+  },
+];
+
+export const platoInsights: PersonaInsight[] = [
+  {
+    title: "Remember the form of the good",
+    content: "Ask yourself: How does this situation mirror the good, the true, and the beautiful? Let the answer orient your next step.",
+    category: "mindset",
+    timeframe: "morning",
+  },
+  {
+    title: "Distinguish shadows from reality",
+    content: "Identify one opinion you are treating as fact. Examine the evidence. What remains when assumptions fall away?",
+    category: "wisdom",
+    timeframe: "anytime",
+  },
+  {
+    title: "Ask the just question",
+    content: "Before deciding, ask: What would justice require here? This keeps personal preference aligned with the common good.",
+    category: "action",
+    timeframe: "anytime",
+  },
+  {
+    title: "Practice inner dialogue",
+    content: "Hold a brief conversation with yourself. Let one voice raise doubts and another answer with reason. Dialectic clarifies thought.",
+    category: "practice",
+    timeframe: "midday",
+  },
+  {
+    title: "Harmonize the parts of the soul",
+    content: "Notice whether appetite, spirit, or reason is steering you. Realign so that reason guides, spirit supports, and appetite follows.",
+    category: "mindset",
+    timeframe: "anytime",
+  },
+  {
+    title: "Seek wise companionship",
+    content: "Arrange a conversation with someone who challenges you to think beyond surface impressions. Shared inquiry lifts everyone.",
+    category: "action",
+    timeframe: "anytime",
+  },
+  {
+    title: "Review the cave",
+    content: "Identify a habit that keeps you chained to appearances. Imagine what freedom would look like if you turned toward the light.",
+    category: "reflection",
+    timeframe: "evening",
+  },
+  {
+    title: "Contemplate first principles",
+    content: "Spend five quiet minutes tracing a practical question back to its first principles. Understanding origin clarifies response.",
+    category: "wisdom",
+    timeframe: "morning",
+  },
+  {
+    title: "Leave the comfortable opinion",
+    content: "Choose one belief you rarely question. Explore alternative viewpoints sincerely. Growth begins where certainty loosens.",
+    category: "practice",
+    timeframe: "midday",
+  },
+  {
+    title: "Evening ascent",
+    content: "Close the day by asking: Which actions brought me closer to truth, and which led me back to shadows? Resolve to choose the higher path tomorrow.",
+    category: "reflection",
+    timeframe: "evening",
+  },
+];
+
+
 export function getInsightsForPersona(personaId: string): PersonaInsight[] {
   switch (personaId) {
     case "marcus":
@@ -341,6 +467,10 @@ export function getInsightsForPersona(personaId: string): PersonaInsight[] {
       return simoneInsights;
     case "epictetus":
       return epictetusInsights;
+    case "aristotle":
+      return aristotleInsights;
+    case "plato":
+      return platoInsights;
     default:
       return marcusInsights;
   }

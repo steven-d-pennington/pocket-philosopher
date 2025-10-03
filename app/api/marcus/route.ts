@@ -30,6 +30,47 @@ export async function GET(request: Request) {
     return respondWithError(logger, "Unauthorized", { status: 401 });
   }
 
+  const url = new URL(request.url);
+  const conversationId = url.searchParams.get("conversation_id");
+
+  if (conversationId) {
+    const { data: conversation, error: conversationError } = await supabase
+      .from("marcus_conversations")
+      .select("id, title, active_persona, updated_at")
+      .eq("id", conversationId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (conversationError) {
+      logger.error("Failed to load conversation detail", conversationError, { conversationId });
+      return respondWithError(logger, "Failed to load conversation", { status: 500 });
+    }
+
+    if (!conversation) {
+      logger.warn("Conversation not found", { conversationId });
+      return respondWithError(logger, "Conversation not found", { status: 404 });
+    }
+
+    const { data: messages, error: messagesError } = await supabase
+      .from("marcus_messages")
+      .select("id, role, content, created_at, persona_id, citations")
+      .eq("conversation_id", conversationId)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(100);
+
+    if (messagesError) {
+      logger.error("Failed to load conversation messages", messagesError, { conversationId });
+      return respondWithError(logger, "Failed to load conversation messages", { status: 500 });
+    }
+
+    logger.info("Conversation detail retrieved", { conversationId, messageCount: messages?.length ?? 0 });
+    return respondWithSuccess(logger, {
+      conversation,
+      messages: messages ?? [],
+    });
+  }
+
   const { data, error: dbError } = await supabase
     .from("marcus_conversations")
     .select("id, title, active_persona, updated_at")
@@ -231,5 +272,4 @@ export async function POST(request: Request) {
     },
   });
 }
-
 

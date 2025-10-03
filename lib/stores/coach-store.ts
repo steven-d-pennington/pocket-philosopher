@@ -54,6 +54,11 @@ interface CoachState {
     setTyping: (personaId: string, value: boolean) => void;
     resetConversation: (personaId: string) => void;
     setConversationId: (personaId: string, conversationId: string) => void;
+    hydrateConversation: (
+      personaId: string,
+      conversationId: string,
+      messages: CoachMessage[],
+    ) => void;
   };
 }
 
@@ -97,6 +102,22 @@ const defaultPersonas: CoachPersona[] = [
     description: "Separate what you can control from the rest and train resilient focus.",
     expertise: ["Discipline", "Resilience", "Practicality"],
     accentColor: "bg-amber-500",
+  },
+  {
+    id: "aristotle",
+    name: "Aristotle",
+    title: "Virtue Guide",
+    description: "Balance reason and habit to pursue eudaimonia through the golden mean.",
+    expertise: ["Virtue ethics", "Practical wisdom", "Habits"],
+    accentColor: "bg-amber-600",
+  },
+  {
+    id: "plato",
+    name: "Plato",
+    title: "Truth Seeker",
+    description: "Use dialectic inquiry to uncover higher ideals and act with justice.",
+    expertise: ["Dialectic", "Justice", "Metaphysics"],
+    accentColor: "bg-indigo-600",
   },
 ];
 
@@ -232,6 +253,15 @@ export const useCoachStore = create<CoachState>()(
         set((state) => {
           const conversation = ensureConversation(state, personaId);
           conversation.conversationId = conversationId;
+        });
+      },
+      hydrateConversation: (personaId, conversationId, messages) => {
+        set((state) => {
+          const conversation = ensureConversation(state, personaId);
+          conversation.messages = messages;
+          conversation.conversationId = conversationId;
+          conversation.isStreaming = false;
+          conversation.typing = false;
         });
       },
     },

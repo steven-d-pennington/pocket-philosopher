@@ -397,7 +397,185 @@ export const epictetusPrompts = {
 
 /**
  * Get reflection prompts for a specific persona and time of day
- */
+ */export const aristotlePrompts = {
+  morning: [
+    {
+      question: "Which virtue needs the closest attention today?",
+      type: "morning" as const,
+      depth: "surface" as const,
+    },
+    {
+      question: "Where do I risk excess or deficiency in the hours ahead?",
+      type: "morning" as const,
+      virtue: "Temperance",
+      depth: "moderate" as const,
+    },
+    {
+      question: "What deliberate practice will move me toward eudaimonia today?",
+      type: "morning" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "Which friends or colleagues can I support in their pursuit of the good?",
+      type: "morning" as const,
+      virtue: "Justice",
+      depth: "surface" as const,
+    },
+    {
+      question: "How will reason guide my appetites and emotions today?",
+      type: "morning" as const,
+      depth: "deep" as const,
+    },
+  ],
+  midday: [
+    {
+      question: "Have my choices so far held to the golden mean?",
+      type: "midday" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "Which habit is forming through my repeated actions right now?",
+      type: "midday" as const,
+      depth: "surface" as const,
+    },
+    {
+      question: "Is there a nobler end I should redirect my effort toward today?",
+      type: "midday" as const,
+      virtue: "Wisdom",
+      depth: "deep" as const,
+    },
+    {
+      question: "How can I bring more balance to the next conversation I enter?",
+      type: "midday" as const,
+      virtue: "Justice",
+      depth: "moderate" as const,
+    },
+    {
+      question: "What small courageous act would move me toward excellence this afternoon?",
+      type: "midday" as const,
+      virtue: "Courage",
+      depth: "moderate" as const,
+    },
+  ],
+  evening: [
+    {
+      question: "Where did I find the mean between excess and deficiency today?",
+      type: "evening" as const,
+      depth: "surface" as const,
+    },
+    {
+      question: "What patterns of thought or action need recalibration tomorrow?",
+      type: "evening" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "Which virtue did I embody most strongly, and which requires more training?",
+      type: "evening" as const,
+      depth: "deep" as const,
+    },
+    {
+      question: "Did I act for noble ends or for pleasure alone?",
+      type: "evening" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "What gratitude do I feel for progress made in character today?",
+      type: "evening" as const,
+      depth: "surface" as const,
+    },
+  ],
+};
+
+export const platoPrompts = {
+  morning: [
+    {
+      question: "What truth or ideal will I keep before me today?",
+      type: "morning" as const,
+      depth: "surface" as const,
+    },
+    {
+      question: "Where might I still be dwelling among shadows rather than reality?",
+      type: "morning" as const,
+      depth: "deep" as const,
+    },
+    {
+      question: "How can I harmonize reason, spirit, and desire as the day begins?",
+      type: "morning" as const,
+      virtue: "Temperance",
+      depth: "moderate" as const,
+    },
+    {
+      question: "Which dialogue or relationship will help me grow in understanding today?",
+      type: "morning" as const,
+      virtue: "Justice",
+      depth: "surface" as const,
+    },
+    {
+      question: "If I aimed directly at the good, what would my first action be?",
+      type: "morning" as const,
+      depth: "moderate" as const,
+    },
+  ],
+  midday: [
+    {
+      question: "What assumption needs to be questioned right now?",
+      type: "midday" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "Am I acting from knowledge or merely opinion in this situation?",
+      type: "midday" as const,
+      depth: "deep" as const,
+    },
+    {
+      question: "How can I raise this conversation toward clarity and mutual benefit?",
+      type: "midday" as const,
+      virtue: "Justice",
+      depth: "moderate" as const,
+    },
+    {
+      question: "What would the ideal form of my current project look like?",
+      type: "midday" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "Where do I sense inner conflict among the soul's parts?",
+      type: "midday" as const,
+      virtue: "Courage",
+      depth: "surface" as const,
+    },
+  ],
+  evening: [
+    {
+      question: "Which of today's actions brought me closer to the good, the true, or the beautiful?",
+      type: "evening" as const,
+      depth: "surface" as const,
+    },
+    {
+      question: "Where did I accept appearances without examination?",
+      type: "evening" as const,
+      depth: "deep" as const,
+    },
+    {
+      question: "Did I help anyone else ascend toward clearer understanding today?",
+      type: "evening" as const,
+      virtue: "Justice",
+      depth: "moderate" as const,
+    },
+    {
+      question: "How balanced are the parts of my soul as I end the day?",
+      type: "evening" as const,
+      depth: "moderate" as const,
+    },
+    {
+      question: "What insight from today deserves deeper contemplation tomorrow?",
+      type: "evening" as const,
+      depth: "surface" as const,
+    },
+  ],
+};
+
+
 export function getReflectionPrompts(
   personaId: string,
   type: "morning" | "midday" | "evening"
@@ -411,6 +589,10 @@ export function getReflectionPrompts(
       return simonePrompts[type];
     case "epictetus":
       return epictetusPrompts[type];
+    case "aristotle":
+      return aristotlePrompts[type];
+    case "plato":
+      return platoPrompts[type];
     default:
       return marcusPrompts[type];
   }
