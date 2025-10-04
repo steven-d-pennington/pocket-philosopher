@@ -135,6 +135,7 @@ async function fetchFallbackChunks(
   excludeIds: string[],
   searchQuery: string | null,
   limit: number,
+  personaTradition?: string,
 ): Promise<CoachKnowledgeChunk[]> {
   let query = supabase
     .from("philosophy_chunks")
@@ -147,6 +148,11 @@ async function fetchFallbackChunks(
   if (excludeIds.length > 0) {
     const quoted = excludeIds.map((id) => `'${id}'`).join(",");
     query = query.not("id", "in", `(${quoted})`);
+  }
+
+  // Filter by tradition if provided (allows same-tradition fallback)
+  if (personaTradition) {
+    query = query.eq("tradition", personaTradition);
   }
 
   // Temporarily disable text search to test if chunks are found
@@ -210,9 +216,9 @@ function rerankChunks(
     const recency = recencyScore(chunk);
 
     const relevance =
-      semantic * 0.55 +
-      keywords * 0.25 +
-      personaAffinity * 0.15 +
+      semantic * 0.35 +
+      keywords * 0.20 +
+      personaAffinity * 0.40 +
       recency * 0.05;
 
     return { ...chunk, relevance } satisfies CoachKnowledgeChunk;
@@ -296,6 +302,7 @@ export async function retrieveKnowledgeForCoach(
     Array.from(personaIds),
     searchQuery,
     Math.max(limit, MAX_CANDIDATE_RESULTS - personaChunks.length),
+    persona.tradition,
   );
 
   const combined = [...personaChunks, ...fallback];

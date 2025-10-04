@@ -678,6 +678,299 @@
       ]
     },
     {
+      "title": "The Republic",
+      "author": "Plato",
+      "tradition": "platonic",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "The Allegory of the Cave",
+          "content": "Imagine human beings living in an underground cave, which has a mouth open towards the light and reaching all along the cave. Here they have been from their childhood, and have their legs and necks chained so that they cannot move, and can only see before them, being prevented by the chains from turning their heads. Above and behind them a fire is blazing at a distance, and between the fire and the prisoners there is a raised way; and you will see, if you look, a low wall built along the way, like the screen which puppet players have in front of them, over which they show the puppets. And do you see men passing along the wall carrying all sorts of vessels, and statues and figures of animals made of wood and stone and various materials, which appear over the wall? To them, the truth would be literally nothing but the shadows of the images. And now look again, and see what will naturally follow if the prisoners are released and disabused of their error. At first, when any of them is liberated and compelled suddenly to stand up and turn his neck around and walk and look towards the light, he will suffer sharp pains; the glare will distress him, and he will be unable to see the realities of which in his former state he had seen the shadows.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "epistemology",
+            "forms",
+            "enlightenment"
+          ],
+          "key_concepts": [
+            "theory of forms",
+            "enlightenment",
+            "illusion vs reality",
+            "philosophical education"
+          ],
+          "applications": [
+            "critical thinking",
+            "questioning assumptions",
+            "seeking truth",
+            "intellectual growth"
+          ]
+        },
+        {
+          "title": "The Theory of Forms",
+          "content": "We acknowledge that there exist both a beautiful that is absolute and a good that is absolute, and so on for all the things that we then set down as many. Now again we refer to them as belonging to a single Form of each as though the Form were a single thing, and we address it as 'that which is.' The many beautiful things and the rest which we previously described as many, we now describe conversely in accordance with a single Form, assuming it to be a single entity, and we call each of them 'what really is.' We say that the many beautiful things are the objects of sight but not of intelligence, while the Forms are the objects of intelligence but not of sight. Then what is that which sees? The eye, I suppose. And does not that which hears hear by means of the ear? By all means. But the eye cannot see itself; and similarly, that which knows has a knowable Form of knowledge. But the Good itself is not sight, nor is it knowledge, but it is the cause of both—something still more honorable than these.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "metaphysics",
+            "forms",
+            "knowledge"
+          ],
+          "key_concepts": [
+            "eternal forms",
+            "transcendental reality",
+            "participation",
+            "ultimate truth"
+          ],
+          "applications": [
+            "abstract thinking",
+            "pattern recognition",
+            "seeking deeper meaning",
+            "universal principles"
+          ]
+        },
+        {
+          "title": "Justice in the Soul",
+          "content": "Justice is produced in the soul when each part does its own work and does not meddle with what is not its own. The rational part ought to rule, being wise and exercising forethought on behalf of the whole soul; the spirited part ought to be its ally and supporter; and these two, thus nurtured and educated, should preside over the appetitive part, which comprises the greater bulk of each person's soul and is by nature most insatiable for wealth. They must watch over it, lest it become filled with the so-called pleasures of the body and, growing great and strong, no longer do its own work but attempt to enslave and rule over those which it is not fitted by kind to rule, thus overturning the whole life of all. And so the rational and spirited parts, when they have learned their own work and been educated in it, will preside over the appetitive part and keep watch, lest by being filled and saturated with the pleasures of the body, it becomes great and strong and no longer minds its own business.",
+          "virtue": "justice",
+          "persona_tags": [
+            "plato",
+            "ethics",
+            "soul",
+            "harmony"
+          ],
+          "key_concepts": [
+            "tripartite soul",
+            "psychic harmony",
+            "virtue as health of soul",
+            "internal order"
+          ],
+          "applications": [
+            "self-governance",
+            "emotional regulation",
+            "balancing desires",
+            "inner harmony"
+          ]
+        },
+        {
+          "title": "The Philosopher King",
+          "content": "Until philosophers rule as kings or those who are now called kings and leading men genuinely and adequately philosophize, that is, until political power and philosophy entirely coincide, while the many natures who at present pursue either one exclusively are forcibly prevented from doing so, cities will have no rest from evils, nor, I think, will the human race. And, until this happens, the constitution we've been describing in theory will never be born to the fullest extent possible or see the light of the sun. It is because I saw how very paradoxical this statement would be that I hesitated to make it for so long. For it is hard to face up to the fact that there can be no happiness, either public or private, in any other city. The true captain must pay attention to the seasons of the year, the sky, the stars, the winds, and all that pertains to his craft if he is to be a true ruler of a ship. So too must the philosopher-ruler understand the Forms and be able to guide the city accordingly.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "politics",
+            "governance",
+            "ideal_state"
+          ],
+          "key_concepts": [
+            "philosopher-king",
+            "rule of wisdom",
+            "ideal governance",
+            "political philosophy"
+          ],
+          "applications": [
+            "leadership",
+            "wise decision-making",
+            "public service",
+            "ethical governance"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Symposium",
+      "author": "Plato",
+      "tradition": "platonic",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "The Ladder of Love",
+          "content": "The true order of going, or being led by another, to the things of love, is to begin from the beauties of earth and mount upwards for the sake of that other beauty, using these steps only, and from one going on to two, and from two to all fair forms; and from fair forms to fair practices, and from fair practices to fair notions, until from fair notions he arrives at the notion of absolute beauty, and at last knows what the essence of beauty is. This, my dear Socrates, is that life above all others which man should live, in the contemplation of beauty absolute; a beauty which if you once beheld, you would see not to be after the measure of gold, and garments, and fair boys and youths, whose presence now entrances you. And you and many a one would be content to live seeing them only and conversing with them without meat or drink, if that were possible—you only want to look at them and to be with them. But what if man had eyes to see the true beauty—the divine beauty, I mean, pure and clear and unalloyed, not clogged with the pollutions of mortality and all the colors and vanities of human life?",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "love",
+            "beauty",
+            "ascent"
+          ],
+          "key_concepts": [
+            "platonic love",
+            "ascent to beauty",
+            "transcendence",
+            "eros"
+          ],
+          "applications": [
+            "spiritual growth",
+            "appreciation of beauty",
+            "intellectual love",
+            "transcending physical attraction"
+          ]
+        },
+        {
+          "title": "Diotima's Teaching",
+          "content": "Love is not a god but is rather a spirit that mediates between the human and divine realms. Love is wanting to possess the good forever. This is why all people who love seek to be creative both physically and spiritually, for creation is our drive toward immortality. Those who are pregnant in body are drawn more to women and pursue love in that way, seeking to provide themselves with immortality, remembrance, and happiness through having children. But those who are pregnant in soul—for there are some whose souls are more pregnant than their bodies—conceive that which is proper for a soul to conceive and bring forth: wisdom and all other virtue. The greatest and fairest sort of wisdom is that which is concerned with the ordering of cities and households, and that is called moderation and justice. When such a one from his youth has his soul pregnant with these virtues, and being arrived at manhood desires to beget and bring forth, he goes about seeking beauty in which he may beget—for he will never beget in deformity.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "love",
+            "creativity",
+            "virtue"
+          ],
+          "key_concepts": [
+            "spiritual pregnancy",
+            "creative love",
+            "pursuit of immortality",
+            "philosophical eros"
+          ],
+          "applications": [
+            "creative expression",
+            "mentorship",
+            "legacy building",
+            "intellectual pursuits"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Apology",
+      "author": "Plato",
+      "tradition": "platonic",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "The Unexamined Life",
+          "content": "The unexamined life is not worth living for a human being. For if I tell you that this would be disobedience to the god, and that therefore I cannot be silent, you will not believe me on the grounds that I am being ironic. And if I say again that the greatest good for a human being is to engage in daily discussion about virtue and the other things you hear me talking about, examining both myself and others—and that a life without this sort of examination is not worth living for a human being—you will believe me even less. This is how things are, gentlemen, though it is not easy to convince you. I am not accustomed to thinking that I deserve anything bad. If I had money, I would propose a fine of as much as I could pay, since that would not harm me at all. But as things stand, I cannot pay, unless you want to fix my fine at the sum I could afford. Perhaps I could pay you a mina of silver. So I propose a fine of that amount.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "socrates",
+            "self_knowledge",
+            "examination"
+          ],
+          "key_concepts": [
+            "self-examination",
+            "philosophical life",
+            "pursuit of wisdom",
+            "moral courage"
+          ],
+          "applications": [
+            "self-reflection",
+            "critical thinking",
+            "living deliberately",
+            "questioning beliefs"
+          ]
+        },
+        {
+          "title": "The Socratic Mission",
+          "content": "I go about doing nothing else than urging you, young and old, not to care for your bodies or for money more than for the perfection of your souls, or even so much; and I tell you that virtue does not come from money, but from virtue comes money and all other good things to man, both to the individual and to the state. If by saying these things I corrupt the youth, these things must be harmful. But if anyone asserts that I say other things than these, he says what is untrue. Therefore I would say, men of Athens, either be persuaded by Anytus or not, and either acquit me or not, knowing that I will not do otherwise even if I am to die many times over. You know, men of Athens, that the god stationed me here, as I think and believe, with orders to spend my life in philosophy, examining myself and others. To fear death is nothing other than to think oneself wise when one is not; for it is to think one knows what one does not know.",
+          "virtue": "courage",
+          "persona_tags": [
+            "plato",
+            "socrates",
+            "mission",
+            "fearlessness"
+          ],
+          "key_concepts": [
+            "divine mission",
+            "philosophical calling",
+            "moral integrity",
+            "facing death"
+          ],
+          "applications": [
+            "staying true to values",
+            "moral courage",
+            "accepting consequences",
+            "living with purpose"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Phaedo",
+      "author": "Plato",
+      "tradition": "platonic",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "Philosophy as Preparation for Death",
+          "content": "Those who practice philosophy in the right way are in training for dying and they fear death least of all people. Consider it thus: if they are altogether estranged from the body and desire to have their soul by itself alone, would it not be quite absurd for them to be afraid and resentful when this happens? Would they not willingly go to a place where, on arrival, they may hope to attain that for which they had yearned during their lifetime, that is, wisdom, and where they would be rid of the presence of that from which they are estranged? Many a man has been willing to go to the underworld, driven by the hope of seeing there an end of his love, or wife, or son, and conversing with them. Will then a true lover of wisdom, who has a firm grasp of this same hope and thinks that he will not find it to any extent except in Hades, be resentful of dying and not gladly undertake the journey thither?",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "death",
+            "soul",
+            "philosophy"
+          ],
+          "key_concepts": [
+            "philosophy as practice for death",
+            "immortality of soul",
+            "separation from body",
+            "pursuing wisdom"
+          ],
+          "applications": [
+            "accepting mortality",
+            "spiritual practice",
+            "letting go of material concerns",
+            "focusing on eternal"
+          ]
+        },
+        {
+          "title": "Recollection and Knowledge",
+          "content": "Learning is nothing other than recollection. According to this theory we must at some previous time have learned what we now recollect. This is only possible if our soul existed somewhere before it took on this human form. Thus the soul is likely to be immortal. We must have acquired our knowledge of all the realities before we were born, and if we have acquired it before birth and lost it at birth, but afterwards by the use of our senses in connection with those very realities we mentioned just now, we regained the knowledge which we had before, would not what we call learning be the recovery of our own knowledge? Should we not be right to call this recollection? Quite so. It was possible for the soul, when it perceived things either through sight or hearing or some other sense, to be reminded by these of other things which it had forgotten, things which were associated with them and which they resembled, whether like or unlike. As I say, one of two things is true: either we were born with this knowledge and all of us know these things throughout life, or those who later, we say, are learning are only recollecting.",
+          "virtue": "wisdom",
+          "persona_tags": [
+            "plato",
+            "epistemology",
+            "recollection",
+            "innate_knowledge"
+          ],
+          "key_concepts": [
+            "theory of recollection",
+            "innate knowledge",
+            "pre-existence of soul",
+            "learning as remembering"
+          ],
+          "applications": [
+            "intuitive understanding",
+            "deep learning",
+            "accessing inner wisdom",
+            "education as drawing out"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Meno",
+      "author": "Plato",
+      "tradition": "platonic",
+      "era": "ancient",
+      "sections": [
+        {
+          "title": "The Paradox of Inquiry",
+          "content": "How will you look for something when you don't in the least know what it is? How on earth are you going to set up something you don't know as the object of your search? To put it another way, even if you come right up against it, how will you know that what you have found is the thing you didn't know? I know what you want to say, Meno. Do you realize what a debater's argument you are bringing up, that a man cannot search either for what he knows or for what he does not know? He cannot search for what he knows—since he knows it, there is no need to search—nor for what he does not know, for he does not know what to look for. The soul, then, being immortal and having been born many times, and having seen all things both here and in the other world, has learned everything that is. So we need not be surprised if it can recall the knowledge of virtue or anything else which it once possessed. All nature is akin, and the soul has learned everything, so that when a man has recalled one thing only—a process men call learning—there is no reason why he should not find out all the rest, if he is brave and does not tire of the search.",
+          "virtue": "courage",
+          "persona_tags": [
+            "plato",
+            "epistemology",
+            "paradox",
+            "inquiry"
+          ],
+          "key_concepts": [
+            "paradox of inquiry",
+            "recollection",
+            "courage in learning",
+            "persistence in seeking truth"
+          ],
+          "applications": [
+            "embracing uncertainty",
+            "persistent inquiry",
+            "intellectual courage",
+            "overcoming ignorance"
+          ]
+        }
+      ]
+    },
+    {
       "title": "The Second Sex",
       "author": "Simone de Beauvoir",
       "tradition": "existentialism",

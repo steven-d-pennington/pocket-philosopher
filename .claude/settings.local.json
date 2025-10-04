@@ -10,7 +10,12 @@
       "Bash(findstr:*)",
       "Bash(tasklist)",
       "Bash(npx tsc:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "Bash(npx supabase:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker logs:*)",
+      "Bash(cat:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []
