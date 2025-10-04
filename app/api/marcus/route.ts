@@ -18,6 +18,7 @@ const chatSchema = z.object({
   message: z.string().min(1),
   persona: z.string().default("marcus"),
   mode: z.enum(["buddy", "coaching"]).default("buddy"),
+  blend_personas: z.boolean().optional(),
 });
 
 export async function GET(request: Request) {
@@ -108,7 +109,8 @@ export async function POST(request: Request) {
     });
   }
 
-  const { conversation_id, message, persona, mode } = parseResult.data;
+  const { conversation_id, message, persona, mode, blend_personas } = parseResult.data;
+  const blendPersonas = blend_personas ?? false;
 
   // Check entitlement for premium personas
   if (persona !== "marcus") {
@@ -168,8 +170,9 @@ export async function POST(request: Request) {
 
   const { data: historyRows, error: historyError } = await supabase
     .from("marcus_messages")
-    .select("role, content")
+    .select("role, content, persona_id")
     .eq("conversation_id", activeConversationId)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: true })
     .limit(20);
 
@@ -177,7 +180,17 @@ export async function POST(request: Request) {
     logger.warn("Failed to load conversation history", { conversationId: activeConversationId, error: historyError });
   }
 
-  const history: ConversationTurn[] = (historyRows ?? []).map((row) => {
+  const filteredHistoryRows = (historyRows ?? []).filter((row) => {
+    if (blendPersonas) {
+      return true;
+    }
+    if (!row.persona_id) {
+      return true;
+    }
+    return row.persona_id === persona;
+  });
+
+  const history: ConversationTurn[] = filteredHistoryRows.map((row) => {
     const role = row.role === "assistant" || row.role === "system" ? row.role : "user";
     return { role, content: row.content };
   });

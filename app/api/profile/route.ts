@@ -19,6 +19,7 @@ const profileUpdateSchema = z.object({
   daily_practice_time: z.string().optional(),
   timezone: z.string().optional(),
   notifications_enabled: z.boolean().optional(),
+  blended_coach_chats: z.boolean().optional(),
   privacy_level: z.string().optional(),
   onboarding_complete: z.boolean().optional(),
 });

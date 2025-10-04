@@ -39,6 +39,7 @@ export type ProfileUpdateInput = Partial<{
   notifications_enabled: boolean;
   privacy_level: string;
   onboarding_complete: boolean;
+  blended_coach_chats: boolean;
 }>;
 
 export function useUpdateProfileMutation() {

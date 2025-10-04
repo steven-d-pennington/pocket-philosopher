@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   daily_practice_time time,
   timezone text default 'UTC',
   notifications_enabled boolean default true,
+  blended_coach_chats boolean default false,
   privacy_level text default 'private',
   onboarding_complete boolean default false,
   last_active_at timestamptz,

@@ -544,6 +544,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          blended_coach_chats: boolean | null
           created_at: string
           daily_practice_time: string | null
           experience_level: string | null
@@ -559,6 +560,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          blended_coach_chats?: boolean | null
           created_at?: string
           daily_practice_time?: string | null
           experience_level?: string | null
@@ -574,6 +576,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          blended_coach_chats?: boolean | null
           created_at?: string
           daily_practice_time?: string | null
           experience_level?: string | null
