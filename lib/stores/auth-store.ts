@@ -18,6 +18,7 @@ export interface ProfileSummary {
   timezone?: string | null;
   virtues?: string[];
   onboarding_complete?: boolean;
+  blended_coach_chats?: boolean;
 }
 
 interface AuthState {

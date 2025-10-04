@@ -9,6 +9,7 @@ import {
   selectActivePersona,
   useCoachStore,
 } from "@/lib/stores/coach-store";
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 interface ParsedEvent<T = unknown> {
   event: string;
@@ -68,6 +69,7 @@ export function useCoachConversation() {
   const conversation = useCoachStore(selectActiveConversation);
   const conversationMode = useCoachStore((state) => state.conversationMode);
   const actions = useCoachStore((state) => state.actions);
+  const blendedChats = useAuthStore((state) => state.profile?.blended_coach_chats ?? false);
 
   const [history, setHistory] = useState<CoachConversationSummary[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -151,11 +153,21 @@ export function useCoachConversation() {
           };
         };
 
-        const mappedMessages = Array.isArray(payload?.messages)
-          ? payload.messages
-              .map((row: ConversationMessageRow) => toCoachMessage(row))
-              .filter((message): message is CoachMessage => Boolean(message))
+        const filteredMessages = Array.isArray(payload?.messages)
+          ? payload.messages.filter((row: ConversationMessageRow) => {
+              if (blendedChats) {
+                return true;
+              }
+              if (!row.persona_id) {
+                return true;
+              }
+              return row.persona_id === conversationPersona;
+            })
           : [];
+
+        const mappedMessages = filteredMessages
+          .map((row: ConversationMessageRow) => toCoachMessage(row))
+          .filter((message): message is CoachMessage => Boolean(message));
 
         actions.hydrateConversation(conversationPersona, conversationId, mappedMessages);
         actions.selectPersona(conversationPersona);
@@ -170,7 +182,7 @@ export function useCoachConversation() {
         setLoadingConversationId(null);
       }
     },
-    [actions, persona?.id, refreshHistory],
+    [actions, persona?.id, refreshHistory, blendedChats],
   );
 
   useEffect(() => {
@@ -186,9 +198,9 @@ export function useCoachConversation() {
   }, [conversation.conversationId, refreshHistory]);
 
   const historyForPersona = useMemo(() => {
-    if (!persona) return history;
+    if (!persona || blendedChats) return history;
     return history.filter((item) => !item.activePersona || item.activePersona === persona.id);
-  }, [history, persona]);
+  }, [history, persona, blendedChats]);
 
   const sendMessage = useCallback(
     (input: string) => {
@@ -214,6 +226,7 @@ export function useCoachConversation() {
               message: content,
               persona: personaId,
               mode: conversationMode,
+              blend_personas: blendedChats,
             }),
           });
 
@@ -367,7 +380,7 @@ export function useCoachConversation() {
 
       return userMessage.id;
     },
-    [actions, persona, conversation.conversationId, conversationMode, refreshHistory],
+    [actions, persona, conversation.conversationId, conversationMode, refreshHistory, blendedChats],
   );
 
   const resetConversation = useCallback(() => {

@@ -15,6 +15,7 @@ interface SettingsFormValues {
   timezone: string;
   privacy_level: string;
   notifications_enabled: boolean;
+  blended_coach_chats: boolean;
 }
 
 const privacyOptions = [
@@ -33,6 +34,7 @@ export function SettingsPreferences() {
       timezone: "UTC",
       privacy_level: "standard",
       notifications_enabled: true,
+      blended_coach_chats: false,
     },
   });
 
@@ -42,6 +44,7 @@ export function SettingsPreferences() {
       timezone: profile.timezone ?? "UTC",
       privacy_level: profile.privacy_level ?? "standard",
       notifications_enabled: profile.notifications_enabled ?? true,
+      blended_coach_chats: profile.blended_coach_chats ?? false,
     });
   }, [profile, form]);
 
@@ -101,6 +104,21 @@ export function SettingsPreferences() {
             <Label htmlFor="notifications_enabled" className="font-serif">Enable email reminders</Label>
             <p className="text-xs text-muted-foreground">
               Toggle global reminders. Specific practice reminders can be controlled per habit.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-3xl border persona-card bg-muted/20 px-4 py-3">
+          <input
+            id="blended_coach_chats"
+            type="checkbox"
+            className="size-4 accent-persona"
+            disabled={isLoading || mutation.isPending}
+            {...form.register("blended_coach_chats")}
+          />
+          <div>
+            <Label htmlFor="blended_coach_chats" className="font-serif">Enable blended coach chats</Label>
+            <p className="text-xs text-muted-foreground">
+              When enabled, coaches can reference messages from other personas in the same conversation.
             </p>
           </div>
         </div>
