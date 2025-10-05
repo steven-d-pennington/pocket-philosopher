@@ -14,7 +14,8 @@ export type WidgetKey =
   | "dailyInsight"
   | "coachPreview"
   | "personaSuggestedPractice"
-  | "practicesOverview";
+  | "practicesOverview"
+  | "communityWidget";
 
 export interface WidgetVisibility {
   [key: string]: boolean;
@@ -51,11 +52,12 @@ const defaultVisibility: WidgetVisibility = {
   coachPreview: true,
   personaSuggestedPractice: true,
   practicesOverview: true,
+  communityWidget: true,
 };
 
 const defaultLayout: WidgetLayout = {
   left: ["morningIntention", "practiceQuickActions", "todayOverview", "reflectionsStatus"],
-  right: ["returnScoreTiles", "dailyQuote", "dailyInsight", "coachPreview"],
+  right: ["returnScoreTiles", "dailyQuote", "dailyInsight", "coachPreview", "communityWidget"],
   bottom: ["personaSuggestedPractice", "practicesOverview"],
 };
 

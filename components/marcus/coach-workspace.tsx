@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Lock } from "lucide-react";
+import { Loader2, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Lock, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { ModelSelector } from "@/components/shared/model-selector";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { useCoachConversation } from "@/lib/hooks/use-coach-conversation";
 import { useEntitlements } from "@/lib/hooks/use-entitlements";
+import { useCommunityStore } from "@/lib/stores/community-store";
 import {
   selectActivePersona,
   useCoachStore,
@@ -258,9 +259,35 @@ function PersonaSidebar() {
   );
 }
 
-function MessageBubble({ message }: { message: CoachMessage }) {
+function MessageBubble({ message, conversationId }: { message: CoachMessage; conversationId?: string }) {
   const isUser = message.role === "user";
   const hasCitations = !isUser && Array.isArray(message.citations) && message.citations.length > 0;
+  const { isEnabled: communityEnabled, openShareModal } = useCommunityStore();
+  const activePersona = useCoachStore(selectActivePersona);
+
+  const formatMessageForSharing = () => {
+    // For coach messages, format with persona attribution
+    if (!isUser) {
+      const parts: string[] = [];
+      parts.push(`**Wisdom from ${activePersona.name}**`);
+      parts.push("");
+      parts.push(message.content);
+      
+      // Add citations if present
+      if (hasCitations && message.citations) {
+        parts.push("");
+        parts.push("**Sources:**");
+        message.citations.slice(0, 3).forEach(citation => {
+          parts.push(`• ${citation.title}${citation.reference ? ` - ${citation.reference}` : ''}`);
+        });
+      }
+      
+      return parts.join("\n");
+    }
+    
+    // For user messages, just return the content
+    return message.content;
+  };
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`} role="article" aria-label={`${isUser ? "Your" : "Coach"} message`}>
@@ -273,7 +300,7 @@ function MessageBubble({ message }: { message: CoachMessage }) {
         tabIndex={0}
       >
         {/* Message Actions - appear on hover/focus */}
-        <div className={`absolute top-2 ${isUser ? "left-2" : "right-2"} opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity`}>
+        <div className={`absolute top-2 ${isUser ? "left-2" : "right-2"} flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity`}>
           <button
             type="button"
             className="rounded-full bg-background/80 p-1 text-xs text-muted-foreground hover:bg-background hover:text-foreground focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -283,6 +310,40 @@ function MessageBubble({ message }: { message: CoachMessage }) {
           >
             📋
           </button>
+          {communityEnabled && !isUser && (
+            <button
+              type="button"
+              className="rounded-full bg-background/80 p-1 text-xs text-muted-foreground hover:bg-background hover:text-foreground focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              onClick={() => {
+                openShareModal({
+                  type: 'chat',
+                  sourceId: message.id,
+                  sourceData: {
+                    personaId: activePersona.id,
+                    personaName: activePersona.name,
+                    message,
+                  },
+                  previewData: {
+                    content_type: 'chat',
+                    content_text: formatMessageForSharing(),
+                    content_metadata: {
+                      conversation_id: conversationId || 'unknown',
+                      share_method: 'excerpt',
+                      coach_name: activePersona.name,
+                      persona_id: activePersona.id,
+                    },
+                    source_id: message.id,
+                    source_table: 'marcus_messages',
+                    share_method: 'excerpt',
+                  },
+                });
+              }}
+              title="Share to community"
+              aria-label="Share message to community"
+            >
+              <Share2 className="h-3 w-3" />
+            </button>
+          )}
         </div>
 
         <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
@@ -341,7 +402,7 @@ function EmptyConversationState() {
   );
 }
 
-function ConversationMessages({ messages, isStreaming }: { messages: CoachMessage[]; isStreaming: boolean }) {
+function ConversationMessages({ messages, isStreaming, conversationId }: { messages: CoachMessage[]; isStreaming: boolean; conversationId?: string }) {
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -355,7 +416,7 @@ function ConversationMessages({ messages, isStreaming }: { messages: CoachMessag
       ) : (
         <div className="space-y-6">
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble key={message.id} message={message} conversationId={conversationId} />
           ))}
         </div>
       )}
@@ -589,7 +650,7 @@ function ConversationPane() {
           });
         }}
       />
-      <ConversationMessages messages={messages} isStreaming={conversation.isStreaming} />
+      <ConversationMessages messages={messages} isStreaming={conversation.isStreaming} conversationId={conversation.conversationId} />
       <footer className="space-y-3 mb-safe" role="contentinfo">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <StreamingIndicator isStreaming={conversation.isStreaming} tokens={conversation.tokens} />

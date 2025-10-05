@@ -8,6 +8,7 @@ import { AppToaster } from "@/components/providers/app-toaster";
 import { AnalyticsProvider } from "@/components/providers/analytics-provider";
 import { ServiceWorkerProvider } from "@/components/providers/service-worker-provider";
 import { PWAInstallPrompt } from "@/components/shared/pwa-install-prompt";
+import { SharePreviewModal } from "@/components/community";
 import { fontMono, fontSans } from "@/lib/fonts";
 import { buildMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,7 @@ export default function RootLayout({
                   {children}
                   <AppToaster />
                   <PWAInstallPrompt />
+                  <SharePreviewModal />
                 </ServiceWorkerProvider>
               </AnalyticsProvider>
             </Suspense>

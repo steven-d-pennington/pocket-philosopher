@@ -1,6 +1,7 @@
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { SettingsPreferences } from "@/components/settings/settings-preferences";
 import { ModelPreferences } from "@/components/settings/model-preferences";
+import { CommunitySettings } from "@/components/settings/community-settings";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata = buildMetadata({
@@ -19,6 +20,7 @@ export default function SettingsPage() {
         description="Adjust timezone-aware notifications, privacy defaults, and forthcoming integrations for the Pocket Philosopher experience."
       />
       <SettingsPreferences />
+      <CommunitySettings />
       <ModelPreferences />
       <section className="rounded-3xl border border-border/60 bg-muted/10 p-6 text-sm text-muted-foreground">
         <p className="font-semibold text-foreground">Integrations (coming soon)</p>

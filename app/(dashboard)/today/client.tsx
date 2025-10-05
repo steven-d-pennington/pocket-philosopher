@@ -14,6 +14,7 @@ import { ReturnScoreTiles } from "@/components/dashboard/return-score-tiles";
 import { SortableWidgetColumn } from "@/components/dashboard/sortable-widget-column";
 import { TodayOverview } from "@/components/dashboard/today-overview";
 import { WidgetWrapper } from "@/components/dashboard/widget-wrapper";
+import { CommunityWidget } from "@/components/community/community-widget";
 import { CoachPreview } from "@/components/marcus/coach-preview";
 import { PracticeQuickActions } from "@/components/practices/practice-quick-actions";
 import { PracticesOverview } from "@/components/practices/practices-overview";
@@ -56,6 +57,7 @@ export function TodayPageClient() {
     coachPreview: <CoachPreview />,
     personaSuggestedPractice: <PersonaSuggestedPractice />,
     practicesOverview: <PracticesOverview />,
+    communityWidget: <CommunityWidget />,
   };
 
   // Filter out hidden widgets from each column

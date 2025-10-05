@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { Sparkles, UserCircle2 } from "lucide-react";
+import { Sparkles, UserCircle2, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 
@@ -19,6 +19,7 @@ import { getPersonaProfile, DEFAULT_PERSONA_ID } from "@/lib/ai/personas";
 import { getSuggestedPrompt } from "@/lib/constants/persona-prompts";
 import { usePersonaTheme } from "@/lib/hooks/use-persona-theme";
 import { useAuthStore, selectAuthProfile } from "@/lib/stores/auth-store";
+import { useCommunityStore } from "@/lib/stores/community-store";
 
 interface ReflectionComposerProps {
   selectedType: ReflectionType;
@@ -76,6 +77,7 @@ export function ReflectionComposer({
   const [personaId, setPersonaId] = useState(defaultPersonaId);
   const persona = useMemo(() => getPersonaProfile(personaId), [personaId]);
   const { theme } = usePersonaTheme();
+  const { isEnabled: communityEnabled, openShareModal } = useCommunityStore();
 
   const saveReflection = useSaveReflectionMutation(targetDate);
 
@@ -129,6 +131,82 @@ export function ReflectionComposer({
   }, [defaultPersonaId, selectedType]);
 
   const moodValue = form.watch("mood");
+
+  // Format reflection for sharing
+  const formatReflectionForSharing = () => {
+    const values = form.getValues();
+    const parts: string[] = [];
+    
+    // Add reflection type header
+    parts.push(`**${reflectionPrompts[selectedType].title}**`);
+    parts.push("");
+    
+    // Add key content based on what's filled out
+    if (values.intention) {
+      parts.push(`**Intention:** ${values.intention}`);
+      parts.push("");
+    }
+    
+    if (values.gratitude) {
+      parts.push(`**Gratitude:** ${values.gratitude}`);
+      parts.push("");
+    }
+    
+    if (values.journalEntry) {
+      // Limit journal entry to first 300 chars if too long
+      const entry = values.journalEntry.length > 300 
+        ? values.journalEntry.substring(0, 300) + "..." 
+        : values.journalEntry;
+      parts.push(entry);
+      parts.push("");
+    }
+    
+    if (values.keyInsights) {
+      const insights = parseList(values.keyInsights);
+      if (insights.length > 0) {
+        parts.push("**Key Insights:**");
+        insights.forEach(insight => parts.push(`• ${insight}`));
+        parts.push("");
+      }
+    }
+    
+    if (values.lesson) {
+      parts.push(`**Lesson:** ${values.lesson}`);
+    }
+    
+    return parts.join("\n").trim();
+  };
+
+  const handleShareClick = () => {
+    const values = form.getValues();
+    // Check if there's content to share
+    if (!values.intention && !values.journalEntry && !values.keyInsights && !values.lesson) {
+      toast.error("Add some content to your reflection before sharing");
+      return;
+    }
+    
+    openShareModal({
+      type: 'reflection',
+      sourceId: existingReflection?.id || 'draft',
+      sourceData: {
+        reflectionType: selectedType,
+        virtue: values.virtueFocus,
+        ...values,
+      },
+      previewData: {
+        content_type: 'reflection',
+        content_text: formatReflectionForSharing(),
+        content_metadata: {
+          reflection_type: selectedType,
+          fields_shared: ['intention', 'gratitude', 'journalEntry', 'keyInsights', 'lesson'],
+          include_virtue: true,
+        },
+        source_id: existingReflection?.id || '',
+        source_table: 'reflections',
+        share_method: null,
+      },
+    });
+  };
 
   const onSubmit = form.handleSubmit((values) => {
     saveReflection.mutate(
@@ -292,10 +370,23 @@ export function ReflectionComposer({
             <p className="text-xs text-muted-foreground">
               Entries autosave via Supabase—reopen anytime to continue refining your narrative.
             </p>
-            <Button type="submit" disabled={saveReflection.isPending || isFetching} className="gap-2">
-              <Sparkles className="size-4" aria-hidden />
-              {saveReflection.isPending ? "Saving…" : "Save reflection"}
-            </Button>
+            <div className="flex gap-2">
+              {communityEnabled && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleShareClick}
+                  className="gap-2"
+                >
+                  <Share2 className="size-4" aria-hidden />
+                  Share to Community
+                </Button>
+              )}
+              <Button type="submit" disabled={saveReflection.isPending || isFetching} className="gap-2">
+                <Sparkles className="size-4" aria-hidden />
+                {saveReflection.isPending ? "Saving…" : "Save reflection"}
+              </Button>
+            </div>
           </div>
         </form>
 

@@ -16,17 +16,20 @@ import {
   NotebookPen,
   Settings,
   UserCircle,
+  Users,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { selectSidebarCollapsed, selectUIActions, useUIStore } from "@/lib/stores/ui-store";
+import { useCommunityStore } from "@/lib/stores/community-store";
 
-const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
+const navItems: Array<{ label: string; href: Route; icon: LucideIcon; requiresCommunity?: boolean }> = [
   { label: "Today", href: "/today", icon: LayoutDashboard },
   { label: "Practices", href: "/practices", icon: ListChecks },
   { label: "Reflections", href: "/reflections", icon: NotebookPen },
   { label: "Coaches", href: "/marcus", icon: Bot },
+  { label: "Community", href: "/community", icon: Users, requiresCommunity: true },
   { label: "Onboarding", href: "/onboarding", icon: Flag },
   { label: "Profile", href: "/profile", icon: UserCircle },
   { label: "Settings", href: "/settings", icon: Settings },
@@ -41,8 +44,14 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
   const pathname = usePathname();
   const collapsed = useUIStore(selectSidebarCollapsed);
   const { toggleSidebar } = useUIStore(selectUIActions);
+  const { isEnabled: communityEnabled } = useCommunityStore();
 
   const ToggleIcon = collapsed ? ChevronsRight : ChevronsLeft;
+
+  // Filter nav items based on community enabled status
+  const visibleNavItems = navItems.filter(
+    (item) => !item.requiresCommunity || communityEnabled
+  );
 
   return (
     <aside
@@ -65,7 +74,7 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
         </Button>
       </div>
       <nav className="flex-1 space-y-1 px-2 py-4">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname?.startsWith(item.href);
           return (

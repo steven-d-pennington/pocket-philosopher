@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import { CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
@@ -10,12 +10,14 @@ import { cn } from "@/lib/utils";
 import { useDailyProgress, usePracticeCompletionMutation } from "@/lib/hooks/use-daily-progress";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { usePractices } from "@/lib/hooks/use-practices";
+import { useCommunityStore } from "@/lib/stores/community-store";
 
 export function PracticeQuickActions() {
   const { data: practicesData, isLoading: practicesLoading } = usePractices();
   const { data: progressData, isLoading: progressLoading } = useDailyProgress();
   const mutation = usePracticeCompletionMutation();
   const { capture: track } = useAnalytics();
+  const { isEnabled: communityEnabled, openShareModal } = useCommunityStore();
 
   const completedIds = useMemo(
     () => new Set(progressData?.practicesCompleted ?? []),
@@ -23,6 +25,42 @@ export function PracticeQuickActions() {
   );
 
   const visiblePractices = practicesData?.slice(0, 6) ?? [];
+
+  // Milestone thresholds
+  const MILESTONES = [3, 7, 30, 100];
+
+  const checkMilestone = async (practiceId: string) => {
+    // TODO: Fetch practice completion history to check streak
+    // For now, we'll simulate milestone detection
+    // In production, you'd query habit_logs to get the streak count
+    
+    try {
+      const response = await fetch(`/api/practices/${practiceId}/streak`);
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      const streak = data.streak || 0;
+      
+      // Check if this completion hits a milestone
+      const milestone = MILESTONES.find(m => streak === m);
+      return milestone || null;
+    } catch (error) {
+      console.error("Failed to check milestone:", error);
+      return null;
+    }
+  };
+
+  const formatMilestoneContent = (practiceName: string, milestone: number, virtue?: string) => {
+    return `🎉 **Milestone Achievement!**
+
+I just completed **${milestone} days** of my practice: "${practiceName}"!
+
+${virtue ? `This practice aligns with the virtue of **${virtue}**.` : ""}
+
+Consistency is the path to growth. Each small step compounds into meaningful change.
+
+#PracticeStreak #DailyProgress #PhilosophyInAction`;
+  };
 
   return (
     <section className="philosophy-card p-6 animate-fade-in-up">
@@ -55,7 +93,9 @@ export function PracticeQuickActions() {
                   : "border-border/70 bg-card/70 hover:border-primary/30 hover:bg-card"
               )}
               disabled={mutation.isPending}
-              onClick={() =>
+              onClick={async () => {
+                const wasCompleted = isCompleted;
+                
                 mutation.mutate(
                   { practiceId: practice.id, completed: !isCompleted },
                   {
@@ -64,15 +104,48 @@ export function PracticeQuickActions() {
                         err instanceof Error ? err.message : "Unable to update practice",
                       );
                     },
-                    onSuccess: () => {
+                    onSuccess: async () => {
                       track("practice_quick_toggle", {
                         practiceId: practice.id,
                         completed: !isCompleted,
                       });
+                      
+                      // Check for milestone if completing (not uncompleting) and community enabled
+                      if (!wasCompleted && communityEnabled) {
+                        const milestone = await checkMilestone(practice.id);
+                        if (milestone) {
+                          openShareModal({
+                            type: 'practice',
+                            sourceId: practice.id,
+                            sourceData: {
+                              practice,
+                              milestone,
+                            },
+                            previewData: {
+                              content_type: 'practice_achievement',
+                              content_text: formatMilestoneContent(practice.name, milestone, practice.virtue),
+                              content_metadata: {
+                                practice_id: practice.id,
+                                practice_name: practice.name,
+                                achievement_type: 'milestone',
+                                streak_days: milestone,
+                              },
+                              source_id: practice.id,
+                              source_table: 'habits',
+                              share_method: null,
+                            },
+                          });
+                          
+                          track("practice_milestone_reached", {
+                            practiceId: practice.id,
+                            milestone,
+                          });
+                        }
+                      }
                     },
                   },
-                )
-              }
+                );
+              }}
             >
               <span className="flex flex-col gap-0.5 text-left">
                 <span className={cn("font-semibold", isCompleted ? "text-primary" : "text-foreground")}>{practice.name}</span>
