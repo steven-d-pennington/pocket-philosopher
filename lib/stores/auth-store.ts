@@ -18,6 +18,8 @@ export interface ProfileSummary {
   timezone?: string | null;
   virtues?: string[];
   onboarding_complete?: boolean;
+  default_model_id?: string | null;
+  persona_model_overrides?: Record<string, string> | null;
 }
 
 interface AuthState {

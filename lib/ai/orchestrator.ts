@@ -5,9 +5,12 @@ import { getPersonaProfile } from "@/lib/ai/personas";
 import type { ConversationMode } from "@/lib/stores/coach-store";
 import {
   getActiveChatProvider,
+  getChatProviderById,
   recordProviderFailure,
   recordProviderSuccess,
 } from "@/lib/ai/provider-registry";
+import { ModelSelectionService } from "@/lib/ai/model-selection";
+import { RateLimitingService } from "@/lib/ai/rate-limiting";
 import { retrieveKnowledgeForCoach } from "@/lib/ai/retrieval";
 import type {
   AIChatStreamResult,
@@ -228,7 +231,33 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
   const logger = baseLogger.child({
     metadata: {
       personaId: options.personaId,
-      defaultModel: persona.defaultModel,
+    },
+  });
+
+  // Select appropriate model for user
+  const modelSelection = await ModelSelectionService.selectModelForUser(
+    options.userId,
+    null, // Let service determine based on preferences
+    options.personaId,
+    options.supabase
+  );
+
+  // Check rate limits
+  const rateLimitCheck = await RateLimitingService.checkRateLimit(
+    options.userId,
+    modelSelection.model.id,
+    options.supabase
+  );
+
+  if (!rateLimitCheck.allowed) {
+    throw new Error(`Rate limit exceeded: ${rateLimitCheck.reason}`);
+  }
+
+  logger.child({
+    metadata: {
+      selectedModel: modelSelection.model.id,
+      accessType: modelSelection.accessType,
+      messagesRemaining: modelSelection.messagesRemaining,
     },
   });
 
@@ -247,7 +276,30 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
   });
 
   const requestStartedAt = Date.now();
-  const providerSelection = await getActiveChatProvider(options.signal);
+  
+  // Try to get the provider specified by the model first
+  let providerSelection = await getChatProviderById(modelSelection.model.provider, options.signal);
+  
+  // If the model's provider is not available, check if we should fall back
+  if (!providerSelection || providerSelection.health.status !== 'healthy') {
+    const requestedProvider = modelSelection.model.provider;
+    const providerStatus = providerSelection?.health.status || 'not found';
+    
+    logger.warn('Model provider unavailable', {
+      requestedProvider,
+      providerStatus,
+      modelId: modelSelection.model.id,
+      modelName: modelSelection.model.display_name,
+    });
+    
+    // Don't allow fallback for provider-specific models
+    // Each provider has its own models and they're not interchangeable
+    throw new Error(
+      `The ${requestedProvider} provider is currently ${providerStatus}. ` +
+      `Please configure the ${requestedProvider.toUpperCase()}_API_KEY environment variable ` +
+      `or select a model from a different provider.`
+    );
+  }
 
   if (!providerSelection) {
     const error = new Error("No AI chat providers are currently available");
@@ -272,6 +324,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
     attempts: attemptSummaries,
     healthLatencyMs: health.latencyMs,
     healthCheckedAt: health.checkedAt,
+    selectedModel: modelSelection.model.id,
+    accessType: modelSelection.accessType,
     startedAt: new Date(requestStartedAt).toISOString(),
   });
 
@@ -279,11 +333,14 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
   try {
     aiStream = await provider.createChatStream({
       messages,
-      model: persona.defaultModel,
+      model: modelSelection.model.provider_model_id, // Use provider's model ID (e.g., "gpt-4o-mini")
       temperature: persona.temperature,
       signal: options.signal,
       metadata: {
+        userId: options.userId, // For Anthropic's user_id tracking
         personaId: options.personaId,
+        selectedModel: modelSelection.model.id,
+        accessType: modelSelection.accessType,
         fallbackUsed,
         historyTurns: options.history.length,
         knowledgeChunks: knowledge.length,
@@ -295,6 +352,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
       durationMs,
       metadata: {
         stage: "createChatStream",
+        selectedModel: modelSelection.model.id,
+        accessType: modelSelection.accessType,
         fallbackUsed,
         providerStatus,
         failoverCount: Math.max(0, attemptSummaries.length - 1),
@@ -305,6 +364,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
       providerId,
       providerStatus,
       fallbackUsed,
+      selectedModel: modelSelection.model.id,
+      accessType: modelSelection.accessType,
       durationMs,
     });
     throw error;
@@ -419,6 +480,8 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
           providerId,
           providerStatus,
           personaId: options.personaId,
+          selectedModel: modelSelection.model.id,
+          accessType: modelSelection.accessType,
           fallbackUsed,
           degradedMode: providerStatus === "degraded",
           failoverCount: Math.max(0, attemptSummaries.length - 1),
@@ -439,6 +502,24 @@ export async function createCoachStream(options: CoachStreamOptions): Promise<Co
           distinctId: options.userId,
           properties: analyticsProperties,
         });
+
+        // Record usage for rate limiting and analytics
+        try {
+          await ModelSelectionService.recordUsage(
+            options.userId,
+            modelSelection.model.id,
+            modelSelection.accessType,
+            options.supabase
+          );
+          await RateLimitingService.recordMessage(
+            options.userId,
+            modelSelection.model.id,
+            options.supabase
+          );
+        } catch (usageError) {
+          logger.warn("Failed to record usage", { usageError });
+          // Don't fail the request for usage recording errors
+        }
 
         return {
           content: sanitized,

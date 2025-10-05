@@ -14,7 +14,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function setAdminUser() {
-  const userId = 'dd9fc783-61c7-4961-9c70-3e11abef9407'; // From the logs
+  const userId = 'a63fafa5-c585-44bf-a856-902be478bc55'; // From the signup response
 
   const { data, error } = await supabase
     .from('profiles')

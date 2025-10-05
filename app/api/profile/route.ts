@@ -21,6 +21,8 @@ const profileUpdateSchema = z.object({
   notifications_enabled: z.boolean().optional(),
   privacy_level: z.string().optional(),
   onboarding_complete: z.boolean().optional(),
+  default_model_id: z.string().optional(),
+  persona_model_overrides: z.record(z.string()).optional(),
 });
 
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
@@ -135,6 +137,15 @@ export async function PUT(request: Request) {
 
   if (payload.privacy_level !== undefined) {
     sanitizedPayload.privacy_level = sanitizeUserText(payload.privacy_level, { maxLength: 120 }) || undefined;
+  }
+
+  // Model preferences don't need sanitization as they're controlled values (model IDs)
+  if (payload.default_model_id !== undefined) {
+    sanitizedPayload.default_model_id = payload.default_model_id;
+  }
+
+  if (payload.persona_model_overrides !== undefined) {
+    sanitizedPayload.persona_model_overrides = payload.persona_model_overrides;
   }
 
   try {

@@ -239,6 +239,26 @@ export async function getActiveChatProvider(
   return selection;
 }
 
+export async function getChatProviderById(
+  providerId: string,
+  signal?: AbortSignal,
+): Promise<ProviderSelectionResult<AIChatProvider> | null> {
+  const provider = chatProviders.find((p) => p.id === providerId);
+  if (!provider) {
+    return null;
+  }
+
+  // Check if this specific provider is healthy
+  const health = await evaluateHealth(provider, signal);
+  
+  return {
+    provider,
+    health,
+    fallbackUsed: false,
+    attempts: [{ providerId, status: health.status }],
+  };
+}
+
 export async function getActiveEmbeddingProvider(
   signal?: AbortSignal,
 ): Promise<ProviderSelectionResult<AIEmbeddingProvider> | null> {

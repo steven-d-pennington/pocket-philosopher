@@ -17,5 +17,6 @@ This directory contains the comprehensive build plan derived from the requiremen
 - [Freemium Monetization Feature](freemium-monetization-feature.md)
 - [Admin Dashboard Feature](admin-dashboard-feature.md)
 - [AI Model Selection Feature](ai-model-selection-feature.md)
+- [Community Features](community-features.md)
 
 Each document provides detailed tasks and instructions to guide implementation for its respective area.

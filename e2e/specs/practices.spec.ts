@@ -20,7 +20,7 @@ test.describe("Practices Management", () => {
     const practiceName = `Test Practice ${Date.now()}`;
 
     // Click create button
-    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i });
+    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i }));
     await createButton.first().click();
 
     // Fill in practice details
@@ -77,7 +77,7 @@ test.describe("Practices Management", () => {
     const originalName = `Original Practice ${Date.now()}`;
     const updatedName = `Updated Practice ${Date.now()}`;
 
-    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i });
+    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i }));
     if (await createButton.first().isVisible()) {
       await createButton.first().click();
 
@@ -113,7 +113,7 @@ test.describe("Practices Management", () => {
     // Create a practice to delete
     const practiceName = `Practice to Delete ${Date.now()}`;
 
-    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i });
+    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i }));
     if (await createButton.first().isVisible()) {
       await createButton.first().click();
 
@@ -147,7 +147,7 @@ test.describe("Practices Management", () => {
     const practiceName = `Persistent Practice ${Date.now()}`;
 
     // Create practice
-    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i });
+    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i }));
     if (await createButton.first().isVisible()) {
       await createButton.first().click();
 
@@ -195,7 +195,7 @@ test.describe("Practices Management", () => {
     // Create a practice first
     const practiceName = `Practice to Pause ${Date.now()}`;
 
-    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i });
+    const createButton = page.getByRole("button", { name: /Create practice/i }).or(page.getByRole("button", { name: /Add practice/i }));
     if (await createButton.first().isVisible()) {
       await createButton.first().click();
 

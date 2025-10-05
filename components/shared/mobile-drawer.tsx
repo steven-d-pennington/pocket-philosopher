@@ -89,6 +89,9 @@ export function MobileDrawer() {
     preventScrollOnSwipe: true,
   });
 
+  // Extract only the event handlers to avoid spreading non-DOM attributes
+  const { swiping, ...swipeEventHandlers } = swipeHandlers;
+
   if (!isOpen) return null;
 
   return (
@@ -104,7 +107,7 @@ export function MobileDrawer() {
       {/* Drawer */}
       <aside
         ref={drawerRef}
-        {...swipeHandlers}
+        {...swipeEventHandlers}
         className={cn(
           "fixed bottom-0 left-0 top-0 z-50 w-72 md:hidden",
           "flex flex-col bg-card shadow-2xl",

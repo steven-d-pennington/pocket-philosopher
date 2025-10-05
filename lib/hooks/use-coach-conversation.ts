@@ -154,7 +154,7 @@ export function useCoachConversation() {
         const mappedMessages = Array.isArray(payload?.messages)
           ? payload.messages
               .map((row: ConversationMessageRow) => toCoachMessage(row))
-              .filter((message): message is CoachMessage => Boolean(message))
+              .filter((message: CoachMessage | null): message is CoachMessage => Boolean(message))
           : [];
 
         actions.hydrateConversation(conversationPersona, conversationId, mappedMessages);

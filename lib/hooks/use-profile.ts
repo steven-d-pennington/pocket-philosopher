@@ -39,6 +39,8 @@ export type ProfileUpdateInput = Partial<{
   notifications_enabled: boolean;
   privacy_level: string;
   onboarding_complete: boolean;
+  default_model_id: string;
+  persona_model_overrides: Record<string, string>;
 }>;
 
 export function useUpdateProfileMutation() {

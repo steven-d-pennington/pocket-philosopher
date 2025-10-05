@@ -87,6 +87,12 @@ export async function createAnthropicChatStream(options: AIChatStreamRequest): P
     options.signal.addEventListener("abort", () => controller.abort(options.signal?.reason));
   }
 
+  // Anthropic only accepts metadata.user_id, not arbitrary metadata fields
+  // Extract user_id if present in metadata, otherwise omit metadata entirely
+  const anthropicMetadata = options.metadata?.userId
+    ? { user_id: options.metadata.userId }
+    : undefined;
+
   const response = await fetch(ANTHROPIC_MESSAGES_URL, {
     method: "POST",
     headers: {
@@ -102,7 +108,7 @@ export async function createAnthropicChatStream(options: AIChatStreamRequest): P
       max_tokens: options.maxOutputTokens ?? 1024,
       top_p: options.topP,
       stream: true,
-      metadata: options.metadata,
+      ...(anthropicMetadata && { metadata: anthropicMetadata }),
     }),
     signal: controller.signal,
   });

@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CitationList } from "@/components/shared/citation-list";
 import { CoachErrorBoundary } from "@/components/shared/error-boundary";
 import { StreamingIndicator } from "@/components/shared/streaming-indicator";
+import { ModelSelector } from "@/components/shared/model-selector";
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { useCoachConversation } from "@/lib/hooks/use-coach-conversation";
 import { useEntitlements } from "@/lib/hooks/use-entitlements";
@@ -224,18 +225,32 @@ function PersonaSidebar() {
           </div>
         </div>
 
-        {/* Mode Toggle */}
-        <div className="flex items-center gap-2 shrink-0" role="group" aria-label="Conversation mode toggle">
-          <span className="text-xs text-muted-foreground hidden sm:inline">💬 Buddy</span>
-          <span className="text-xs text-muted-foreground sm:hidden">💬</span>
-          <Switch
-            checked={conversationMode === "coaching"}
-            onCheckedChange={handleModeToggle}
-            className="touch-manipulation"
-            aria-label={`Switch to ${conversationMode === "buddy" ? "coaching" : "buddy"} mode`}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Model Selector */}
+          <ModelSelector
+            personaId={persona.id}
+            compact={true}
+            onModelChange={(modelId) => {
+              track("coach_model_changed", {
+                personaId: persona.id,
+                modelId,
+              });
+            }}
           />
-          <span className="text-xs text-muted-foreground hidden sm:inline">Coach 🎓</span>
-          <span className="text-xs text-muted-foreground sm:hidden">🎓</span>
+
+          {/* Mode Toggle */}
+          <div className="flex items-center gap-2" role="group" aria-label="Conversation mode toggle">
+            <span className="text-xs text-muted-foreground hidden sm:inline">💬 Buddy</span>
+            <span className="text-xs text-muted-foreground sm:hidden">💬</span>
+            <Switch
+              checked={conversationMode === "coaching"}
+              onCheckedChange={handleModeToggle}
+              className="touch-manipulation"
+              aria-label={`Switch to ${conversationMode === "buddy" ? "coaching" : "buddy"} mode`}
+            />
+            <span className="text-xs text-muted-foreground hidden sm:inline">Coach 🎓</span>
+            <span className="text-xs text-muted-foreground sm:hidden">🎓</span>
+          </div>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">{persona.description}</p>

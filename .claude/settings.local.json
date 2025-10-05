@@ -17,7 +17,8 @@
       "Bash(cat:*)",
       "Bash(npx tsx:*)",
       "Bash(ls:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nProduction prep: Admin security hardening, toast notifications, and E2E test expansion\n\n🔒 Security Improvements:\n- Re-enabled admin role verification in middleware and layout (was bypassed for dev)\n- Implemented 30-minute admin session timeout with automatic tracking\n- Added complete audit logging to system settings updates\n- All admin actions now properly logged with IP, user agent, and change tracking\n\n🧪 Testing Expansion:\n- Added reflections CRUD E2E tests (6 test cases)\n- Added practices management E2E tests (9 test cases)  \n- Added admin dashboard E2E tests (10 test cases)\n- Total: +25 E2E test cases across 3 new test suites\n\n✨ UX Improvements:\n- Replaced console.log toast placeholder with actual Sonner integration\n- Added success/error toast notifications to all auth flows\n- Users now get immediate visual feedback for login, signup, and errors\n\n📚 Documentation:\n- Created comprehensive admin security fixes guide\n- Created E2E test expansion documentation\n- Created YOLO mode completion summary\n- Updated STATUS_REPORT with all completed work\n\nFiles Changed:\n- lib/middleware/admin-auth.ts - Admin role checks + session timeout\n- app/admin/layout.tsx - Admin role checks + session verification\n- app/api/admin/settings/route.ts - Added audit logging\n- lib/hooks/use-toast.ts - Sonner integration\n- components/auth/auth-form.tsx - Toast notifications\n- e2e/specs/{reflections,practices,admin}.spec.ts - New E2E tests\n- docs/*.md - Comprehensive documentation\n\n🚀 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

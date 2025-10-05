@@ -49,7 +49,11 @@ This guide outlines a recommended execution sequence for the task plans derived 
     - **Status:** ⏸️ Not Started (All 6 phases pending - database schema, backend APIs, user settings UI, admin model management, testing, deployment).
     - Users can choose AI models (global default + per-persona overrides); premium models as one-time unlocks ($2.99-$4.99); 2 free trial messages; configurable rate limits; admin model catalog management.
 
-15. **Final Verification**
+15. **Community Features** (New Feature - 2025-10-04)
+    - **Status:** ⏸️ Not Started (All 4 phases pending - database/backend, core UI, search/discovery, moderation/polish).
+    - Pseudonymous, opt-in community for sharing reflections, chat insights, and practice achievements; algorithmic feed by virtue/persona; full-text search; admin moderation; AI-generated chat summaries in persona voice; widget on Today page.
+
+16. **Final Verification**
     - **Status:** Complete (all core component tasks complete, documentation updated, staging/production environments documented).
     - Ensure all component tasks (including parallel [P] items) are complete, documentation is updated, and staging/production environments are in sync before declaring the rebuild feature-complete.
 
