@@ -15,7 +15,8 @@
       "Bash(docker exec:*)",
       "Bash(docker logs:*)",
       "Bash(cat:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

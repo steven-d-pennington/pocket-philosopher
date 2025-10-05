@@ -45,7 +45,11 @@ This guide outlines a recommended execution sequence for the task plans derived 
     - **Status:** 60% Complete (Phase 1 complete - admin auth, basic dashboard, user listing with search/pagination; Phase 2 partial - audit log database ready but not wired, account management UI missing).
     - Admin portal with user management, system metrics; needs bulk operations, audit logging integration, and GDPR tools.
 
-14. **Final Verification**
+14. **AI Model Selection** (New Feature - 2025-10-04)
+    - **Status:** ⏸️ Not Started (All 6 phases pending - database schema, backend APIs, user settings UI, admin model management, testing, deployment).
+    - Users can choose AI models (global default + per-persona overrides); premium models as one-time unlocks ($2.99-$4.99); 2 free trial messages; configurable rate limits; admin model catalog management.
+
+15. **Final Verification**
     - **Status:** Complete (all core component tasks complete, documentation updated, staging/production environments documented).
     - Ensure all component tasks (including parallel [P] items) are complete, documentation is updated, and staging/production environments are in sync before declaring the rebuild feature-complete.
 

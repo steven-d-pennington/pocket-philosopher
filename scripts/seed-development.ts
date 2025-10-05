@@ -20,7 +20,7 @@ async function createTestData() {
 
   try {
     // Use the existing user ID that we know works
-    const existingUserId = 'dd9fc783-61c7-4961-9c70-3e11abef9407';
+    const existingUserId = '52729cee-ebcb-4839-97da-e53196df2cb3';
 
     console.log(`\n📧 Updating existing user profile with rich data...`);
 

@@ -4,6 +4,7 @@ This directory contains the comprehensive build plan derived from the requiremen
 
 ## Documents
 
+### Core Workstreams
 - [Project Foundations & Environment](project-foundations-and-environment.md)
 - [Data & Backend Infrastructure](data-and-backend-infrastructure.md)
 - [AI & Knowledge System](ai-and-knowledge-system.md)
@@ -11,7 +12,10 @@ This directory contains the comprehensive build plan derived from the requiremen
 - [Analytics, Observability & Security](analytics-observability-and-security.md)
 - [Testing & Quality Assurance](testing-and-quality-assurance.md)
 - [Deployment & Operations](deployment-and-operations.md)
+
+### Product Features
 - [Freemium Monetization Feature](freemium-monetization-feature.md)
 - [Admin Dashboard Feature](admin-dashboard-feature.md)
+- [AI Model Selection Feature](ai-model-selection-feature.md)
 
 Each document provides detailed tasks and instructions to guide implementation for its respective area.
