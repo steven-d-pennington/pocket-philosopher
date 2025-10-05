@@ -49,7 +49,7 @@ export function CreatePracticeModal() {
   });
 
   const { watch, setValue, reset, formState, handleSubmit, register } = form;
-  const activeDays = watch("activeDays");
+  const activeDays = watch("activeDays") ?? [1, 2, 3, 4, 5, 6, 7];
 
   const open = mode === "create";
 
@@ -64,15 +64,16 @@ export function CreatePracticeModal() {
   }, [open, defaultValues, reset]);
 
   const toggleDay = (day: number) => {
-    if (activeDays.includes(day)) {
+    const currentDays = activeDays ?? [1, 2, 3, 4, 5, 6, 7];
+    if (currentDays.includes(day)) {
       setValue(
         "activeDays",
-        activeDays.filter((value) => value !== day),
+        currentDays.filter((value) => value !== day),
       );
     } else {
       setValue(
         "activeDays",
-        [...activeDays, day].sort((a, b) => a - b),
+        [...currentDays, day].sort((a, b) => a - b),
       );
     }
   };

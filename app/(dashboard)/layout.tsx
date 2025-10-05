@@ -7,6 +7,7 @@ import { MobileDrawer } from "@/components/shared/mobile-drawer";
 import { TopBar } from "@/components/shared/top-bar";
 import { PracticeModals } from "@/components/practices/practice-modals";
 import { PersonaThemeWrapper } from "@/components/shared/persona-theme-wrapper";
+import { CommunityStateProvider } from "@/components/providers/community-state-provider";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 
 interface DashboardLayoutProps {
@@ -25,6 +26,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   return (
     <PersonaThemeWrapper>
+      <CommunityStateProvider />
       <div className="min-h-screen bg-background text-foreground parchment-texture max-w-screen overflow-x-hidden">
         <div className="flex min-h-screen max-w-full">
           <AppSidebar userEmail={user.email} />

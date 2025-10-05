@@ -66,15 +66,19 @@ export function CommunityPostCard({
   };
 
   const renderContent = () => {
+    const metadata = post.content_metadata || post.metadata || {};
+    
     switch (post.content_type) {
       case 'reflection':
-        return <ReflectionContent metadata={post.metadata as ReflectionMetadataExtended} />;
+        return <ReflectionContent metadata={metadata as any as ReflectionMetadataExtended} />;
+      case 'chat':
       case 'chat_excerpt':
-        return <ChatExcerptContent metadata={post.metadata as ChatExcerptMetadata} />;
+        return <ChatExcerptContent metadata={metadata as any as ChatExcerptMetadata} />;
       case 'chat_summary':
-        return <ChatSummaryContent metadata={post.metadata as ChatSummaryMetadata} />;
+        return <ChatSummaryContent metadata={metadata as any as ChatSummaryMetadata} />;
+      case 'practice':
       case 'practice_achievement':
-        return <PracticeAchievementContent metadata={post.metadata as PracticeAchievementMetadata} />;
+        return <PracticeAchievementContent metadata={metadata as any as PracticeAchievementMetadata} />;
       default:
         return <p className="text-sm">{post.content_text}</p>;
     }
@@ -184,6 +188,8 @@ export function CommunityPostCard({
 // Content Type Components
 
 function ReflectionContent({ metadata }: { metadata: ReflectionMetadataExtended }) {
+  if (!metadata) return null;
+  
   return (
     <div className="space-y-3">
       {metadata.summary && (
@@ -202,7 +208,7 @@ function ReflectionContent({ metadata }: { metadata: ReflectionMetadataExtended 
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Calendar className="h-3 w-3" />
-        <span>{metadata.reflection_type} reflection</span>
+        <span>{metadata.reflection_type || 'evening'} reflection</span>
         {metadata.mood && <span>• Mood: {metadata.mood}/10</span>}
       </div>
     </div>
@@ -210,6 +216,8 @@ function ReflectionContent({ metadata }: { metadata: ReflectionMetadataExtended 
 }
 
 function ChatExcerptContent({ metadata }: { metadata: ChatExcerptMetadata }) {
+  if (!metadata || !metadata.messages) return null;
+  
   return (
     <div className="space-y-3">
       {metadata.context && (
@@ -220,7 +228,7 @@ function ChatExcerptContent({ metadata }: { metadata: ChatExcerptMetadata }) {
         {metadata.messages.map((msg, idx) => (
           <div key={idx} className={`${msg.role === 'user' ? 'ml-0' : 'ml-4'}`}>
             <p className="text-xs font-medium text-muted-foreground mb-1">
-              {msg.role === 'user' ? 'You' : metadata.persona_name}
+              {msg.role === 'user' ? 'You' : (metadata.persona_name || (metadata as any).coach_name || 'Coach')}
             </p>
             <div className={`rounded-lg p-3 text-sm ${
               msg.role === 'user' 
@@ -284,6 +292,8 @@ function ChatSummaryContent({ metadata }: { metadata: ChatSummaryMetadata }) {
 }
 
 function PracticeAchievementContent({ metadata }: { metadata: PracticeAchievementMetadata }) {
+  if (!metadata) return null;
+  
   const getMilestoneEmoji = (days: number) => {
     if (days >= 100) return '🏆';
     if (days >= 30) return '🌟';
@@ -298,7 +308,7 @@ function PracticeAchievementContent({ metadata }: { metadata: PracticeAchievemen
           {getMilestoneEmoji(metadata.streak_days || 1)}
         </div>
         <div>
-          <h3 className="font-semibold text-lg">{metadata.practice_name}</h3>
+          <h3 className="font-semibold text-lg">{metadata.practice_name || 'Practice'}</h3>
           <p className="text-sm text-muted-foreground">
             {metadata.streak_days || 1}-day streak!
           </p>
@@ -309,9 +319,9 @@ function PracticeAchievementContent({ metadata }: { metadata: PracticeAchievemen
         <p className="text-sm leading-relaxed">{metadata.achievement_message}</p>
       )}
 
-      {metadata.reflection && (
+      {metadata.user_note && (
         <blockquote className="border-l-2 border-primary pl-3 text-sm italic text-muted-foreground">
-          {metadata.reflection}
+          {metadata.user_note}
         </blockquote>
       )}
     </div>
