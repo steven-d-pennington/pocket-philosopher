@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { adminAuthMiddleware } from "@/lib/middleware/admin-auth";
 
 export async function GET(request: NextRequest) {
@@ -43,6 +45,28 @@ export async function POST(request: NextRequest) {
       return authResult;
     }
 
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+        },
+      }
+    );
+
+    // Get current admin user
+    const {
+      data: { user: adminUser },
+    } = await supabase.auth.getUser();
+
+    if (!adminUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       adminDashboardEnabled,
@@ -74,18 +98,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the settings change for audit purposes
-    console.log("Settings updated:", {
-      adminDashboardEnabled,
-      maintenanceMode,
-      registrationEnabled,
-      stripeEnabled,
-      analyticsEnabled,
-      maxUsers,
-      supportEmail,
-      systemMessage,
-      updatedBy: "admin", // In a real app, get from auth
-      timestamp: new Date().toISOString(),
+    // Get current settings for audit log
+    const currentSettings = {
+      adminDashboardEnabled: process.env.ADMIN_DASHBOARD === "true",
+      maintenanceMode: process.env.MAINTENANCE_MODE === "true",
+      registrationEnabled: process.env.REGISTRATION_ENABLED !== "false",
+      stripeEnabled: process.env.STRIPE_SECRET_KEY ? true : false,
+      analyticsEnabled: process.env.POSTHOG_KEY ? true : false,
+      maxUsers: parseInt(process.env.MAX_USERS || "10000"),
+      supportEmail: process.env.SUPPORT_EMAIL || "",
+      systemMessage: process.env.SYSTEM_MESSAGE || "",
+    };
+
+    // Log admin action
+    await supabase.from("admin_audit_log").insert({
+      admin_user_id: adminUser.id,
+      action: "update_settings",
+      resource_type: "system_settings",
+      resource_id: "global",
+      old_values: currentSettings,
+      new_values: {
+        adminDashboardEnabled,
+        maintenanceMode,
+        registrationEnabled,
+        stripeEnabled,
+        analyticsEnabled,
+        maxUsers,
+        supportEmail,
+        systemMessage,
+      },
+      ip_address: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip"),
+      user_agent: request.headers.get("user-agent"),
     });
 
     // Return success - in a real implementation, you'd persist these changes

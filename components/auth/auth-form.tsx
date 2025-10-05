@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,9 +40,12 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));
-          throw new Error(payload?.error ?? "Request failed");
+          const errorMsg = payload?.error ?? "Request failed";
+          toast.error(mode === "login" ? "Login failed" : "Signup failed", { description: errorMsg });
+          throw new Error(errorMsg);
         }
 
+        toast.success(mode === "login" ? "Welcome back!" : "Account created successfully!");
         router.replace("/today");
       } catch (err) {
         if (err instanceof Error) {
@@ -70,9 +74,12 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}));
-          throw new Error(payload?.error ?? "Request failed");
+          const errorMsg = payload?.error ?? "Request failed";
+          toast.error("Anonymous login failed", { description: errorMsg });
+          throw new Error(errorMsg);
         }
 
+        toast.success("Signed in anonymously!");
         router.replace("/today");
       } catch (err) {
         if (err instanceof Error) {
