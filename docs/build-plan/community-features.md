@@ -3,7 +3,10 @@
 **Version**: 1.0
 **Status**: Planning
 **Created**: October 4, 2025
-**Owner**: Product Team
+**Owner**: Product 
+
+## Task file
+/docs/build-plan/tasks/community-features/tasks.md
 
 ---
 
