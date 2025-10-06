@@ -2,7 +2,7 @@
 
 **Feature**: Community Features v1
 **Total Estimated Time**: 3-4 weeks
-**Status**: 🚀 IN PROGRESS - Backend Complete!
+**Status**: IN PROGRESS - Backend, APIs, and Core UI complete
 **Last Updated**: October 4, 2025
 
 ---
@@ -370,21 +370,21 @@
 **Status**: ⏸️
 
 **Tasks**:
-- [ ] Create `app/(dashboard)/community/page.tsx`
+- [x] Create `app/(dashboard)/community/page.tsx`
   - Main community page route
   - Tab switcher: "For You" / "Recent"
-  - Filter bar with dropdowns (virtue, persona, content_type)
-  - Infinite scroll using `react-intersection-observer`
+  - Filter bar with dropdowns (virtue, content_type)
+  - "Load More" pagination (can upgrade to infinite scroll later)
   - Empty states (no posts, filters active, etc.)
 
-- [ ] Create `components/community/community-feed.tsx`
+- [x] Create `components/community/community-feed.tsx`
   - Feed container component
   - Fetches posts from store
   - Renders post cards
   - Loading skeleton
   - Error boundary
 
-- [ ] Create `components/community/community-post-card.tsx`
+- [x] Create `components/community/community-post-card.tsx`
   - Dynamic rendering based on content_type
   - Reflection layout (virtue tag, reflection type, content)
   - Chat layout (persona badge, excerpt/summary indicator)
@@ -398,7 +398,7 @@
   - Clear filters button
   - Active filter indicators
 
-- [ ] Add to main navigation
+- [x] Add to main navigation
   - File: `components/shared/app-sidebar.tsx`
   - Add "Community" link (only show if enabled)
 

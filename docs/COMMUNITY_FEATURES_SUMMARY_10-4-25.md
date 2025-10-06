@@ -392,28 +392,25 @@ We collaboratively designed this feature through 20 questions, exploring:
 
 ---
 
-## Next Steps
+## Next Steps (Updated)
 
-### Immediate (This Session)
+### Immediate
 - ✅ Feature spec complete
 - ✅ Task breakdown complete
 - ✅ Master docs updated
-- ⏸️ Awaiting team review and approval
+- ✅ Community page, nav, settings integration, and Today widget verified
+- 🔧 Apply minor fixes (see below)
 
-### Week 1 (Phase 1)
-- Create database migrations
-- Implement RLS policies
-- Build API endpoints
-- Write formatters and validators
-- Add AI summary generation
-- Unit and integration tests
+### Fixes To Apply Now
+- Normalize community `content_type` across UI/store and DB:
+  - `chat_excerpt`/`chat_summary` → `chat`, `practice_achievement` → `practice`
+- Correct profiles key usage in admin endpoints and scoring (`user_id` vs `id`)
+- Update feed filters to DB types (`chat`, `practice`)
 
-### Week 2 (Phase 2)
-- Build core UI components
-- Implement Zustand store
-- Create onboarding flow
-- Build community feed
-- Add share functionality
+### Short-Term (UI/UX)
+- Wire search input to `/api/community/search`
+- Optional: swap “Load More” for infinite scroll
+- Optional: convert widget to carousel
 
 ### Week 3 (Phase 3)
 - Implement search
@@ -421,12 +418,10 @@ We collaboratively designed this feature through 20 questions, exploring:
 - Add ranking algorithm
 - Engagement features
 
-### Week 4 (Phase 4)
-- Admin moderation UI
-- Analytics instrumentation
-- E2E tests
-- Performance optimization
-- Launch prep
+### Admin + QA
+- Build admin moderation UI
+- Add analytics events for opt-in/share/react/report
+- Add unit/integration/E2E tests for community flows
 
 ---
 

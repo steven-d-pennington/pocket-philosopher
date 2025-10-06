@@ -287,18 +287,18 @@
 - Coach workspace - Add share button
 - Today page - Add widget
 
-### Phase 5: Routes & Integration (NOT STARTED)
+### Phase 5: Routes & Integration (PARTIAL)
 
-**Pages to Build**:
-1. `app/(dashboard)/community/page.tsx` - Main community page
-2. `app/admin/community/page.tsx` - Admin moderation page
+**Pages**:
+1. `app/(dashboard)/community/page.tsx` - Main community page ✅
+2. `app/admin/community/page.tsx` - Admin moderation page ⏸️
 
-**Integrations Needed**:
-- Wire up share buttons in reflections
-- Wire up share buttons in coach
-- Wire up practice achievement sharing
-- Add widget to Today page
-- Add community link to sidebar
+**Integrations**:
+- Share buttons in reflections ✅
+- Share buttons in coach ✅
+- Practice achievement sharing ✅
+- Widget on Today page ✅
+- Community link in sidebar ✅
 
 ### Phase 6: Testing & Polish (NOT STARTED)
 

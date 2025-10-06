@@ -200,9 +200,50 @@ export const useCommunityStore = create<CommunityStoreState>()(
         }
       },
 
+      searchMore: async () => {
+        const state = get();
+        if (!state.searchQuery || state.searchLoading || !state.searchHasMore) return;
+        set({ searchLoading: true });
+
+        try {
+          const offset = state.searchOffset;
+          const params = new URLSearchParams({
+            q: state.searchQuery,
+            limit: '20',
+            offset: offset.toString(),
+          });
+
+          const filters: any = state.searchFilters || {};
+          if (filters.virtue) params.append('virtue', filters.virtue);
+          if (filters.persona) params.append('persona', filters.persona);
+          if (filters.content_type) params.append('content_type', filters.content_type);
+          if (filters.date_from) params.append('date_from', filters.date_from);
+          if (filters.date_to) params.append('date_to', filters.date_to);
+
+          const response = await fetch(`/api/community/search?${params}`);
+          if (!response.ok) throw new Error('Search failed');
+
+          const data = await response.json();
+
+          set({
+            searchResults: [...state.searchResults, ...data.posts],
+            searchHasMore: data.has_more,
+            searchOffset: offset + data.posts.length,
+            searchLoading: false,
+          });
+        } catch (error) {
+          console.error('Error loading more search results:', error);
+          set({ searchLoading: false });
+        }
+      },
+
       setSearchFilters: (filters: Partial<SearchFilters>) => {
         const state = get();
-        get().search(state.searchQuery, { ...state.searchFilters, ...filters });
+        const merged = { ...state.searchFilters, ...filters } as any;
+        set({ searchFilters: merged });
+        if (state.searchQuery) {
+          get().search(state.searchQuery, merged);
+        }
       },
 
       clearSearch: () => {
@@ -215,10 +256,20 @@ export const useCommunityStore = create<CommunityStoreState>()(
       },
 
       sharePost: async (data: SharePostRequest): Promise<CommunityPost> => {
+        // Normalize UI-specific content types to DB-allowed types
+        const normalizeContentType = (t: string) => {
+          if ((t as any) === 'chat_excerpt' || (t as any) === 'chat_summary') return 'chat' as any;
+          if ((t as any) === 'practice_achievement') return 'practice' as any;
+          return t as any;
+        };
+        const payload: SharePostRequest = {
+          ...(data as any),
+          content_type: normalizeContentType((data as any).content_type as any) as any,
+        } as any;
         const response = await fetch('/api/community/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {

@@ -1,0 +1,31 @@
+                            type: 'practice',
+                            sourceId: practice.id,
+                            sourceData: {
+                              practice,
+                              milestone,
+                            },
+                            previewData: {
+                              content_type: 'practice_achievement',
+                              content_text: formatMilestoneContent(practice.name, milestone, practice.virtue),
+                              content_metadata: {
+                                practice_id: practice.id,
+                                practice_name: practice.name,
+                                achievement_type: 'milestone',
+                                streak_days: milestone,
+                              },
+                              source_id: practice.id,
+                              source_table: 'habits',
+                              share_method: null,
+                            },
+                          });
+                          openShareModal({
+                    onSuccess: async () => {
+                      track("practice_quick_toggle", {
+                        practiceId: practice.id,
+                        completed: !isCompleted,
+                      });
+                      
+                      // Check for milestone if completing (not uncompleting) and community enabled
+                      if (!wasCompleted && communityEnabled) {
+                        const milestone = await checkMilestone(practice.id);
+                        if (milestone) {

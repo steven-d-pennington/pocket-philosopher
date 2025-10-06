@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const date_to = searchParams.get('date_to') || undefined;
     const limit = parseInt(searchParams.get('limit') || '20', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const end = offset + limit; // inclusive end for limit+1 fetching
 
     if (!q) {
       return NextResponse.json(
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
       .eq('is_visible', true)
       .textSearch('content_text', q)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit);
+      .range(offset, end);
 
     // Apply filters
     if (virtue) {
@@ -78,7 +79,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's reactions
-    const postIds = posts.map((p) => p.id);
+    const hasMore = (posts?.length || 0) > limit;
+    const pagePosts = (posts || []).slice(0, limit);
+
+    const postIds = pagePosts.map((p) => p.id);
     const { data: userReactions } = await supabase
       .from('community_reactions')
       .select('post_id')
@@ -88,15 +92,15 @@ export async function GET(request: NextRequest) {
     const reactedPostIds = new Set(userReactions?.map((r) => r.post_id) || []);
 
     // Add reaction status
-    const postsWithReactions: CommunityPostWithReaction[] = posts.map((post) => ({
+    const postsWithReactions: CommunityPostWithReaction[] = pagePosts.map((post) => ({
       ...(post as any),
       user_has_reacted: reactedPostIds.has(post.id),
     }));
 
     const response: SearchResponse = {
       posts: postsWithReactions,
-      has_more: posts.length === limit + 1,
-      total: posts.length,
+      has_more: hasMore,
+      total: postsWithReactions.length,
     };
 
     return NextResponse.json(response, { status: 200 });

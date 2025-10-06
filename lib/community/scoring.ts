@@ -244,8 +244,8 @@ export async function getUserContext(userId: string): Promise<UserContext> {
     // Get user profile
     const { data: profile } = await supabase
       .from('profiles')
-      .select('virtue_focus, persona_roster')
-      .eq('id', userId)
+      .select('preferred_virtue, preferred_persona')
+      .eq('user_id', userId)
       .single();
 
     // Get recent activity (last 7 days)
@@ -262,7 +262,7 @@ export async function getUserContext(userId: string): Promise<UserContext> {
 
     const { data: recentConversations } = await supabase
       .from('marcus_conversations')
-      .select('persona_id')
+      .select('active_persona')
       .eq('user_id', userId)
       .gte('created_at', sevenDaysAgo.toISOString())
       .order('created_at', { ascending: false })
@@ -274,13 +274,13 @@ export async function getUserContext(userId: string): Promise<UserContext> {
       .filter(Boolean) as string[]) || [];
 
     const recent_personas = (recentConversations
-      ?.map((c: any) => c.persona_id)
+      ?.map((c: any) => c.active_persona)
       .filter(Boolean) as string[]) || [];
 
     return {
       user_id: userId,
-      preferred_virtue: (profile as any)?.virtue_focus?.[0],
-      preferred_persona: (profile as any)?.persona_roster?.[0],
+      preferred_virtue: (profile as any)?.preferred_virtue,
+      preferred_persona: (profile as any)?.preferred_persona,
       recent_virtues,
       recent_personas,
     };

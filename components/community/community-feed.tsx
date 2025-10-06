@@ -26,9 +26,8 @@ import {
 const VIRTUES = ['wisdom', 'courage', 'temperance', 'justice'];
 const CONTENT_TYPES = [
   { value: 'reflection', label: 'Reflections' },
-  { value: 'chat_excerpt', label: 'Conversations' },
-  { value: 'chat_summary', label: 'Summaries' },
-  { value: 'practice_achievement', label: 'Achievements' },
+  { value: 'chat', label: 'Conversations' },
+  { value: 'practice', label: 'Achievements' },
 ];
 
 export function CommunityFeed() {
@@ -41,10 +40,18 @@ export function CommunityFeed() {
     setFeedMode,
     setFeedFilters,
     fetchFeed,
+    // search state
+    search,
+    clearSearch,
+    searchResults,
+    searchLoading,
+    searchHasMore,
+    searchQuery: globalSearchQuery,
+    searchMore,
   } = useCommunityStore();
 
   const [showFilters, setShowFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(globalSearchQuery || '');
 
   // Load feed on mount
   useEffect(() => {
@@ -61,13 +68,32 @@ export function CommunityFeed() {
   };
 
   const handleFilterChange = (key: string, value: string | undefined) => {
-    setFeedFilters({ ...feedFilters, [key]: value });
-    fetchFeed({ reset: true });
+    const next = { ...feedFilters, [key]: value } as any;
+    setFeedFilters(next);
+    if (globalSearchQuery) {
+      search(searchQuery.trim() || globalSearchQuery, next);
+    } else {
+      fetchFeed({ reset: true });
+    }
   };
 
   const handleClearFilters = () => {
     setFeedFilters({});
     fetchFeed({ reset: true });
+  };
+
+  const handleSearch = () => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      clearSearch();
+      return;
+    }
+    search(trimmed, feedFilters as any);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    clearSearch();
   };
 
   const activeFilterCount = Object.keys(feedFilters).filter(
@@ -133,6 +159,34 @@ export function CommunityFeed() {
               Clear all
             </Button>
           )}
+          {/* Search controls */}
+          <div className="ml-auto flex items-center gap-2 max-w-md w-full">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search posts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                className="pl-9"
+              />
+            </div>
+            <Button variant="outline" size="sm" onClick={handleSearch} disabled={searchLoading}>
+              {searchLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Search'
+              )}
+            </Button>
+            {globalSearchQuery && (
+              <Button variant="ghost" size="sm" onClick={handleClearSearch}>
+                Clear
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filter Controls */}
@@ -184,50 +238,43 @@ export function CommunityFeed() {
               </Select>
             </div>
 
-            {/* Search Input */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search posts..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
+            {/* (Search input moved to header controls) */}
           </div>
         )}
       </div>
 
-      {/* Feed Content */}
+      {/* Feed/Search Content */}
       <div className="space-y-6">
-        {feedLoading && feedPosts.length === 0 ? (
+        {/* Loading states */}
+        {(globalSearchQuery ? searchLoading : feedLoading) && (globalSearchQuery ? searchResults.length === 0 : feedPosts.length === 0) ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
-        ) : feedPosts.length === 0 ? (
+        ) : (globalSearchQuery ? searchResults.length === 0 : feedPosts.length === 0) ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">
-              No posts yet. Be the first to share!
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Share your reflections, coach conversations, or practice achievements to inspire others.
-            </p>
+            {globalSearchQuery ? (
+              <>
+                <p className="text-muted-foreground mb-4">No results found for “{globalSearchQuery}”.</p>
+                <p className="text-sm text-muted-foreground">Try a different query or clear search to return to the feed.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground mb-4">No posts yet. Be the first to share!</p>
+                <p className="text-sm text-muted-foreground">Share your reflections, coach conversations, or practice achievements to inspire others.</p>
+              </>
+            )}
           </div>
         ) : (
           <>
             {/* Posts List */}
             <div className="space-y-6">
-              {feedPosts.map((post) => (
+              {(globalSearchQuery ? searchResults : feedPosts).map((post) => (
                 <CommunityPostCard key={post.id} post={post} />
               ))}
             </div>
 
             {/* Load More */}
-            {feedHasMore && (
+            {(!globalSearchQuery && feedHasMore) && (
               <div className="flex justify-center pt-4">
                 <Button
                   variant="outline"
@@ -235,6 +282,25 @@ export function CommunityFeed() {
                   disabled={feedLoading}
                 >
                   {feedLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {(globalSearchQuery && searchHasMore) && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => searchMore()}
+                  disabled={searchLoading}
+                >
+                  {searchLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Loading...

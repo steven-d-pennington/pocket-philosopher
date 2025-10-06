@@ -11,6 +11,7 @@ import { useDailyProgress, usePracticeCompletionMutation } from "@/lib/hooks/use
 import { useAnalytics } from "@/lib/hooks/use-analytics";
 import { usePractices } from "@/lib/hooks/use-practices";
 import { useCommunityStore } from "@/lib/stores/community-store";
+import { formatPracticeAchievement } from "@/lib/community/formatters";
 
 export function PracticeQuickActions() {
   const { data: practicesData, isLoading: practicesLoading } = usePractices();
@@ -114,26 +115,18 @@ Consistency is the path to growth. Each small step compounds into meaningful cha
                       if (!wasCompleted && communityEnabled) {
                         const milestone = await checkMilestone(practice.id);
                         if (milestone) {
+                          const formatted = formatPracticeAchievement({
+                            practice_id: practice.id,
+                            practice_name: practice.name,
+                            achievement_type: 'milestone',
+                            virtue: practice.virtue,
+                            streak_days: milestone,
+                          } as any);
                           openShareModal({
                             type: 'practice',
                             sourceId: practice.id,
-                            sourceData: {
-                              practice,
-                              milestone,
-                            },
-                            previewData: {
-                              content_type: 'practice_achievement',
-                              content_text: formatMilestoneContent(practice.name, milestone, practice.virtue),
-                              content_metadata: {
-                                practice_id: practice.id,
-                                practice_name: practice.name,
-                                achievement_type: 'milestone',
-                                streak_days: milestone,
-                              },
-                              source_id: practice.id,
-                              source_table: 'habits',
-                              share_method: null,
-                            },
+                            sourceData: { practice, milestone },
+                            previewData: formatted,
                           });
                           
                           track("practice_milestone_reached", {

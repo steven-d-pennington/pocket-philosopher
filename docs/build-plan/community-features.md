@@ -1,7 +1,7 @@
 # Community Features - Feature Specification
 
 **Version**: 1.0
-**Status**: Planning
+**Status**: In Progress
 **Created**: October 4, 2025
 **Owner**: Product 
 
